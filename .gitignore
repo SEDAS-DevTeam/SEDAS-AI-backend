@@ -1,0 +1,13 @@
+#Project
+
+#ACAI
+/src/ACAI/models/*
+!/src/ACAI/models/.gitkeep
+
+#Map generation
+/src/gen_map/models/*
+!/src/gen_map/models/.gitkeep
+
+#Voice recognition
+/src/VoiceRecognition/models/*
+!/src/VoiceRecognition/models/.gitkeep
