@@ -3,10 +3,12 @@
 #ACAI
 /src/ACAI/models/*
 !/src/ACAI/models/.gitkeep
+/src/ACAI/dataset/
 
 #Map generation
 /src/gen_map/models/*
 !/src/gen_map/models/.gitkeep
+/src/gen_map/dataset/
 
 #Voice recognition
 /src/VoiceRecognition/models/*
