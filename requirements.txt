@@ -1,0 +1,17 @@
+#speech Synthesis
+sounddevice
+pydub
+gtts
+
+#speech Recognition
+SpeechRecognition
+pocketsphinx
+whisper
+
+#Map Generation
+torchvision
+numpy
+opencv-python
+
+###install via specialized script using a shell script TODO
+#torch
