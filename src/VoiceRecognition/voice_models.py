@@ -84,3 +84,21 @@ class CMUSphinx:
 class DeepSpeech:
     def __init__(self, type):
         pass
+
+
+class GoogleSpeechToText:
+    def __init__(self, db_instance):
+        self.recognizer = sr.Recognizer()
+        self.microphone = sr.Microphone()
+        self.db_instance = db_instance
+
+    def run_recognition(self):
+        ModelThread = threading.Thread(target=self.process)
+        with self.microphone as source:
+            while True:
+                self.recognizer.adjust_for_ambient_noise(source)
+                self.recorded_audio = self.recognizer.listen(source)
+
+    def process(self):
+        phrase = self.recognizer.recognize_google(self.recorded_audio, language="en")
+        print(phrase)
