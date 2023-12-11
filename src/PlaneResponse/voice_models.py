@@ -93,16 +93,12 @@ class GoogleSpeechToText:
         self.db_instance = db_instance
 
     def run_recognition(self):
-        while True:
-            try:
-                with sr.Microphone() as source:
-                    self.recognizer.adjust_for_ambient_noise(source, duration=0.2)
-                    audio = self.recognizer.listen(source, timeout=10)
-                    phrase = self.recognizer.recognize_google(audio)
-                    phrase = phrase.lower()
+        ModelThread = threading.Thread(target=self.process)
+        with self.microphone as source:
+            while True:
+                self.recognizer.adjust_for_ambient_noise(source)
+                self.recorded_audio = self.recognizer.listen(source)
 
-                    self.db_instance.set("out-voice", str(phrase))
-            except sr.RequestError as e:
-                print("Could not request results: {0}".format(e))
-            except sr.UnknownValueError:
-                print("Unknown error occurred")
+    def process(self):
+        phrase = self.recognizer.recognize_google(self.recorded_audio, language="en")
+        print(phrase)
