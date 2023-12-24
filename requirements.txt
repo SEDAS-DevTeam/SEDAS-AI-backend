@@ -1,14 +1,17 @@
-#speech Synthesis
+#speech synthesis
 sounddevice
 pydub
 gtts
 
-#speech Recognition
+#voice recognition
 SpeechRecognition
 pocketsphinx
 whisper
 
-#Map Generation
+#text processing
+spacy
+
+#map generation
 torchvision
 numpy
 opencv-python
