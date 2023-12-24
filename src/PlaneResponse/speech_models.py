@@ -7,15 +7,15 @@ from pydub.playback import play
 
 class Google:
     def __init__(self, db_instance):
-        self.bytes_obj = BytesIO()
         self.db_instance = db_instance
 
     def process(self):
         last_value = ""
         while True:
             text = self.db_instance.get("gen-speech")
-
             if text != last_value:
+                self.bytes_obj = BytesIO()
+
                 self.gtts = gTTS(text=text, lang="en")
                 self.gtts.write_to_fp(self.bytes_obj)
 
