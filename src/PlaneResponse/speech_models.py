@@ -31,4 +31,3 @@ class Google:
 if __name__ == "__main__":
     speech_synth = Google()
     speech_synth.process()
-    speech_synth.play_audio()
