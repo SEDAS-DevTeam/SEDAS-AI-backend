@@ -94,6 +94,11 @@ class GoogleSpeechToText:
 
     def run_recognition(self):
         while True:
+            #interrupt through redis
+            interrupt = self.db_instance.get("terminate")
+            if interrupt == "true":
+                break
+
             try:
                 with sr.Microphone() as source:
                     self.recognizer.adjust_for_ambient_noise(source, duration=0.2)

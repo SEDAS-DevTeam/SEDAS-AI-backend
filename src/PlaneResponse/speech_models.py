@@ -12,6 +12,11 @@ class Google:
     def process(self):
         last_value = ""
         while True:
+            #interrupt through redis
+            interrupt = self.db_instance.get("terminate")
+            if interrupt == "true":
+                break
+
             text = self.db_instance.get("gen-speech")
             if text != last_value:
                 self.bytes_obj = BytesIO()

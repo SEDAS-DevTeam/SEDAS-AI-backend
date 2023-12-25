@@ -17,6 +17,11 @@ class simplePOS:
     def process(self):
         last_value = ""
         while True:
+            #interrupt through redis
+            interrupt = self.db_instance.get("terminate")
+            if interrupt == "true":
+                break
+
             text = self.db_instance.get("proc-voice")
             if text != last_value:
                 #onchange
