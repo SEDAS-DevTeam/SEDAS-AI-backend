@@ -78,12 +78,6 @@ class simplePOS:
 
         return out
 
-    def heading_translation(self, head_text):
-        #sometimes speech recognition is buggy and prints out too much chars for heading (for ex.: 0900)
-        head = head_text[:3]
-        if head[0] == "0": return int(head[1:])
-        else: return int(head)
-
     def process(self):
         last_value = ""
         while True:
@@ -115,7 +109,8 @@ class simplePOS:
                     if command == "change-heading":
                         #searching for heading
                         if token.pos_ == "NUM" and doc[i - 1].text == "heading":
-                            value = self.heading_translation(token.text)
+                            #sometimes speech recognition is buggy and prints out too much chars for heading (for ex.: 0900)
+                            value = int(token.text[:3])
                             continue
                         
                         #searching for plane id
