@@ -1,6 +1,35 @@
 import spacy
 import redis
 
+NATO_ALPHA = {
+    "alpha": "A",
+    "beta": "B",
+    "charlie": "C",
+    "delta": "D",
+    "echo": "E",
+    "foxtrot": "F",
+    "golf": "G",
+    "hotel": "H",
+    "india": "I",
+    "juliet": "J",
+    "kilo": "K",
+    "lima": "L",
+    "mike": "M",
+    "november": "N",
+    "oscar": "O",
+    "papa": "P",
+    "quebec": "Q",
+    "romeo": "R",
+    "sierra": "S",
+    "tango": "T",
+    "uniform": "U",
+    "victor": "V",
+    "whiskey": "W",
+    "x-ray": "X",
+    "yankee": "Y",
+    "zulu": "Z"
+}
+
 class simplePOS:
     #really simple POS tagging algorithm that works only for: "fly heading" commands, USE ONLY FOR DEVELOPEMENT
     #requires installing spacy pretrained english model using this command: python3 -m spacy download en_core_web_sm
@@ -8,6 +37,46 @@ class simplePOS:
     def __init__(self, db_instance):
         self.db_instance = db_instance
         self.nlp = spacy.load("en_core_web_sm")
+
+    def shorten_name(self, text):
+        arr = text.split()
+        out = ""
+        
+        temp_out = ""
+        for i, token in enumerate(arr):
+            if token in NATO_ALPHA.keys():
+                if i == len(arr) - 1:
+                    factor = -1
+                else:
+                    factor = +1
+                
+                if arr[i + factor] in NATO_ALPHA.keys():
+                    #there is contiunity
+                    temp_out += NATO_ALPHA[token]
+                else:
+                    #no contiunity
+                    temp_out += NATO_ALPHA[token]
+                    out += f"{temp_out} "
+                    temp_out = ""
+            else:
+                out += f"{arr[i]} "
+
+        #checking for plane names and appending numeric descriptors based on case-matching
+        arr_out = out.split()
+        out = ""
+        skip = False
+        for i, token in enumerate(arr_out):
+            if skip:
+                skip = False
+                continue
+
+            if token.isupper() and arr_out[i + 1].isnumeric():
+                out += f"{token + arr_out[i + 1]} "
+                skip = True
+            else:
+                out += f"{token} "
+
+        return out
 
     def heading_translation(self, head_text):
         #sometimes speech recognition is buggy and prints out too much chars for heading (for ex.: 0900)
@@ -26,6 +95,10 @@ class simplePOS:
             text = self.db_instance.get("proc-voice")
             if text != last_value:
                 #onchange
+                text = text.lower()
+
+                #process plane name
+                text = self.shorten_name(text) #convert to NATO alphabet
 
                 doc = self.nlp(text)
 
