@@ -1,4 +1,5 @@
 import spacy
+import redis
 
 class simplePOS:
     #really simple POS tagging algorithm that works only for: "fly heading" commands, USE ONLY FOR DEVELOPEMENT
@@ -21,7 +22,7 @@ class simplePOS:
             interrupt = self.db_instance.get("terminate")
             if interrupt == "true":
                 break
-
+            
             text = self.db_instance.get("proc-voice")
             if text != last_value:
                 #onchange
@@ -53,6 +54,8 @@ class simplePOS:
 
 
 if __name__ == "__main__":
-    pos = simplePOS()
-    name, heading = pos.process("Uhmmm, OKD2277 fly heading 090")
-    print(name, heading)
+    r_instance = redis.Redis(host='localhost', port=6379, decode_responses=True)
+    r_instance.set("terminate", "false")
+
+    pos = simplePOS(r_instance)
+    pos.process()
