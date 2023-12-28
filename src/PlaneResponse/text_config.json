@@ -1,6 +1,6 @@
 {
     "algorithms": [{
-        "alg": "simplePOS",
+        "name": "simplePOS",
         "acc": "not measured"
     }]
 }

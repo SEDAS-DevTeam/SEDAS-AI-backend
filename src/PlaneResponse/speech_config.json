@@ -1,6 +1,6 @@
 {
     "algorithms": [{
-        "alg": "GoogleTTS",
+        "name": "GoogleTTS",
         "acc": 100
     }]
 }
