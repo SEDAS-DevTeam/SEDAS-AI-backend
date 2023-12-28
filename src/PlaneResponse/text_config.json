@@ -1,4 +1,6 @@
 {
-    "alg": "simplePOS",
-    "acc": "not measured"
+    "algorithms": [{
+        "alg": "simplePOS",
+        "acc": "not measured"
+    }]
 }
