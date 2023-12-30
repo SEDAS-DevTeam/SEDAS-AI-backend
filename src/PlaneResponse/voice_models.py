@@ -13,9 +13,9 @@ class Whisper:
         self.db_instance = db_instance
         self.data_queue = data_queue
 
-    def run_recognition(self):
+    def process(self):
         #transcription queue
-        ModelThread = threading.Thread(target=self.process, args=(self.data_queue, self.db_instance))
+        ModelThread = threading.Thread(target=self.recognition, args=(self.data_queue, self.db_instance))
 
         with sr.Microphone() as source:
             while True:
@@ -45,7 +45,7 @@ class Whisper:
                 except KeyboardInterrupt:
                     ModelThread.join()
 
-    def process(self, spec_queue, r_instance):
+    def recognition(self, spec_queue, r_instance):
         while True:
             if not spec_queue.empty():
                 numpydata = spec_queue.get()
@@ -61,7 +61,7 @@ class CMUSphinx:
         self.running = False
         self.db_instance = db_instance
 
-    def run_recognition(self, debug = False):
+    def process(self, debug = False):
         ModelThread = threading.Thread(target=self.recognize, args=(debug,))
         if not debug:
             while True:
@@ -92,7 +92,7 @@ class GoogleSpeechToText:
         self.microphone = sr.Microphone()
         self.db_instance = db_instance
 
-    def run_recognition(self):
+    def process(self):
         while True:
             #interrupt through redis
             interrupt = self.db_instance.get("terminate")
