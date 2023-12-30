@@ -120,6 +120,9 @@ class simplePOS:
                 if len(name) != 0 and len(command) != 0:
                     self.db_instance.set("proc-voice-out", f"{name} {command} {value}")
 
+TEXT_MODEL_DICT = {
+    "simplePOS": simplePOS
+}
 
 if __name__ == "__main__":
     r_instance = redis.Redis(host='localhost', port=6379, decode_responses=True)

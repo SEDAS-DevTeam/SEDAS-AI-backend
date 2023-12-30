@@ -5,7 +5,7 @@ from io import BytesIO
 from pydub import AudioSegment
 from pydub.playback import play
 
-class Google:
+class GoogleTextToSpeech:
     def __init__(self, db_instance):
         self.db_instance = db_instance
 
@@ -33,5 +33,9 @@ class Google:
         song = AudioSegment.from_file(self.bytes_obj, sample_width=2, frame_rate=44100, channels=1)
         play(song)
 
+SPEECH_MODEL_DICT = {
+    "GoogleTTS": GoogleTextToSpeech
+}
+
 if __name__ == "__main__":
-    speech_synth = Google()
+    speech_synth = GoogleTextToSpeech()

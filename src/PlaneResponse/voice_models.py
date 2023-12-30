@@ -111,3 +111,10 @@ class GoogleSpeechToText:
                 print("Could not request results: {0}".format(e))
             except sr.UnknownValueError:
                 print("Unknown error occurred")
+
+VOICE_MODEL_DICT = {
+    "OpenAI Whisper": Whisper,
+    "CMUSphinx": CMUSphinx,
+    "DeepSpeech": DeepSpeech,
+    "GoogleSTT": GoogleSpeechToText
+}
