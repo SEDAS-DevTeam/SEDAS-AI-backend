@@ -93,24 +93,27 @@ class GoogleSpeechToText:
         self.db_instance = db_instance
 
     def process(self):
-        while True:
-            #interrupt through redis
-            interrupt = self.db_instance.get("terminate")
-            if interrupt == "true":
-                break
+        with sr.Microphone() as source:
+            self.recognizer.adjust_for_ambient_noise(source, duration=0.2)
+            
+            while True:
+                #interrupt through redis
+                interrupt = self.db_instance.get("terminate")
+                if interrupt == "true":
+                    break
 
-            try:
-                with sr.Microphone() as source:
-                    self.recognizer.adjust_for_ambient_noise(source, duration=0.2)
+                try:
                     audio = self.recognizer.listen(source, timeout=10)
                     phrase = self.recognizer.recognize_google(audio)
                     phrase = phrase.lower()
 
                     self.db_instance.set("out-voice", str(phrase))
-            except sr.RequestError as e:
-                print("Could not request results: {0}".format(e))
-            except sr.UnknownValueError:
-                print("Unknown error occurred")
+                except sr.RequestError as e:
+                    print("Could not request results: {0}".format(e))
+                    continue
+                except sr.UnknownValueError:
+                    print("Unknown error occurred")
+                    continue
 
 VOICE_MODEL_DICT = {
     "OpenAI Whisper": Whisper,
