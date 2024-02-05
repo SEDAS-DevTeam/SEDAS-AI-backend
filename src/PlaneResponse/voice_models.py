@@ -93,7 +93,7 @@ class GoogleSpeechToText:
         self.db_instance = db_instance
 
     def log(self, message):
-        self.db_instance.set("debug", "VOICE-MODEL " + message)
+        self.db_instance.set("debug-voice-model", "VOICE-MODEL " + message)
 
     def process(self):
         with sr.Microphone() as source:

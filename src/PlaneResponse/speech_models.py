@@ -10,7 +10,7 @@ class GoogleTextToSpeech:
         self.db_instance = db_instance
 
     def log(self, message):
-        self.db_instance.set("debug", "SPEECH-MODEL " + message)
+        self.db_instance.set("debug-speech-model", "SPEECH-MODEL " + message)
 
     def process(self):
         last_value = ""

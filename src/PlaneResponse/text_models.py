@@ -39,7 +39,7 @@ class simplePOS:
         self.nlp = spacy.load("en_core_web_sm")
     
     def log(self, message):
-        self.db_instance.set("debug", "TEXT-MODEL " + message)
+        self.db_instance.set("debug-text-model", "TEXT-MODEL " + message)
 
     def shorten_name(self, text):
         arr = text.split()
