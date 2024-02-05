@@ -37,6 +37,9 @@ class simplePOS:
     def __init__(self, db_instance):
         self.db_instance = db_instance
         self.nlp = spacy.load("en_core_web_sm")
+    
+    def log(self, message):
+        self.db_instance.set("debug", "TEXT-MODEL " + message)
 
     def shorten_name(self, text):
         arr = text.split()
@@ -84,10 +87,13 @@ class simplePOS:
             #interrupt through redis
             interrupt = self.db_instance.get("terminate")
             if interrupt == "true":
+                self.log("interrupt")
                 break
             
             text = self.db_instance.get("proc-voice")
             if text != last_value:
+                self.log("incoming text to process")
+
                 #onchange
                 text = text.lower()
 
@@ -118,6 +124,7 @@ class simplePOS:
                             name = token.text
 
                 if len(name) != 0 and len(command) != 0:
+                    self.log("text fully processed")
                     self.db_instance.set("proc-voice-out", f"{name} {command} {value}")
 
 TEXT_MODEL_DICT = {

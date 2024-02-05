@@ -92,14 +92,19 @@ class GoogleSpeechToText:
         self.microphone = sr.Microphone()
         self.db_instance = db_instance
 
+    def log(self, message):
+        self.db_instance.set("debug", "VOICE-MODEL " + message)
+
     def process(self):
         with sr.Microphone() as source:
             self.recognizer.adjust_for_ambient_noise(source, duration=0.2)
-            
+            self.log("adjusted for ambient noise")
+
             while True:
                 #interrupt through redis
                 interrupt = self.db_instance.get("terminate")
                 if interrupt == "true":
+                    self.log("interrupt")
                     break
 
                 try:
@@ -107,12 +112,14 @@ class GoogleSpeechToText:
                     phrase = self.recognizer.recognize_google(audio)
                     phrase = phrase.lower()
 
+                    self.log("phrase processed")
+
                     self.db_instance.set("out-voice", str(phrase))
                 except sr.RequestError as e:
-                    print("Could not request results: {0}".format(e))
+                    self.log("could not request results")
                     continue
                 except sr.UnknownValueError:
-                    print("Unknown error occurred")
+                    self.log("unknown error occured")
                     continue
 
 VOICE_MODEL_DICT = {

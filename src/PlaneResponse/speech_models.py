@@ -9,16 +9,22 @@ class GoogleTextToSpeech:
     def __init__(self, db_instance):
         self.db_instance = db_instance
 
+    def log(self, message):
+        self.db_instance.set("debug", "SPEECH-MODEL " + message)
+
     def process(self):
         last_value = ""
         while True:
             #interrupt through redis
             interrupt = self.db_instance.get("terminate")
             if interrupt == "true":
+                self.log("interrupt")
                 break
 
             text = self.db_instance.get("gen-speech")
             if text != last_value:
+                self.log("generating speech data")
+
                 self.bytes_obj = BytesIO()
 
                 self.gtts = gTTS(text=text, lang="en")
@@ -26,6 +32,7 @@ class GoogleTextToSpeech:
 
                 last_value = text
 
+                self.log("playing speech data")
                 self.play_audio()
 
     def play_audio(self):
