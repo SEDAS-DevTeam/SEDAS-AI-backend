@@ -19,16 +19,18 @@ class GoogleTextToSpeech:
 
         last_value = ""
         while True:
+            start = self.db_instance.get("start")
+            if start == "false":
+                continue
+
             #interrupt through redis
             interrupt = self.db_instance.get("terminate")
             if interrupt == "true":
                 self.log("interrupt")
                 break
 
-            start = self.db_instance.get("start")
-
             text = self.db_instance.get("gen-speech")
-            if text != last_value and start == "true":
+            if text != last_value:
                 self.log("generating speech data")
 
                 self.bytes_obj = BytesIO()
