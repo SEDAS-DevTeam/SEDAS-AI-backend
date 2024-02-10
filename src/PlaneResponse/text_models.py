@@ -135,6 +135,8 @@ class simplePOS:
                     self.log("text fully processed")
                     self.db_instance.set("proc-voice-out", f"{name} {command} {value}")
 
+                last_value = text
+
 TEXT_MODEL_DICT = {
     "simplePOS": simplePOS
 }
