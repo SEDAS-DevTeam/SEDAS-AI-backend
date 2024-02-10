@@ -19,8 +19,7 @@ class Whisper:
 
         with sr.Microphone() as source:
             while True:
-                print(running)
-                value = self.db_instance.get("start-voice")
+                value = self.db_instance.get("start")
 
                 #recognition check
                 if value == "true": #start recognition

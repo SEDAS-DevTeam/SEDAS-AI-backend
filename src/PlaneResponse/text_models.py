@@ -93,9 +93,11 @@ class simplePOS:
             if interrupt == "true":
                 self.log("interrupt")
                 break
+
+            start = self.db_instance.get("start")
             
             text = self.db_instance.get("proc-voice")
-            if text != last_value:
+            if text != last_value and start == "true":
                 self.log("incoming text to process")
 
                 #onchange

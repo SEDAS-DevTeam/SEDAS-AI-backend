@@ -25,8 +25,10 @@ class GoogleTextToSpeech:
                 self.log("interrupt")
                 break
 
+            start = self.db_instance.get("start")
+
             text = self.db_instance.get("gen-speech")
-            if text != last_value:
+            if text != last_value and start == "true":
                 self.log("generating speech data")
 
                 self.bytes_obj = BytesIO()
