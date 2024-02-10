@@ -1,5 +1,6 @@
 import spacy
 import redis
+import time
 
 NATO_ALPHA = {
     "alpha": "A",
@@ -82,6 +83,9 @@ class simplePOS:
         return out
 
     def process(self):
+        #test
+        time.sleep(5)
+
         last_value = ""
         while True:
             #interrupt through redis

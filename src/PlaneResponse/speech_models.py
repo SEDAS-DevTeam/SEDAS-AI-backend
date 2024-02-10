@@ -4,6 +4,7 @@ from gtts.tokenizer import Tokenizer, pre_processors, tokenizer_cases
 from io import BytesIO
 from pydub import AudioSegment
 from pydub.playback import play
+import time
 
 class GoogleTextToSpeech:
     def __init__(self, db_instance):
@@ -13,6 +14,9 @@ class GoogleTextToSpeech:
         self.db_instance.set("debug-speech-model", "SPEECH-MODEL " + message)
 
     def process(self):
+        #test
+        time.sleep(5)
+
         last_value = ""
         while True:
             #interrupt through redis
