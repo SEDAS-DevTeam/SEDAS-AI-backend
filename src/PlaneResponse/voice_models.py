@@ -114,11 +114,11 @@ class GoogleSpeechToText:
                     self.log("phrase processed")
 
                     self.db_instance.set("out-voice", str(phrase))
-                except sr.RequestError as e:
+                except sr.RequestError:
                     self.log("could not request results")
                     continue
-                except sr.UnknownValueError as e:
-                    self.log("unknown error occured " + e)
+                except sr.UnknownValueError:
+                    self.log("unknown error occured")
                     continue
 
 VOICE_MODEL_DICT = {
