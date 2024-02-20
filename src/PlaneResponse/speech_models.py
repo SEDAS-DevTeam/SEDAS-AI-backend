@@ -53,4 +53,19 @@ SPEECH_MODEL_DICT = {
 }
 
 if __name__ == "__main__":
-    speech_synth = GoogleTextToSpeech()
+    from pydub.generators import WhiteNoise
+    NOISE_FACT = 30
+    
+    bytes_obj = BytesIO()
+
+    gtts = gTTS(text="OKL4455 fly heading 090", lang="en")
+    gtts.write_to_fp(bytes_obj)
+
+    bytes_obj.seek(0)
+    song = AudioSegment.from_file(bytes_obj, sample_width=2, frame_rate=44100, channels=1)
+
+    noise = WhiteNoise().to_audio_segment(duration=len(song))
+    noise = noise - NOISE_FACT
+
+    combined = song.overlay(noise)
+    play(combined)
