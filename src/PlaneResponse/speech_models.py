@@ -6,6 +6,9 @@ from pydub import AudioSegment
 from pydub.playback import play
 import time
 
+class PyTTSx3:
+    pass
+
 class GoogleTextToSpeech:
     def __init__(self, db_instance):
         self.db_instance = db_instance
@@ -54,18 +57,22 @@ SPEECH_MODEL_DICT = {
 
 if __name__ == "__main__":
     from pydub.generators import WhiteNoise
-    NOISE_FACT = 30
+    import random
+
+    NOISE_FACT = [30, 25, 20]
+    ACCENT_DICT = ["com.au", "co.uk", "us", "ca", "co.in", "ie", "co.za"]
+    SLOW_SPEECH_FACT = [True, False]
     
     bytes_obj = BytesIO()
 
-    gtts = gTTS(text="OKL4455 fly heading 090", lang="en")
+    gtts = gTTS(text="OKL4455 fly heading 090", lang="en", tld=random.choice(ACCENT_DICT), slow=random.choice(SLOW_SPEECH_FACT))
     gtts.write_to_fp(bytes_obj)
 
     bytes_obj.seek(0)
     song = AudioSegment.from_file(bytes_obj, sample_width=2, frame_rate=44100, channels=1)
 
     noise = WhiteNoise().to_audio_segment(duration=len(song))
-    noise = noise - NOISE_FACT
+    noise = noise - random.choice(NOISE_FACT)
 
     combined = song.overlay(noise)
     play(combined)
