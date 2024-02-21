@@ -56,6 +56,8 @@ SPEECH_MODEL_DICT = {
 }
 
 if __name__ == "__main__":
+    """
+    ###FEMALE VOICE
     from pydub.generators import WhiteNoise
     import random
 
@@ -65,7 +67,7 @@ if __name__ == "__main__":
     
     bytes_obj = BytesIO()
 
-    gtts = gTTS(text="OKL4455 fly heading 090", lang="en", tld=random.choice(ACCENT_DICT), slow=random.choice(SLOW_SPEECH_FACT))
+    gtts = gTTS(text="OKL4455 fly heading 090", lang="en-us", tld=random.choice(ACCENT_DICT), slow=random.choice(SLOW_SPEECH_FACT))
     gtts.write_to_fp(bytes_obj)
 
     bytes_obj.seek(0)
@@ -76,3 +78,36 @@ if __name__ == "__main__":
 
     combined = song.overlay(noise)
     play(combined)
+    """
+
+    """
+    ###MALE VOICE
+    import pyttsx3
+    from pydub.generators import WhiteNoise
+    import random
+    import os
+
+    NOISE_FACT = [50, 45, 40]
+    RATE_MOD = 50
+
+    tts = pyttsx3.init()
+
+    rate = tts.getProperty('rate')
+    tts.setProperty('rate', rate - RATE_MOD)
+
+    voices = tts.getProperty('voices')
+
+    tts.save_to_file("OKL4455 fly heading 090", "output.mp3")
+    tts.runAndWait()
+
+    song = AudioSegment.from_file("output.mp3")
+
+    #delete temporary output.mp3 file
+    os.remove("output.mp3")
+
+    noise = WhiteNoise().to_audio_segment(duration=len(song))
+    noise = noise - random.choice(NOISE_FACT)
+
+    combined = song.overlay(noise)
+    play(combined)
+    """
