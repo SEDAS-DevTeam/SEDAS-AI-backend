@@ -2,5 +2,13 @@
     "algorithms": [{
         "name": "GoogleTTS",
         "acc": 100
+    },
+    {
+        "name": "PyTTSx3",
+        "acc": 100
+    },
+    {
+        "name": "PyTTS gTTS ensemble",
+        "acc": 100
     }]
 }
