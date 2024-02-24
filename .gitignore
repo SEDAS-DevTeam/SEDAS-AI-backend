@@ -1,4 +1,5 @@
-#Project
+#Automatically generated files
+/src/PlaneResponse/__pycache__
 
 #ACAI
 /src/ACAI/models/*
