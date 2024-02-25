@@ -63,6 +63,12 @@ def thread_run():
 
         database.set("terminate", "true") #terminate all model threads
         core_terminate = True #terminate backend
+
+        thread.terminate()
+        thread_backend.terminate()
+        thread_voice.terminate()
+        thread_text.terminate()
+        thread_speech.terminate()
     else:
         running = True
         terminate = False
@@ -73,12 +79,6 @@ def thread_run():
 
         thread=multiprocessing.Process(target=db_catcher) 
         thread.start()
-
-    thread.terminate()
-    thread_backend.terminate()
-    thread_voice.terminate()
-    thread_text.terminate()
-    thread_speech.terminate()
 
     print("************")
     print("Is main thread alive? ", thread.is_alive())
@@ -98,7 +98,8 @@ def db_catcher():
     global running
   
     while True:
-        time.sleep(CATCH_TIMEOUT)        
+        time.sleep(CATCH_TIMEOUT)     
+        print("catching")   
         if terminate:
             break
 
