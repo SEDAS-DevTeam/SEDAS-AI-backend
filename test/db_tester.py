@@ -1,7 +1,7 @@
 # Import Module 
 import tkinter as tk
 import time 
-import threading
+import multiprocessing
 import redis
 import sys
 import os
@@ -25,7 +25,13 @@ error_message_text = tk.StringVar()
 running = False
 terminate = False
 CATCH_TIMEOUT = 1 #s
+
 thread = None
+thread_backend = None
+thread_voice = None
+thread_speech = None
+thread_text = None
+
 core_terminate = False
 
 out_text.set("Not running")
@@ -37,7 +43,8 @@ start_stop.set("START")
 database = redis.Redis(host='localhost', decode_responses=True)
   
 def thread_run(): 
-    global running, thread, terminate
+    global running, thread, terminate, core_terminate
+
     if running:
         running = False
         start_stop.set("START")
@@ -46,14 +53,40 @@ def thread_run():
         out_speech.set("Not running")
 
         terminate = True
+
+        start_stop.set("START")
+        out_text.set("Not running")
+        out_voice.set("Not running")
+        out_speech.set("Not running")
+
+        reset_values()
+
+        database.set("terminate", "true") #terminate all model threads
+        core_terminate = True #terminate backend
     else:
         running = True
         terminate = False
         start_stop.set("STOP")
 
-            # Call work function 
-        thread=threading.Thread(target=db_catcher) 
-        thread.start() 
+        #start core emulation
+        emulate_core()
+
+        thread=multiprocessing.Process(target=db_catcher) 
+        thread.start()
+
+    thread.terminate()
+    thread_backend.terminate()
+    thread_voice.terminate()
+    thread_text.terminate()
+    thread_speech.terminate()
+
+    print("************")
+    print("Is main thread alive? ", thread.is_alive())
+    print("Is backend thread alive? ", thread_backend.is_alive())
+    print("Is voice thread alive? ", thread_voice.is_alive())
+    print("Is text thread alive? ", thread_text.is_alive())
+    print("Is speech thread alive? ", thread_speech.is_alive())
+    print("************")
   
 def reset_values():
     database.set("out-voice", "None")
@@ -65,8 +98,7 @@ def db_catcher():
     global running
   
     while True:
-        time.sleep(CATCH_TIMEOUT)
-        
+        time.sleep(CATCH_TIMEOUT)        
         if terminate:
             break
 
@@ -115,6 +147,8 @@ def emulate_backend():
 
 #emulating core.py and backend.ts solely for debugging purposes
 def emulate_core():
+    global thread_backend, thread_voice, thread_speech, thread_text
+
     voice_model = "GoogleSTT"
     text_model = "simplePOS"
     speech_model = "GoogleTTS"
@@ -135,12 +169,12 @@ def emulate_core():
     database.set("proc-voice-out", "")
 
     #starting backend
-    thread_backend = threading.Thread(target=emulate_backend)
+    thread_backend = multiprocessing.Process(target=emulate_backend)
     thread_backend.start()
 
-    thread_voice = threading.Thread(target=m_voice_instance.process)
-    thread_text = threading.Thread(target=m_text_instance.process)
-    thread_speech = threading.Thread(target=m_speech_instance.process)
+    thread_voice = multiprocessing.Process(target=m_voice_instance.process)
+    thread_text = multiprocessing.Process(target=m_text_instance.process)
+    thread_speech = multiprocessing.Process(target=m_speech_instance.process)
 
     thread_voice.start()
     thread_text.start()
@@ -149,17 +183,9 @@ def emulate_core():
 def send_command():
     value = query.get()
     database.set("out-voice", value)
-
-def app_exit():
-    global core_terminate
-    database.set("terminate", "true") #terminate all model threads
-    core_terminate = True #terminate backend
   
 #connect to database
 database = redis.Redis(host='localhost', decode_responses=True)
-
-#start core emulation
-emulate_core()
 
 #elements
 label_query = tk.Label(main, text="Input a query:")
@@ -206,7 +232,5 @@ frame_speech.grid(row=4, column=2, sticky="nsew")
 main.grid_columnconfigure(0, weight=1)
 main.grid_columnconfigure(1, weight=1)
 main.grid_columnconfigure(2, weight=1)
-
-main.protocol("WM_DELETE_WINDOW", app_exit)
 
 main.mainloop()
