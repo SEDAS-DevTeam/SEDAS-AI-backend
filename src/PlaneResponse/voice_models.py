@@ -88,38 +88,44 @@ class DeepSpeech:
 class GoogleSpeechToText:
     def __init__(self, db_instance):
         self.recognizer = sr.Recognizer()
-        self.microphone = sr.Microphone()
         self.db_instance = db_instance
 
     def log(self, message):
         self.db_instance.set("debug-voice-model", "VOICE-MODEL " + message)
 
     def process(self):
-        with sr.Microphone() as source:
-            self.recognizer.adjust_for_ambient_noise(source, duration=0.2)
-            self.log("adjusted for ambient noise")
+        while True:
+            #interrupt through redis
+            interrupt = self.db_instance.get("terminate")
+            if interrupt == "true":
+                self.log("interrupt")
+                break
 
-            while True:
-                #interrupt through redis
-                interrupt = self.db_instance.get("terminate")
-                if interrupt == "true":
-                    self.log("interrupt")
-                    break
+            with sr.Microphone() as source:
+                print("Listening...")
+
+                # Adjust for ambient noise
+                self.recognizer.adjust_for_ambient_noise(source)
+
+                # Listen to the user's input
+                audio_data = self.recognizer.listen(source)
+
+                print("Recognizing...")
 
                 try:
-                    audio = self.recognizer.listen(source, timeout=10)
-                    phrase = self.recognizer.recognize_google(audio)
-                    phrase = phrase.lower()
-
-                    self.log("phrase processed")
-
-                    self.db_instance.set("out-voice", str(phrase))
-                except sr.RequestError:
-                    self.log("could not request results")
-                    continue
+                    # Recognize the speech using Google Speech Recognition
+                    text = self.recognizer.recognize_google(audio_data)
+                    print("You said:", text)
+                    self.db_instance.set("out-voice", str(text))
                 except sr.UnknownValueError:
+                    print("Sorry, I could not understand what you said.")
+                    self.log("could not request results")
+                except sr.RequestError as e:
+                    print("Sorry, could not request results. Check your internet connection.")
+                    self.log("could not request results")
+                except Exception as e:
+                    print("An error occurred:", e)
                     self.log("unknown error occured")
-                    continue
 
 VOICE_MODEL_DICT = {
     "OpenAI Whisper": Whisper,
