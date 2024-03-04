@@ -107,8 +107,8 @@ class DeepSpeech(Base):
 
 
 class GoogleSpeechToText(Base):
-    def __init__(self, queue):
-        super(GoogleSpeechToText, self).__init__(queue)
+    def __init__(self, in_queue, out_queue):
+        super(GoogleSpeechToText, self).__init__(in_queue, out_queue)
 
         self.recognizer = sr.Recognizer()
 

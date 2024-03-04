@@ -87,8 +87,8 @@ class PyTTSx3(Base):
                 play(combined)
 
 class GoogleTextToSpeech(Base):
-    def __init__(self, db_instance):
-        super(GoogleTextToSpeech, self).__init__(db_instance)
+    def __init__(self, in_queue, out_queue):
+        super(GoogleTextToSpeech, self).__init__(in_queue, out_queue)
 
         self.NOISE_FACT = [40, 35, 30]
         self.ACCENT_DICT = ["com.au", "co.uk", "us", "ca", "co.in", "ie", "co.za"]
