@@ -12,12 +12,27 @@ from pydub.generators import WhiteNoise
 
 class Base(object):
     #just a sample class that every other derives from
-    def __init__(self, db_instance):
-        self.db_instance = db_instance
+    def __init__(self, in_queue, out_queue):
+        self.in_queue = in_queue #for incoming communication with core.py
+        self.out_queue = out_queue #for out communication with core.py
         self.last_value = ""
 
     def log(self, message):
-        self.db_instance.set("debug-speech-model", "SPEECH-MODEL " + message)
+        self.out_queue.put(message)
+
+    def process(self):
+        while True:
+            if not self.in_queue.empty():
+                out = self.in_queue.get()
+                if out == "interrupt":
+                    self.log("interrupt")
+                    break
+                else:
+                    #output to process
+                    split = out.split(":")
+                    if "input" in split[0] and split[1] != self.last_value:
+                        self.model_process(split[1])
+                        self.last_value = split[1]
 
 class PyTTSx3(Base):
     def __init__(self, db_instance):
@@ -79,46 +94,24 @@ class GoogleTextToSpeech(Base):
         self.ACCENT_DICT = ["com.au", "co.uk", "us", "ca", "co.in", "ie", "co.za"]
         self.SLOW_SPEECH_FACT = [True, False]
 
-    def process(self):
-        #test
-        time.sleep(5)
+    def model_process(self, inp):
+        self.log("generating speech data")
 
-        while True:
-            start = self.db_instance.get("start")
-            if start == "false":
-                continue
+        self.bytes_obj = BytesIO()
 
-            #interrupt through redis
-            interrupt = self.db_instance.get("terminate")
-            if interrupt == "true":
-                self.log("interrupt")
-                break
+        self.gtts = gTTS(text=inp, tld=random.choice(self.ACCENT_DICT), slow=random.choice(self.SLOW_SPEECH_FACT))
+        self.gtts.write_to_fp(self.bytes_obj)
 
-            text = self.db_instance.get("gen-speech")
-            if text != self.last_value:
-                #
-                #gTTS main code
-                #
+        self.bytes_obj.seek(0)
+        song = AudioSegment.from_file(self.bytes_obj, sample_width=2, frame_rate=44100, channels=1)
 
-                self.log("generating speech data")
+        noise = WhiteNoise().to_audio_segment(duration=len(song))
+        noise = noise - random.choice(self.NOISE_FACT)
 
-                self.bytes_obj = BytesIO()
+        combined = song.overlay(noise)
 
-                self.gtts = gTTS(text=text, tld=random.choice(self.ACCENT_DICT), slow=random.choice(self.SLOW_SPEECH_FACT))
-                self.gtts.write_to_fp(self.bytes_obj)
-
-                self.bytes_obj.seek(0)
-                song = AudioSegment.from_file(self.bytes_obj, sample_width=2, frame_rate=44100, channels=1)
-
-                noise = WhiteNoise().to_audio_segment(duration=len(song))
-                noise = noise - random.choice(self.NOISE_FACT)
-
-                combined = song.overlay(noise)
-
-                self.last_value = text
-
-                self.log("playing speech data")
-                play(combined)
+        self.log("playing speech data")
+        play(combined)
 
 class PyTTS_gTTS_ensemble(Base):
     def __init__(self, db_instance):

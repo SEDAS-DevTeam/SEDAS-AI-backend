@@ -31,16 +31,37 @@ NATO_ALPHA = {
     "zulu": "Z"
 }
 
-class simplePOS:
+class Base(object):
+    #just a sample class that every other derives from
+    def __init__(self, in_queue, out_queue):
+        self.in_queue = in_queue #for incoming communication with core.py
+        self.out_queue = out_queue #for out communication with core.py
+        self.last_value = ""
+
+    def log(self, message):
+        self.out_queue.put(message)
+
+    def process(self):
+        while True:
+            if not self.in_queue.empty():
+                out = self.in_queue.get()
+                if out == "interrupt":
+                    self.log("interrupt")
+                    break
+                else:
+                    #output to process
+                    split = out.split(":")
+                    if "input" in split[0] and split[1] != self.last_value:
+                        self.model_process(split[1])
+                        self.last_value = split[1]
+
+class simplePOS(Base):
     #really simple POS tagging algorithm that works only for: "fly heading" commands, USE ONLY FOR DEVELOPEMENT
     #requires installing spacy pretrained english model using this command: python3 -m spacy download en_core_web_sm
 
-    def __init__(self, db_instance):
-        self.db_instance = db_instance
+    def __init__(self, queue):
+        super(simplePOS, self).__init__(queue)
         self.nlp = spacy.load("en_core_web_sm")
-    
-    def log(self, message):
-        self.db_instance.set("debug-text-model", "TEXT-MODEL " + message)
 
     def shorten_name(self, text):
         arr = text.split()
@@ -82,60 +103,41 @@ class simplePOS:
 
         return out
 
-    def process(self):
-        #test
-        time.sleep(5)
+    def model_process(self):
+        self.log("incoming text to process")
 
-        last_value = ""
-        while True:
-            start = self.db_instance.get("start")
-            if start == "false":
-                continue
+        #onchange
+        text = text.lower()
 
-            #interrupt through redis
-            interrupt = self.db_instance.get("terminate")
-            if interrupt == "true":
-                self.log("interrupt")
-                break
-            
-            text = self.db_instance.get("proc-voice")
-            if text != last_value:
-                self.log("incoming text to process")
+        #process plane name
+        text = self.shorten_name(text) #convert to NATO alphabet
 
-                #onchange
-                text = text.lower()
+        doc = self.nlp(text)
 
-                #process plane name
-                text = self.shorten_name(text) #convert to NATO alphabet
+        value = 0
+        name = ""
+        command = ""
 
-                doc = self.nlp(text)
+        for i, token in enumerate(doc):
+            #searching for fly-heading command
+            if token.text == "fly" and doc[i + 1].text == "heading":
+                command = "change-heading"
 
-                value = 0
-                name = ""
-                command = ""
+        for i, token in enumerate(doc):
+            if command == "change-heading":
+                #searching for heading
+                if token.pos_ == "NUM" and doc[i - 1].text == "heading":
+                    #sometimes speech recognition is buggy and prints out too much chars for heading (for ex.: 0900)
+                    value = int(token.text[:3])
+                    continue
+                
+                #searching for plane id
+                if any(char.isdigit() for char in token.text):
+                    name = token.text
 
-                for i, token in enumerate(doc):
-                    #searching for fly-heading command
-                    if token.text == "fly" and doc[i + 1].text == "heading":
-                        command = "change-heading"
-
-                for i, token in enumerate(doc):
-                    if command == "change-heading":
-                        #searching for heading
-                        if token.pos_ == "NUM" and doc[i - 1].text == "heading":
-                            #sometimes speech recognition is buggy and prints out too much chars for heading (for ex.: 0900)
-                            value = int(token.text[:3])
-                            continue
-                        
-                        #searching for plane id
-                        if any(char.isdigit() for char in token.text):
-                            name = token.text
-
-                if len(name) != 0 and len(command) != 0:
-                    self.log("text fully processed")
-                    self.db_instance.set("proc-voice-out", f"{name} {command} {value}")
-
-                last_value = text
+        if len(name) != 0 and len(command) != 0:
+            self.log("text fully processed")
+            self.out_queue.set(f"{name} {command} {value}")
 
 TEXT_MODEL_DICT = {
     "simplePOS": simplePOS

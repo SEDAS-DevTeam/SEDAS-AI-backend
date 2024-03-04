@@ -5,13 +5,33 @@ from pocketsphinx import LiveSpeech
 
 import threading
 
-class Whisper:
-    def __init__(self, type, db_instance, data_queue):
-        self.type = type
+class Base(object):
+    #just a sample class that every other derives from
+    def __init__(self, in_queue, out_queue):
+        self.in_queue = in_queue #for incoming communication with core.py
+        self.out_queue = out_queue #for out communication with core.py
+        self.last_value = ""
+
+    def log(self, message):
+        self.out_queue.put(message)
+
+    def process(self):
+        while True:
+            if not self.in_queue.empty():
+                out = self.in_queue.get()
+                if out == "interrupt":
+                    self.log("interrupt")
+                    break
+            
+            self.model_process()
+
+class Whisper(Base):
+    def __init__(self, queue):
+        super(Whisper, self).__init__(queue)
+
+        self.type = "test" #TODO
         self.model = whisper.load_model(type)
         self.Recognizer = sr.Recognizer()
-        self.db_instance = db_instance
-        self.data_queue = data_queue
 
     def process(self):
         #transcription queue
@@ -55,10 +75,11 @@ class Whisper:
                 print("decoded text: " + result["text"])
                 r_instance.set("out-voice", result["text"])
 
-class CMUSphinx:
-    def __init__(self, db_instance):
+class CMUSphinx(Base):
+    def __init__(self, queue):
+        super(CMUSphinx, self).__init__(queue)
+
         self.running = False
-        self.db_instance = db_instance
 
     def process(self, debug = False):
         ModelThread = threading.Thread(target=self.recognize, args=(debug,))
@@ -80,27 +101,21 @@ class CMUSphinx:
             self.db_instance.set("out-voice", str(phrase))
         
 
-class DeepSpeech:
-    def __init__(self, type):
-        pass
+class DeepSpeech(Base):
+    def __init__(self, queue):
+        super(DeepSpeech, self).__init__(queue)
 
 
-class GoogleSpeechToText:
-    def __init__(self, db_instance):
+class GoogleSpeechToText(Base):
+    def __init__(self, queue):
+        super(GoogleSpeechToText, self).__init__(queue)
+
         self.recognizer = sr.Recognizer()
-        self.db_instance = db_instance
 
     def log(self, message):
         self.db_instance.set("debug-voice-model", "VOICE-MODEL " + message)
 
-    def process(self):
-        while True:
-            #interrupt through redis
-            interrupt = self.db_instance.get("terminate")
-            if interrupt == "true":
-                self.log("interrupt")
-                break
-
+    def model_process(self):
             with sr.Microphone() as source:
                 print("Listening...")
 
@@ -110,21 +125,16 @@ class GoogleSpeechToText:
                 # Listen to the user's input
                 audio_data = self.recognizer.listen(source)
 
-                print("Recognizing...")
-
                 try:
                     # Recognize the speech using Google Speech Recognition
                     text = self.recognizer.recognize_google(audio_data)
-                    print("You said:", text)
-                    self.db_instance.set("out-voice", str(text))
+                    self.out_queue.set(text)
+                    self.log("Text succesfully processed")
                 except sr.UnknownValueError:
-                    print("Sorry, I could not understand what you said.")
                     self.log("could not request results")
                 except sr.RequestError as e:
-                    print("Sorry, could not request results. Check your internet connection.")
                     self.log("could not request results")
                 except Exception as e:
-                    print("An error occurred:", e)
                     self.log("unknown error occured")
 
 VOICE_MODEL_DICT = {
@@ -133,3 +143,7 @@ VOICE_MODEL_DICT = {
     "DeepSpeech": DeepSpeech,
     "GoogleSTT": GoogleSpeechToText
 }
+
+if __name__ == "__main__":
+
+    pass
