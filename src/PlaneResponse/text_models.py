@@ -135,7 +135,7 @@ class simplePOS(Base):
 
         if len(name) != 0 and len(command) != 0:
             self.log("text fully processed")
-            self.out_queue.set(f"{name} {command} {value}")
+            self.out_queue.put(f"{name} {command} {value}")
 
 TEXT_MODEL_DICT = {
     "simplePOS": simplePOS
