@@ -33,12 +33,13 @@ NATO_ALPHA = {
 
 class Base(object):
     #just a sample class that every other derives from
-    def __init__(self, in_queue, out_queue):
+    def __init__(self, in_queue, out_queue, debug_queue):
         self.in_queue = in_queue #for incoming communication with core.py
         self.out_queue = out_queue #for out communication with core.py
+        self.debug_queue = debug_queue
 
     def log(self, message):
-        self.out_queue.put(message)
+        self.debug_queue.put(f"TEST-MODEL {message}")
 
     def process(self):
         while True:
@@ -57,8 +58,8 @@ class simplePOS(Base):
     #really simple POS tagging algorithm that works only for: "fly heading" commands, USE ONLY FOR DEVELOPEMENT
     #requires installing spacy pretrained english model using this command: python3 -m spacy download en_core_web_sm
 
-    def __init__(self, in_queue, out_queue):
-        super(simplePOS, self).__init__(in_queue, out_queue)
+    def __init__(self, in_queue, out_queue, debug_queue):
+        super(simplePOS, self).__init__(in_queue, out_queue, debug_queue)
         self.nlp = spacy.load("en_core_web_sm")
 
     def shorten_name(self, text):

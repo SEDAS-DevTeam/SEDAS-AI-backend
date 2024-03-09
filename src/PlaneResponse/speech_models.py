@@ -12,12 +12,13 @@ from pydub.generators import WhiteNoise
 
 class Base(object):
     #just a sample class that every other derives from
-    def __init__(self, in_queue, out_queue):
+    def __init__(self, in_queue, out_queue, debug_queue):
         self.in_queue = in_queue #for incoming communication with core.py
         self.out_queue = out_queue #for out communication with core.py
+        self.debug_queue = debug_queue
 
     def log(self, message):
-        self.out_queue.put(message)
+        self.debug_queue.put(f"SPEECH-MODEL {message}")
 
     def process(self):
         while True:
@@ -85,8 +86,8 @@ class PyTTSx3(Base):
                 play(combined)
 
 class GoogleTextToSpeech(Base):
-    def __init__(self, in_queue, out_queue):
-        super(GoogleTextToSpeech, self).__init__(in_queue, out_queue)
+    def __init__(self, in_queue, out_queue, debug_queue):
+        super(GoogleTextToSpeech, self).__init__(in_queue, out_queue, debug_queue)
 
         self.NOISE_FACT = [40, 35, 30]
         self.ACCENT_DICT = ["com.au", "co.uk", "us", "ca", "co.in", "ie", "co.za"]

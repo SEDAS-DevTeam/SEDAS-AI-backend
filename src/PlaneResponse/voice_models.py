@@ -7,12 +7,13 @@ import threading
 
 class Base(object):
     #just a sample class that every other derives from
-    def __init__(self, in_queue, out_queue):
+    def __init__(self, in_queue, out_queue, debug_queue):
         self.in_queue = in_queue #for incoming communication with core.py
         self.out_queue = out_queue #for out communication with core.py
+        self.debug_queue = debug_queue
 
     def log(self, message):
-        self.out_queue.put(message)
+        self.debug_queue.put(f"VOICE-MODEL {message}")
 
     def process(self):
         while True:
@@ -106,32 +107,36 @@ class DeepSpeech(Base):
 
 
 class GoogleSpeechToText(Base):
-    def __init__(self, in_queue, out_queue):
-        super(GoogleSpeechToText, self).__init__(in_queue, out_queue)
-
-        self.recognizer = sr.Recognizer()
+    def __init__(self, in_queue, out_queue, debug_queue):
+        super(GoogleSpeechToText, self).__init__(in_queue, out_queue, debug_queue)
 
     def model_process(self):
-            with sr.Microphone() as source:
-                print("Listening...")
+        self.recognizer = sr.Recognizer()
 
-                # Adjust for ambient noise
-                self.recognizer.adjust_for_ambient_noise(source)
+        # Check for available microphones
+        if not sr.Microphone.list_microphone_names():
+            self.log("No microphone found. Speech recognition unavailable.")
+            return
 
-                # Listen to the user's input
-                audio_data = self.recognizer.listen(source)
+        with sr.Microphone() as source:
 
-                try:
-                    # Recognize the speech using Google Speech Recognition
-                    text = self.recognizer.recognize_google(audio_data)
-                    self.out_queue.put(text)
-                    self.log("Text succesfully processed")
-                except sr.UnknownValueError:
-                    self.log("could not request results")
-                except sr.RequestError as e:
-                    self.log("could not request results")
-                except Exception as e:
-                    self.log("unknown error occured")
+            # Adjust for ambient noise
+            self.recognizer.adjust_for_ambient_noise(source)
+
+            # Listen to the user's input
+            audio_data = self.recognizer.listen(source)
+
+            try:
+                # Recognize the speech using Google Speech Recognition
+                text = self.recognizer.recognize_google(audio_data)
+                self.out_queue.put(str(text))
+                self.log(f"Text succesfully processed, result: {str(text)}")
+            except sr.UnknownValueError:
+                self.log("could not request results")
+            except sr.RequestError as e:
+                self.log("could not request results")
+            except Exception as e:
+                self.log("unknown error occured")
 
 VOICE_MODEL_DICT = {
     "OpenAI Whisper": Whisper,
