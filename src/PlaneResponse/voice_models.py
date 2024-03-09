@@ -111,9 +111,6 @@ class GoogleSpeechToText(Base):
 
         self.recognizer = sr.Recognizer()
 
-    def log(self, message):
-        self.db_instance.set("debug-voice-model", "VOICE-MODEL " + message)
-
     def model_process(self):
             with sr.Microphone() as source:
                 print("Listening...")
