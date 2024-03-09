@@ -10,7 +10,6 @@ class Base(object):
     def __init__(self, in_queue, out_queue):
         self.in_queue = in_queue #for incoming communication with core.py
         self.out_queue = out_queue #for out communication with core.py
-        self.last_value = ""
 
     def log(self, message):
         self.out_queue.put(message)

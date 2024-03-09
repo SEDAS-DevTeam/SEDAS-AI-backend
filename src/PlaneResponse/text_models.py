@@ -36,7 +36,6 @@ class Base(object):
     def __init__(self, in_queue, out_queue):
         self.in_queue = in_queue #for incoming communication with core.py
         self.out_queue = out_queue #for out communication with core.py
-        self.last_value = ""
 
     def log(self, message):
         self.out_queue.put(message)
@@ -51,9 +50,8 @@ class Base(object):
                 else:
                     #output to process
                     split = out.split(":")
-                    if "input" in split[0] and split[1] != self.last_value:
+                    if "input" in split[0] and split[1]:
                         self.model_process(split[1])
-                        self.last_value = split[1]
 
 class simplePOS(Base):
     #really simple POS tagging algorithm that works only for: "fly heading" commands, USE ONLY FOR DEVELOPEMENT
