@@ -13,11 +13,11 @@ class Base(object):
         self.debug_queue = debug_queue
 
     def log(self, message):
-        self.debug_queue.put(f"VOICE-MODEL {message}")
+        self.debug_queue.append(f"VOICE-MODEL {message}")
 
     def process(self):
         while True:
-            if not self.in_queue.empty():
+            if len(self.in_queue) != 0:
                 out = self.in_queue.get()
                 if out == "interrupt":
                     self.log("interrupt")
@@ -60,7 +60,7 @@ class Whisper(Base):
                         numpydata = np.frombuffer(audio_data, np.int16).copy()
                         numpydata = numpydata.flatten().astype(np.float32) / 32768.0
 
-                        self.data_queue.put(numpydata)
+                        self.data_queue.append(numpydata)
                 except KeyboardInterrupt:
                     ModelThread.join()
 
@@ -129,7 +129,7 @@ class GoogleSpeechToText(Base):
             try:
                 # Recognize the speech using Google Speech Recognition
                 text = self.recognizer.recognize_google(audio_data)
-                self.out_queue.put(str(text))
+                self.out_queue.append(str(text))
                 self.log(f"Text succesfully processed, result: {str(text)}")
             except sr.UnknownValueError:
                 self.log("could not request results")
@@ -146,5 +146,4 @@ VOICE_MODEL_DICT = {
 }
 
 if __name__ == "__main__":
-
     pass

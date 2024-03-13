@@ -18,12 +18,12 @@ class Base(object):
         self.debug_queue = debug_queue
 
     def log(self, message):
-        self.debug_queue.put(f"SPEECH-MODEL {message}")
+        self.debug_queue.append(f"SPEECH-MODEL {message}")
 
     def process(self):
         while True:
-            if not self.in_queue.empty():
-                out = self.in_queue.get()
+            if len(self.in_queue) != 0:
+                out = self.in_queue.pop(0)
                 if out == "interrupt":
                     self.log("interrupt")
                     break

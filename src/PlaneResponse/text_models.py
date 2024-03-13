@@ -39,12 +39,12 @@ class Base(object):
         self.debug_queue = debug_queue
 
     def log(self, message):
-        self.debug_queue.put(f"TEST-MODEL {message}")
+        self.debug_queue.append(f"TEST-MODEL {message}")
 
     def process(self):
         while True:
-            if not self.in_queue.empty():
-                out = self.in_queue.get()
+            if len(self.in_queue) != 0:
+                out = self.in_queue.pop(0)
                 if out == "interrupt":
                     self.log("interrupt")
                     break
@@ -136,7 +136,7 @@ class simplePOS(Base):
 
         if len(name) != 0 and len(command) != 0:
             self.log("text fully processed")
-            self.out_queue.put(f"{name} {command} {value}")
+            self.out_queue.append(f"{name} {command} {value}")
 
 TEXT_MODEL_DICT = {
     "simplePOS": simplePOS
