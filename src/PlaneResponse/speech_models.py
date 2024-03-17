@@ -30,7 +30,7 @@ class Base(object):
                 else:
                     #output to process
                     split = out.split(":")
-                    if "input" in split[0] and split[1]:
+                    if "input" in split[0]:
                         self.model_process(split[1])
 
 class PyTTSx3(Base):

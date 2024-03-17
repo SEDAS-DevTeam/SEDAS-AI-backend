@@ -39,7 +39,7 @@ class Base(object):
         self.debug_queue = debug_queue
 
     def log(self, message):
-        self.debug_queue.append(f"TEST-MODEL {message}")
+        self.debug_queue.append(f"TEXT-MODEL {message}")
 
     def process(self):
         while True:
