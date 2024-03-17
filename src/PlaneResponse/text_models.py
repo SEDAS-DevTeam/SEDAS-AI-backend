@@ -102,7 +102,7 @@ class simplePOS(Base):
 
         return out
 
-    def model_process(self):
+    def model_process(self, text):
         self.log("incoming text to process")
 
         #onchange
@@ -143,8 +143,4 @@ TEXT_MODEL_DICT = {
 }
 
 if __name__ == "__main__":
-    r_instance = redis.Redis(host='localhost', port=6379, decode_responses=True)
-    r_instance.set("terminate", "false")
-
-    pos = simplePOS(r_instance)
-    pos.process()
+    pass
