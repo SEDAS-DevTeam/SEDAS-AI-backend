@@ -41,49 +41,36 @@ class PyTTSx3(Base):
         self.ACCENT_DICT = ["en-scottish", "en-westindies", "english-north", "english_rp", "english_wmids", "english-us", "english"]
         self.RATE_MOD = [40, 60, 80]
     
-    def process(self):
-        time.sleep(5)
+    def model_process(self, inp):
+        time.sleep(2) #TODO is thes really needed
 
-        while True:
-            start = self.db_instance.get("start")
-            if start == "false":
-                continue
+        #
+        #PyTTSx3 main code
+        #
 
-            interrupt = self.db_instance.get("terminate")
-            if interrupt == "true":
-                self.log("interrupt")
-                break
+        self.log("generating speech data")
 
-            text = self.db_instance.get("gen-speech")
-            if text != self.last_value:
-                #
-                #PyTTSx3 main code
-                #
+        tts = pyttsx3.init()
 
-                self.log("generating speech data")
+        rate = tts.getProperty('rate')
+        tts.setProperty('rate', rate - random.choice(self.RATE_MOD))
 
-                tts = pyttsx3.init()
+        tts.setProperty("voice", random.choice(self.ACCENT_DICT))
+        tts.save_to_file(inp, "output.mp3")
+        tts.runAndWait()
 
-                rate = tts.getProperty('rate')
-                tts.setProperty('rate', rate - random.choice(self.RATE_MOD))
+        song = AudioSegment.from_file("output.mp3")
 
-                tts.setProperty("voice", random.choice(self.ACCENT_DICT))
-                tts.save_to_file("Oscar kilo lima four four five five fly heading zero niner zero", "output.mp3")
-                tts.runAndWait()
+        #delete temporary output.mp3 file
+        os.remove("output.mp3")
 
-                song = AudioSegment.from_file("output.mp3")
+        noise = WhiteNoise().to_audio_segment(duration=len(song))
+        noise = noise - random.choice(self.NOISE_FACT)
 
-                #delete temporary output.mp3 file
-                os.remove("output.mp3")
+        combined = song.overlay(noise)
 
-                noise = WhiteNoise().to_audio_segment(duration=len(song))
-                noise = noise - random.choice(self.NOISE_FACT)
-
-                combined = song.overlay(noise)
-
-                self.last_value = text
-                self.log("playing speech data")
-                play(combined)
+        self.log("playing speech data")
+        play(combined)
 
 class GoogleTextToSpeech(Base):
     def __init__(self, in_queue, out_queue, debug_queue):
@@ -126,62 +113,46 @@ class PyTTS_gTTS_ensemble(Base):
         self.gtts_ACCENT_DICT = ["com.au", "co.uk", "us", "ca", "co.in", "ie", "co.za"]
         self.gtts_SLOW_SPEECH_FACT = [True, False]
 
-    def process(self):
+    def model_process(self, inp):
         selector = "male" #TODO rework
 
-        #test
-        time.sleep(5)
 
-        while True:
-            start = self.db_instance.get("start")
-            if start == "false":
-                continue
+        self.log("generating speech data")
+        if selector == "male":
+            #use PyTTSx3
 
-            #interrupt through redis
-            interrupt = self.db_instance.get("terminate")
-            if interrupt == "true":
-                self.log("interrupt")
-                break
+            tts = pyttsx3.init()
 
-            text = self.db_instance.get("gen-speech")
-            if text != self.last_value:
-                self.log("generating speech data")
-                if selector == "male":
-                    #use PyTTSx3
+            rate = tts.getProperty('rate')
+            tts.setProperty('rate', rate - random.choice(self.RATE_MOD))
 
-                    tts = pyttsx3.init()
+            tts.setProperty("voice", random.choice(self.ACCENT_DICT))
+            tts.save_to_file(inp, "output.mp3")
+            tts.runAndWait()
 
-                    rate = tts.getProperty('rate')
-                    tts.setProperty('rate', rate - random.choice(self.RATE_MOD))
+            song = AudioSegment.from_file("output.mp3")
 
-                    tts.setProperty("voice", random.choice(self.ACCENT_DICT))
-                    tts.save_to_file("Oscar kilo lima four four five five fly heading zero niner zero", "output.mp3")
-                    tts.runAndWait()
+            #delete temporary output.mp3 file
+            os.remove("output.mp3")
 
-                    song = AudioSegment.from_file("output.mp3")
+        elif selector == "female":
+            #use gTTS
 
-                    #delete temporary output.mp3 file
-                    os.remove("output.mp3")
+            self.bytes_obj = BytesIO()
 
-                elif selector == "female":
-                    #use gTTS
+            self.gtts = gTTS(text=inp, tld=random.choice(self.ACCENT_DICT), slow=random.choice(self.SLOW_SPEECH_FACT))
+            self.gtts.write_to_fp(self.bytes_obj)
 
-                    self.bytes_obj = BytesIO()
+            self.bytes_obj.seek(0)
+            song = AudioSegment.from_file(self.bytes_obj, sample_width=2, frame_rate=44100, channels=1)
 
-                    self.gtts = gTTS(text=text, tld=random.choice(self.ACCENT_DICT), slow=random.choice(self.SLOW_SPEECH_FACT))
-                    self.gtts.write_to_fp(self.bytes_obj)
+        noise = WhiteNoise().to_audio_segment(duration=len(song))
+        noise = noise - random.choice(self.NOISE_FACT)
 
-                    self.bytes_obj.seek(0)
-                    song = AudioSegment.from_file(self.bytes_obj, sample_width=2, frame_rate=44100, channels=1)
+        combined = song.overlay(noise)
 
-                noise = WhiteNoise().to_audio_segment(duration=len(song))
-                noise = noise - random.choice(self.NOISE_FACT)
-
-                combined = song.overlay(noise)
-
-                self.last_value = text
-                self.log("playing speech data")
-                play(combined)
+        self.log("playing speech data")
+        play(combined)
 
 SPEECH_MODEL_DICT = {
     "GoogleTTS": GoogleTextToSpeech,

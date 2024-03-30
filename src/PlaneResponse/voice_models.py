@@ -4,6 +4,7 @@ import numpy as np
 from pocketsphinx import LiveSpeech
 
 import threading
+import queue
 
 class Base(object):
     #just a sample class that every other derives from
@@ -11,6 +12,7 @@ class Base(object):
         self.in_queue = in_queue #for incoming communication with core.py
         self.out_queue = out_queue #for out communication with core.py
         self.debug_queue = debug_queue
+        self.running = True
 
     def log(self, message):
         self.debug_queue.append(f"VOICE-MODEL {message}")
@@ -26,34 +28,29 @@ class Base(object):
             self.model_process()
 
 class Whisper(Base):
-    def __init__(self, queue):
-        super(Whisper, self).__init__(queue)
+    def __init__(self, in_queue, out_queue, debug_queue):
+        super(Whisper, self).__init__(self, in_queue, out_queue, debug_queue)
 
-        self.type = "test" #TODO
+        #tiny
+        #base
+        #small
+        #medium
+        self.type = "base" #TODO
         self.model = whisper.load_model(type)
         self.Recognizer = sr.Recognizer()
+        self.data_queue = queue.Queue()
 
-    def process(self):
         #transcription queue
-        ModelThread = threading.Thread(target=self.recognition, args=(self.data_queue, self.db_instance))
+        self.model_thread = threading.Thread(target=self.recognition, args=(self.data_queue, ))
+        self.model_thread.start()
 
+    def model_process(self):
         with sr.Microphone() as source:
             while True:
-                value = self.db_instance.get("start")
-
-                #recognition check
-                if value == "true": #start recognition
-                    running = True
-                    ModelThread.start()
-                    self.db_instance.set("start-voice", "none") #prevents invoking random functions
-                elif value == "false": #stop recognition
-                    running = False
-                    self.db_instance.set("start-voice", "none")
-                    ModelThread.join()
 
                 #the recognizer part
                 try:
-                    if running == True:
+                    if self.running:
                         audio = self.Recognizer.listen(source, phrase_time_limit=4)
                         audio_data = audio.get_wav_data()
 
@@ -62,9 +59,9 @@ class Whisper(Base):
 
                         self.data_queue.append(numpydata)
                 except KeyboardInterrupt:
-                    ModelThread.join()
+                    self.model_thread.join()
 
-    def recognition(self, spec_queue, r_instance):
+    def recognition(self, spec_queue):
         while True:
             if not spec_queue.empty():
                 numpydata = spec_queue.get()
@@ -73,32 +70,16 @@ class Whisper(Base):
 
                 result = self.model.transcribe(numpydata, language="en", fp16=True, verbose=False)
                 print("decoded text: " + result["text"])
-                r_instance.set("out-voice", result["text"])
+                self.out_queue.append(result["text"])
 
 class CMUSphinx(Base):
-    def __init__(self, queue):
-        super(CMUSphinx, self).__init__(queue)
+    def __init__(self, in_queue, out_queue, debug_queue):
+        super(CMUSphinx, self).__init__(in_queue, out_queue, debug_queue)
+        self.model_thread = threading.Thread(target=self.recognize)
 
-        self.running = False
-
-    def process(self, debug = False):
-        ModelThread = threading.Thread(target=self.recognize, args=(debug,))
-        if not debug:
-            while True:
-                value = self.db_instance.get("start-voice")
-                if value == "true" and not self.running:# and not self.running:
-                    ModelThread.start()
-                    self.running = True
-
-                elif value == "false":
-                    ModelThread.join()
-                    self.running = False
-        else: #debug == False
-            ModelThread.start()
-
-    def recognize(self, debug):
+    def model_process(self):
         for phrase in LiveSpeech():
-            self.db_instance.set("out-voice", str(phrase))
+            self.out_queue.append(str(phrase))
         
 
 class DeepSpeech(Base):
