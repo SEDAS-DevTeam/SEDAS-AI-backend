@@ -109,11 +109,11 @@ class GoogleSpeechToText(Base):
 
             try:
                 # Recognize the speech using Google Speech Recognition
-                text = self.recognizer.recognize_google(audio_data)
+                text = self.recognizer.recognize_google(audio_data, show_all=True)
                 self.out_queue.append(str(text))
                 self.log(f"Text succesfully processed, result: {str(text)}")
             except sr.UnknownValueError:
-                self.log("could not unknown value error")
+                self.log("unknown value error")
             except sr.RequestError as e:
                 self.log("could not request results")
             except Exception as e:
