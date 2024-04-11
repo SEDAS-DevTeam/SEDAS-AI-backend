@@ -113,7 +113,7 @@ class GoogleSpeechToText(Base):
                 self.out_queue.append(str(text))
                 self.log(f"Text succesfully processed, result: {str(text)}")
             except sr.UnknownValueError:
-                self.log("could not request results")
+                self.log("could not unknown value error")
             except sr.RequestError as e:
                 self.log("could not request results")
             except Exception as e:
