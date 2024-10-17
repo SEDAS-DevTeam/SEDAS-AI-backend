@@ -1,5 +1,6 @@
 #Automatically generated files
 /src/PlaneResponse/__pycache__
+/build/test
 
 #ACAI
 /src/ACAI/models/*
@@ -11,6 +12,6 @@
 !/src/gen_map/models/.gitkeep
 /src/gen_map/dataset/
 
-#Voice recognition
-/src/VoiceRecognition/models/*
-!/src/VoiceRecognition/models/.gitkeep
+#PlaneResponse
+/src/PlaneResponse/model/*
+/src/PlaneResponse/model/.gitkeep
