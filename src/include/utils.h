@@ -1,27 +1,28 @@
 #include <iostream>
 #include <thread>
 #include <unistd.h>
+#include <csignal>
 
 class SEDThread {
-    private:
+    public:
         bool running = true;
         bool thread_stop = true;
-        void (*sed_callback)(void);
-
-    public:
-        SEDThread(void (*callback)(void)){
-            sed_callback = callback;
-        }
-
-        void run(){
-            while(running){
-                if (!thread_stop){
-                    sed_callback();
-                }
-            }
-        }
 
         void start(){ thread_stop = false; }
         void stop(){ running = false; }
         void pause(){ thread_stop = true; }
 };
+
+std::string execute_command(const char* cmd) {
+    std::array<char, 128> buffer;
+    std::string result;
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+    if (!pipe) {
+        throw std::runtime_error("popen() failed!");
+    }
+    while (fgets(buffer.data(), static_cast<int>(buffer.size()), pipe.get()) != nullptr) {
+        result += buffer.data();
+        std::cout << buffer.data();
+    }
+    return result;
+}

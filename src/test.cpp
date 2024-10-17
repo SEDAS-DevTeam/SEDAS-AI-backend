@@ -7,12 +7,16 @@
 #include "./PlaneResponse/process.h"
 #include "./PlaneResponse/speech_synth.h"
 
-void simple_callback(){
-    std::cout << "Invoking Callback!" << std::endl;
-    sleep(1);
+VoiceRecognition voice_recog;
+
+void signal_handler(int signal){
+    if (signal == SIGINT){
+        voice_recog.stop();
+    }
 }
 
 int main(){
+    /*
     SEDThread base(simple_callback);
     std::thread thread_main(&SEDThread::run, &base);
     base.start();
@@ -26,5 +30,16 @@ int main(){
 
     base.stop();
     thread_main.join();
+    */
+
+    std::signal(SIGINT, signal_handler);
+
+    std::thread thread_main(&VoiceRecognition::run, &voice_recog);
+    voice_recog.start();
+    sleep(2);
+
+    thread_main.join();
+
+    std::cout << "Main program terminated." << std::endl;
     return 0;
 }
