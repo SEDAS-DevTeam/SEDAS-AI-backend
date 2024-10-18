@@ -3,6 +3,11 @@
 #include <unistd.h>
 #include <csignal>
 #include <queue>
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
+const std::string main_path = fs::current_path().u8string() + "/src/";
 
 class SEDThread {
     public:

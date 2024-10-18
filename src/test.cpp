@@ -7,6 +7,7 @@
 #include "./PlaneResponse/process.h"
 #include "./PlaneResponse/speech_synth.h"
 
+// initialize threads
 VoiceRecognition voice_recog;
 
 static void signal_handler(int signal){
@@ -38,11 +39,13 @@ int main(){
     std::thread thread_main(&VoiceRecognition::run, &voice_recog);
     voice_recog.start();
 
-    sleep(5);
+    sleep(7);
 
     voice_recog.stop();
 
     thread_main.join();
+
+    std::cout << voice_recog.result << std::flush;
 
     std::cout << "Main program terminated." << std::endl;
     return 0;
