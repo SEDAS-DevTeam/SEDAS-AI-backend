@@ -1,3 +1,6 @@
 class ProcessData : public SEDThread {
-    //public:
+    public:
+        void run(){
+            
+        }
 };

@@ -2,6 +2,7 @@
 #include <thread>
 #include <unistd.h>
 #include <csignal>
+#include <queue>
 
 class SEDThread {
     public:
