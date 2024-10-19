@@ -30,39 +30,39 @@ class VoiceRecognition : public SEDThread {
             return string;
         }
 
+        std::string remove_leading_spaces(std::string string) {
+            size_t start = string.find_first_not_of(' '); // Find the first non-space character
+            return (start == std::string::npos) ? "" : string.substr(start);
+        }
+
+        std::string remove_fillers(std::string string, std::string char_comb){
+            auto filler_start = string.find(char_comb[0]);
+            auto filler_end = string.find(char_comb[1]);
+
+            if (filler_start != std::string::npos && filler_end != std::string::npos){
+                string.erase(filler_start, filler_end - filler_start);
+            }
+
+            return string;
+        }
+
         void process_stdout(const char* data){
             std::string data_str(data);
             bool found = false;
 
-            // remove [Start speaking] header
             data_str = remove_str(data_str, "[Start speaking]");
-
-            // remove unnecessary newlines
             data_str = remove_str(data_str, "\n");
-
             data_str = remove_str(data_str, "\033[2K\r");
             data_str = remove_str(data_str, "\033[2K\rSPE");
-
-            // remove leading spaces
-            bool was_space = false;
-            uint32_t start_index = 0;
-            uint32_t stop_index = 0;
-            for (auto i = 0; data_str.size(); i++){
-                bool is_space = std::isspace(data_str[i]);
-                if (was_space && is_space){ start_index = i; } // First section of spaces
-                if (was_space && !is_space){
-                    stop_index = i;
-                    data_str.erase(start_index, stop_index - start_index);
-                } // Last section of spaces
-                was_space = is_space;
-            }            
+            data_str = remove_leading_spaces(data_str);
+            data_str = remove_fillers(data_str, "()");
+            data_str = remove_fillers(data_str, "[]");
 
             if (data_str.size() == 0){
                 std::cout << "Recog ignored" << std::endl;
             }
             else{
-                std::cout << "Recog output: " << data_str;
-                std::cout << data_str.size() << std::endl;
+                std::cout << "Recog output: " << data_str << std::endl;
             }
         }
 
