@@ -4,10 +4,11 @@
 #include <csignal>
 #include <queue>
 #include <filesystem>
+#include <regex>
 
 namespace fs = std::filesystem;
 
-const std::string main_path = fs::current_path().u8string() + "/src/";
+const std::string main_path = fs::current_path().u8string() + "/";
 
 class SEDThread {
     public:

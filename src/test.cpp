@@ -26,7 +26,7 @@ int main(){
 
     base.pause();
     sleep(2);
-    
+
     base.start();
     sleep(5);
 
@@ -34,18 +34,20 @@ int main(){
     thread_main.join();
     */
 
+    std::cout << "Test?" << std::endl;
+
     std::signal(SIGINT, signal_handler);
 
     std::thread thread_main(&VoiceRecognition::run, &voice_recog);
     voice_recog.start();
 
-    sleep(7);
+    while (true){
+        sleep(1);
+    }
 
     voice_recog.stop();
 
     thread_main.join();
-
-    std::cout << voice_recog.result << std::flush;
 
     std::cout << "Main program terminated." << std::endl;
     return 0;

@@ -1,6 +1,6 @@
 #Automatically generated files
 /src/PlaneResponse/__pycache__
-/build/test
+/src/test
 
 #ACAI
 /src/ACAI/models/*
