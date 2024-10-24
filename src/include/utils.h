@@ -5,6 +5,14 @@
 #include <queue>
 #include <filesystem>
 #include <regex>
+#include <condition_variable>
+#include <mutex>
+
+// thread communication variables
+bool running = true;
+std::condition_variable condition_var;
+std::mutex mtx;
+std::queue<std::string> comm_queue;
 
 namespace fs = std::filesystem;
 

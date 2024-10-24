@@ -13,11 +13,11 @@ VoiceRecognition voice_recog;
 static void signal_handler(int signal){
     if (signal == SIGINT){
         voice_recog.stop();
+        running = false;
     }
 }
 
 int main(){
-
     /*
     SEDThread base(simple_callback);
     std::thread thread_main(&SEDThread::run, &base);
@@ -38,16 +38,22 @@ int main(){
 
     std::signal(SIGINT, signal_handler);
 
-    std::thread thread_main(&VoiceRecognition::run, &voice_recog);
+    std::thread thread_recog(&VoiceRecognition::run, &voice_recog);
+    //std::thread thread_process();
+    //std::thread thread_synth();
+
     voice_recog.start();
 
-    while (true){
+    /*
+        A simple loop to keep everything running
+    */
+    while (running){
         sleep(1);
     }
 
     voice_recog.stop();
 
-    thread_main.join();
+    thread_recog.join();
 
     std::cout << "Main program terminated." << std::endl;
     return 0;
