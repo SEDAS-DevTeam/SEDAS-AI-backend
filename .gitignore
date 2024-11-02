@@ -2,6 +2,12 @@
 /src/PlaneResponse/__pycache__
 /src/test
 
+/src/temp_out/*
+!/src/temp_out/.gitkeep
+
+/src/lib/*
+!/src/lib/.gitkeep
+
 #ACAI
 /src/ACAI/models/*
 !/src/ACAI/models/.gitkeep
