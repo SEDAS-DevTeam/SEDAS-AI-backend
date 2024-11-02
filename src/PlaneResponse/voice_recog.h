@@ -71,6 +71,9 @@ class VoiceRecognition : public SEDThread {
             else{
                 std::cout << "Recog output: " << data_str << std::endl;
             }
+
+            comm_queue.push(data_str);
+            condition_var.notify_all();
         }
 
     public:

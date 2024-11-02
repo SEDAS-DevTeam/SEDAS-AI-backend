@@ -9,6 +9,7 @@
 
 // initialize threads
 VoiceRecognition voice_recog;
+ProcessData text_process;
 
 static void signal_handler(int signal){
     if (signal == SIGINT){
@@ -39,10 +40,11 @@ int main(){
     std::signal(SIGINT, signal_handler);
 
     std::thread thread_recog(&VoiceRecognition::run, &voice_recog);
-    //std::thread thread_process();
+    std::thread thread_process(&ProcessData::run, &text_process);
     //std::thread thread_synth();
 
     voice_recog.start();
+    text_process.start();
 
     /*
         A simple loop to keep everything running
@@ -52,8 +54,10 @@ int main(){
     }
 
     voice_recog.stop();
+    text_process.stop();
 
     thread_recog.join();
+    thread_process.join();
 
     std::cout << "Main program terminated." << std::endl;
     return 0;

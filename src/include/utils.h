@@ -7,6 +7,7 @@
 #include <regex>
 #include <condition_variable>
 #include <mutex>
+#include <map>
 
 // thread communication variables
 bool running = true;
