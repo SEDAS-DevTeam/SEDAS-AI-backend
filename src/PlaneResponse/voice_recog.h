@@ -1,14 +1,19 @@
 class VoiceRecognition : public SEDThread {
     private:
-        std::string COMMAND_STREAM = main_path + "PlaneResponse/model/stream";
-        std::string COMMAND_MODEL  = main_path + "PlaneResponse/model/ggml-base.en.bin";
+        std::string COMMAND_STREAM = main_path + "PlaneResponse/model/voice_recog/stream_recog";
+        std::string COMMAND_MODEL  = main_path + "PlaneResponse/model/voice_recog/ggml-base.en.bin";
         
         // model configuration
         uint32_t t = 8;
         uint64_t step = 2500;
         uint64_t length = 5000;
-
-        static const size_t ignore_len = 4;
+        float vth = 0.6;
+        
+        std::string convert_float(float spec_float){
+            std::ostringstream out;
+            out << std::setprecision(1) << spec_float;
+            return out.str();
+        }
 
         std::string make_command(){
             std::string command_result = COMMAND_STREAM + " -m " + COMMAND_MODEL;
@@ -17,6 +22,8 @@ class VoiceRecognition : public SEDThread {
             command_result += " -t " + std::to_string(t);
             command_result += " --step " + std::to_string(step);
             command_result += " --length " + std::to_string(length);
+            command_result += " -vth " + convert_float(vth);
+            command_result += "--print-colors";
             return command_result;
         }
 
@@ -40,7 +47,7 @@ class VoiceRecognition : public SEDThread {
             auto filler_end = string.find(char_comb[1]);
 
             if (filler_start != std::string::npos && filler_end != std::string::npos){
-                string.erase(filler_start, filler_end - filler_start);
+                string.erase(filler_start, filler_end - filler_start + 1);
             }
 
             return string;
