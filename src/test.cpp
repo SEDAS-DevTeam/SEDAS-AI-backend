@@ -10,6 +10,7 @@
 // initialize threads
 VoiceRecognition voice_recog;
 ProcessData text_process;
+SpeechSynthesis speech_synth;
 
 static void signal_handler(int signal){
     if (signal == SIGINT){
@@ -19,21 +20,6 @@ static void signal_handler(int signal){
 }
 
 int main(){
-    /*
-    SEDThread base(simple_callback);
-    std::thread thread_main(&SEDThread::run, &base);
-    base.start();
-    sleep(10); //Wait for 10 seconds
-
-    base.pause();
-    sleep(2);
-
-    base.start();
-    sleep(5);
-
-    base.stop();
-    thread_main.join();
-    */
 
     std::cout << "Test?" << std::endl;
 
@@ -41,7 +27,7 @@ int main(){
 
     std::thread thread_recog(&VoiceRecognition::run, &voice_recog);
     std::thread thread_process(&ProcessData::run, &text_process);
-    //std::thread thread_synth();
+    std::thread thread_synth(&SpeechSynthesis::run, &speech_synth);
 
     voice_recog.start();
     text_process.start();
@@ -55,12 +41,14 @@ int main(){
 
     voice_recog.stop();
     text_process.stop();
+    speech_synth.stop();
 
     process_queue.terminate();
     synth_queue.terminate();
 
     thread_recog.join();
     thread_process.join();
+    thread_synth.join();
 
     std::cout << "Main program terminated." << std::endl;
     return 0;

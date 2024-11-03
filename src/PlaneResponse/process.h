@@ -35,6 +35,8 @@ class ProcessData : public SEDThread {
             std::cout << "Got input: " << input << std::endl;
 
             //TODO: add processing for simple command
+            synth_queue.add_element(input);
+            synth_queue.notify();
         }
 
     public:
