@@ -70,10 +70,10 @@ class VoiceRecognition : public SEDThread {
             }
             else{
                 std::cout << "Recog output: " << data_str << std::endl;
-            }
 
-            comm_queue.push(data_str);
-            condition_var.notify_all();
+                process_queue.add_element(data_str);
+                process_queue.notify();
+            }
         }
 
     public:

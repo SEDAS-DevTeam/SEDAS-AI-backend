@@ -56,6 +56,9 @@ int main(){
     voice_recog.stop();
     text_process.stop();
 
+    process_queue.terminate();
+    synth_queue.terminate();
+
     thread_recog.join();
     thread_process.join();
 

@@ -9,15 +9,39 @@
 #include <mutex>
 #include <map>
 
-// thread communication variables
-bool running = true;
-std::condition_variable condition_var;
-std::mutex mtx;
-std::queue<std::string> comm_queue;
+class SEDQueue {
+    public:
+        std::condition_variable queue_cond_var;
+        std::mutex queue_mutex;
+        std::queue<std::string> queue;
 
-namespace fs = std::filesystem;
+        void add_element(std::string elem){
+            std::unique_lock<std::mutex> lock(queue_mutex);
+            queue.push(elem);
+        }
 
-const std::string main_path = fs::current_path().u8string() + "/";
+        std::string get_element(){
+            if (!queue.empty()){
+                std::string input = queue.front();
+                queue.pop();
+
+                return input;
+            }
+        }
+
+        void notify(){
+            queue_cond_var.notify_one();
+        }
+
+        void wait(){
+            std::unique_lock<std::mutex> lock(queue_mutex);
+            queue_cond_var.wait(lock);
+        }
+
+        void terminate(){
+            queue_cond_var.notify_all();
+        }
+};
 
 class SEDThread {
     public:
@@ -42,3 +66,11 @@ std::string execute_command(const char* cmd) {
     }
     return result;
 }
+
+// runtime definitions
+SEDQueue process_queue;
+SEDQueue synth_queue;
+
+bool running = true;
+namespace fs = std::filesystem;
+const std::string main_path = fs::current_path().u8string() + "/";
