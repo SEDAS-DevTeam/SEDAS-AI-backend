@@ -18,7 +18,6 @@ class VoiceRecognition : public SEDThread {
         std::string make_command(){
             std::string command_result = COMMAND_STREAM + " -m " + COMMAND_MODEL;
             
-            // arg T
             command_result += " -t " + std::to_string(t);
             command_result += " --step " + std::to_string(step);
             command_result += " --length " + std::to_string(length);

@@ -39,6 +39,9 @@ class SEDQueue {
         }
 
         void terminate(){
+            std::queue<std::string> empty;
+            std::swap(queue, empty);
+
             queue_cond_var.notify_all();
         }
 };
