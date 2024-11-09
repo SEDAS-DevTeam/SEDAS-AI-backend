@@ -43,7 +43,9 @@ class ProcessData : public SEDThread {
         void run(){
             while (running){
                 process_queue.wait();
-                process_detection();
+                if (running){ // for last resort notification (when queue is getting emptied)
+                    process_detection();
+                }
             }
         }
 };

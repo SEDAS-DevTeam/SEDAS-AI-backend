@@ -31,10 +31,12 @@ int main(){
 
     voice_recog.start();
     text_process.start();
+    speech_synth.start();
 
     /*
         A simple loop to keep everything running
     */
+    
     while (running){
         sleep(1);
     }

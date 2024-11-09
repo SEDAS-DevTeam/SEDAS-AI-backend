@@ -9,9 +9,9 @@ class SpeechSynthesis : public SEDThread {
             std::string input = synth_queue.get_element();
             std::cout << "Got input2: " << input << std::endl;
 
-            make_command_synth(input);
-            add_noise();
-            make_command_play();
+            //make_command_synth(input);
+            //add_noise();
+            //make_command_play();
         }
 
         void add_noise(){
@@ -39,7 +39,9 @@ class SpeechSynthesis : public SEDThread {
         void run(){
             while (running){
                 synth_queue.wait();
-                process_synthesis();
+                if (running){ // for last resort notification (when queue is getting emptied)
+                    process_synthesis();
+                }
             }
         }
 };
