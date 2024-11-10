@@ -7,7 +7,7 @@ class SpeechSynthesis : public SEDThread {
 
         void process_synthesis(){
             std::string input = synth_queue.get_element();
-            std::cout << "Got input2: " << input << std::endl;
+            //std::cout << "Got input2: " << input << std::endl;
 
             //make_command_synth(input);
             //add_noise();

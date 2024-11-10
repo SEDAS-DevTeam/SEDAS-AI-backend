@@ -1,7 +1,7 @@
 class VoiceRecognition : public SEDThread {
     private:
         std::string COMMAND_STREAM = main_path + "PlaneResponse/model/voice_recog/stream_recog";
-        std::string COMMAND_MODEL  = main_path + "PlaneResponse/model/voice_recog/ggml-small.bin";
+        std::string COMMAND_MODEL  = main_path + "PlaneResponse/model/voice_recog/ggml-base.en.bin";
         
         // model configuration
         uint32_t t = 8; // number of threads
