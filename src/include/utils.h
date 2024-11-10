@@ -44,6 +44,10 @@ class SEDQueue {
 
             queue_cond_var.notify_all();
         }
+
+        bool is_empty(){
+            return queue.size() == 0;
+        }
 };
 
 class SEDThread {

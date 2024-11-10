@@ -2,8 +2,8 @@
 /src/PlaneResponse/__pycache__
 /src/test
 
-/src/temp_out/*
-!/src/temp_out/.gitkeep
+/src/PlaneResponse/temp_out/*
+!/src/PlaneResponse/temp_out/.gitkeep
 
 /src/lib/*
 !/src/lib/.gitkeep

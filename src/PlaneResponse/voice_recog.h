@@ -1,12 +1,11 @@
 class VoiceRecognition : public SEDThread {
     private:
         std::string COMMAND_STREAM = main_path + "PlaneResponse/model/voice_recog/stream_recog";
-        std::string COMMAND_MODEL  = main_path + "PlaneResponse/model/voice_recog/ggml-base.en.bin";
+        std::string COMMAND_MODEL  = main_path + "PlaneResponse/model/voice_recog/ggml-small.bin";
         
         // model configuration
-        uint32_t t = 8;
-        uint64_t step = 2500;
-        uint64_t length = 5000;
+        uint32_t t = 8; // number of threads
+        uint64_t length = 10000; // length of processed audio chunk
         float vth = 0.6;
         
         std::string convert_float(float spec_float){
@@ -19,10 +18,9 @@ class VoiceRecognition : public SEDThread {
             std::string command_result = COMMAND_STREAM + " -m " + COMMAND_MODEL;
             
             command_result += " -t " + std::to_string(t);
-            command_result += " --step " + std::to_string(step);
             command_result += " --length " + std::to_string(length);
             command_result += " -vth " + convert_float(vth);
-            command_result += "--print-colors";
+            command_result += " --keep 0";
             return command_result;
         }
 
@@ -66,6 +64,9 @@ class VoiceRecognition : public SEDThread {
 
             if (data_str.size() == 0){
                 std::cout << "Recog ignored" << std::endl;
+                if (!process_queue.is_empty()){
+                    process_queue.notify();
+                }
             }
             else{
                 std::cout << "Recog output: " << data_str << std::endl;
