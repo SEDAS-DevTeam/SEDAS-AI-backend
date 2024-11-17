@@ -21,21 +21,20 @@ static void signal_handler(int signal){
 
 int main(){
 
-    std::cout << "Test?" << std::endl;
-
     std::signal(SIGINT, signal_handler);
 
-    std::thread thread_recog(&VoiceRecognition::run, &voice_recog);
-    std::thread thread_process(&ProcessData::run, &text_process);
-    std::thread thread_synth(&SpeechSynthesis::run, &speech_synth);
+    //std::thread thread_recog(&VoiceRecognition::run, &voice_recog);
+    //std::thread thread_process(&ProcessData::run, &text_process);
+    //std::thread thread_synth(&SpeechSynthesis::run, &speech_synth);
 
-    voice_recog.start();
-    text_process.start();
-    speech_synth.start();
+    speech_synth.setup_model_registry();
+
+    //voice_recog.start();
+    //text_process.start();
+    //speech_synth.start();
 
     /*
         A simple loop to keep everything running
-    */
     
     while (running){
         sleep(1);
@@ -43,14 +42,15 @@ int main(){
 
     voice_recog.stop();
     text_process.stop();
-    speech_synth.stop();
+    //speech_synth.stop();
 
     process_queue.terminate();
     synth_queue.terminate();
 
     thread_recog.join();
     thread_process.join();
-    thread_synth.join();
+    //thread_synth.join();
+    */
 
     std::cout << "Main program terminated." << std::endl;
     return 0;

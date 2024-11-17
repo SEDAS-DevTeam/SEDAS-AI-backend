@@ -1,9 +1,26 @@
+class Pseudopilot {
+    public:
+        std::vector<std::string> model_paths;
+        std::string callsign;
+        float noise_intensity; //placeholder
+
+        Pseudopilot(std::string init_callsign, float init_intensity){
+            callsign = init_callsign;
+            noise_intensity = init_intensity;
+        }
+
+        void assign_voice(){
+
+        }
+};
+
 class SpeechSynthesis : public SEDThread {
     private:
         std::string COMMAND_STREAM   = main_path + "PlaneResponse/model/speech_synth/piper";
         std::string COMMAND_MODEL_DIR    = main_path + "PlaneResponse/model/speech_synth/model_source";
         std::string COMMAND_TEMP_OUT = main_path + "PlaneResponse/temp_out/out.wav";
-        std::vector<std::vector<std::string, std::string>> model_registry;
+        std::vector<std::vector<std::string>> model_registry;
+        std::vector<Pseudopilot> pseudopilot_registy;
 
         void process_synthesis(){
             std::string input = synth_queue.get_element();
@@ -20,7 +37,7 @@ class SpeechSynthesis : public SEDThread {
 
         std::string choose_pseudopilot(const std::string& type){
             if (type == "random"){
-                return model_registry[0][1]; //TODO
+                //return model_registry[0][1]; //TODO
             }
             else if (type == "designated"){
 
@@ -49,7 +66,7 @@ class SpeechSynthesis : public SEDThread {
 
                 if (model_path.is_regular_file() && model_json_filename.find(".json") != std::string::npos){
                     // search only by .json files, then find .onnx file pairs
-                    size_t pos = model_json_filename.find(".json");
+                    size_t pos = model_onnx_filename.find(".json");
                     if (pos != std::string::npos) { // Check if substring exists
                         model_onnx_filename.erase(pos, model_onnx_filename.length()); // Remove the substring
                     }
@@ -59,6 +76,15 @@ class SpeechSynthesis : public SEDThread {
                     model_registry.push_back({json_record, onnx_record});
                 }
             }
+        }
+
+        /* Pilot commands */
+        void init_pseudopilot(std::string callsign, float noise_intensity){
+            // setup pseudopilot
+            Pseudopilot spec_pseudopilot("OKL4545", 0.6);
+            spec_pseudopilot.assign_voice();
+
+            pseudopilot_registy.push_back(spec_pseudopilot);
         }
 
         void run(){
