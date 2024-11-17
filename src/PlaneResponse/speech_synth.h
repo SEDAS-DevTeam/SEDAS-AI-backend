@@ -1,16 +1,22 @@
+typedef std::vector<std::vector<std::string>> str_matrix;
+
 class Pseudopilot {
     public:
         std::vector<std::string> model_paths;
         std::string callsign;
         float noise_intensity; //placeholder
 
+        std::string onnx_path;
+        std::string json_path;
+
         Pseudopilot(std::string init_callsign, float init_intensity){
             callsign = init_callsign;
             noise_intensity = init_intensity;
         }
 
-        void assign_voice(){
-
+        void assign_voice(std::string onnx_config, std::string json_config){
+            onnx_path = onnx_config;
+            json_path = json_config;
         }
 };
 
@@ -19,7 +25,9 @@ class SpeechSynthesis : public SEDThread {
         std::string COMMAND_STREAM   = main_path + "PlaneResponse/model/speech_synth/piper";
         std::string COMMAND_MODEL_DIR    = main_path + "PlaneResponse/model/speech_synth/model_source";
         std::string COMMAND_TEMP_OUT = main_path + "PlaneResponse/temp_out/out.wav";
-        std::vector<std::vector<std::string>> model_registry;
+        str_matrix model_registry; // register all models
+        str_matrix remaining_models; // keep track of what models were registered
+
         std::vector<Pseudopilot> pseudopilot_registy;
 
         void process_synthesis(){
@@ -57,6 +65,16 @@ class SpeechSynthesis : public SEDThread {
             return "aplay " + COMMAND_TEMP_OUT;
         }
 
+        std::tuple<std::string, std::string> choose_random_configuration(){
+            int idx = rand_choice(remaining_models.size());
+            std::string json_record = remaining_models[idx][0];
+            std::string onnx_record = remaining_models[idx][1];
+
+            remaining_models.erase(remaining_models.begin() + idx);
+
+            return {json_record, onnx_record};
+        }
+
     public:
         void setup_model_registry(){
             // Load all models
@@ -74,6 +92,7 @@ class SpeechSynthesis : public SEDThread {
                     std::string json_record = COMMAND_MODEL_DIR + "/" + model_json_filename;
 
                     model_registry.push_back({json_record, onnx_record});
+                    remaining_models.push_back({json_record, onnx_record});
                 }
             }
         }
@@ -82,8 +101,9 @@ class SpeechSynthesis : public SEDThread {
         void init_pseudopilot(std::string callsign, float noise_intensity){
             // setup pseudopilot
             Pseudopilot spec_pseudopilot("OKL4545", 0.6);
-            spec_pseudopilot.assign_voice();
 
+            auto [json, onnx] = choose_random_configuration();
+            spec_pseudopilot.assign_voice(onnx, json);
             pseudopilot_registy.push_back(spec_pseudopilot);
         }
 

@@ -8,6 +8,8 @@
 #include <condition_variable>
 #include <mutex>
 #include <map>
+#include <tuple>
+#include <cstdlib>
 
 class SEDQueue {
     public:
@@ -72,6 +74,11 @@ std::string execute_command(const char* cmd) {
         std::cout << buffer.data();
     }
     return result;
+}
+
+int rand_choice(uint32_t npos){
+    srand(time(NULL));
+    return rand() / npos;
 }
 
 // runtime definitions
