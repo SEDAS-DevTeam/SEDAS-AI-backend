@@ -36,11 +36,11 @@ int main(){
     //std::thread thread_process(&ProcessData::run, &text_process);
     //std::thread thread_synth(&SpeechSynthesis::run, &speech_synth);
 
-    std::vector<std::string> install_list = check_models(config_synth);
+    str_matrix install_list = check_models(config_synth);
     refetch_missing(install_list);
 
     speech_synth.setup_model_registry();
-    speech_synth.init_pseudopilot("OKL4545", 0.6);
+    speech_synth.init_pseudopilot("OKL4545", 0.5f);
 
     // when getting synth input
     speech_synth.pseudopilot_respond("OKL4545", "flying heading zero niner zero");

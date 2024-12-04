@@ -1,4 +1,5 @@
 std::string fetch_url = "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/";
+std::string synth_model_paths = main_path + "PlaneResponse/model/speech_synth/model_source/";
 
 std::string reconstruct_url(std::string model_name, std::string file_type){
     std::string spec_fetch_url = fetch_url;
@@ -7,11 +8,10 @@ std::string reconstruct_url(std::string model_name, std::string file_type){
     return spec_fetch_url;
 }
 
-std::vector<std::string> check_models(json config_data){
-    std::string synth_model_paths = main_path + "PlaneResponse/model/speech_synth/model_source/";
+str_matrix check_models(json config_data){
 
     std::vector<std::string> paths;
-    std::vector<std::string> to_install;
+    str_matrix to_install;
     for (const auto& model_path : fs::directory_iterator(synth_model_paths)){
         paths.push_back(model_path.path());
     }
@@ -31,20 +31,20 @@ std::vector<std::string> check_models(json config_data){
 
         if (!onnx_found){
             std::cout << "onnx file for: " + model_name + " is missing, refetching..." << std::endl;
-            to_install.push_back(reconstruct_url(model_name, ".onnx"));
+            to_install.push_back({reconstruct_url(model_name, ".onnx"), full_path_onnx});
         }
 
         if (!json_found){
             std::cout << "json file for: " + model_name + " is missing, refetching..." << std::endl;
-            to_install.push_back(reconstruct_url(model_name, ".onnx"));
+            to_install.push_back({reconstruct_url(model_name, ".onnx.json"), full_path_json});
         }
     }
 
     return to_install;
 }
 
-void refetch_missing(std::vector<std::string> install_list){
-    for (std::string install_record : install_list){
-        download_file_from_url(install_record);
+void refetch_missing(str_matrix install_list){
+    for (auto& install_record : install_list){
+        download_file_from_url(install_record[0], install_record[1]);
     }
 }

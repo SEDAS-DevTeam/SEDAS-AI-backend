@@ -1,6 +1,75 @@
 std::string COMMAND_STREAM   = main_path + "PlaneResponse/model/speech_synth/piper";
-std::string COMMAND_TEMP_OUT = main_path + "PlaneResponse/temp_out/out.wav";
-typedef std::vector<std::vector<std::string>> str_matrix;
+std::string COMMAND_TEMP_OUT = main_path + "PlaneResponse/temp_out/";
+
+struct WavHeader {
+    char riff[4];                // "RIFF"
+    uint32_t chunkSize;          // File size - 8 bytes
+    char wave[4];                // "WAVE"
+    char fmt[4];                 // "fmt "
+    uint32_t subChunk1Size;      // 16 for PCM
+    uint16_t audioFormat;        // PCM = 1
+    uint16_t numChannels;        // Mono = 1, Stereo = 2
+    uint32_t sampleRate;         // 44100, 48000, etc.
+    uint32_t byteRate;           // SampleRate * NumChannels * BitsPerSample / 8
+    uint16_t blockAlign;         // NumChannels * BitsPerSample / 8
+    uint16_t bitsPerSample;      // 8, 16, 24, or 32
+    char data[4];                // "data"
+    uint32_t dataSize;           // Audio data size
+};
+
+void add_noise_to_wav(const std::string& input_file, float noiseLevel) {
+    // Open input file
+    std::ifstream in(input_file, std::ios::binary);
+    if (!in) {
+        std::cerr << "Error: Cannot open input file\n";
+        return;
+    }
+
+    // Read header
+    WavHeader header;
+    in.read(reinterpret_cast<char*>(&header), sizeof(header));
+
+    // Verify WAV format
+    if (std::string(header.riff, 4) != "RIFF" || std::string(header.wave, 4) != "WAVE") {
+        std::cerr << "Error: Invalid WAV file\n";
+        return;
+    }
+
+    // Read audio data
+    std::vector<int16_t> audioData(header.dataSize / sizeof(int16_t));
+    in.read(reinterpret_cast<char*>(audioData.data()), header.dataSize);
+    in.close();
+
+    // Add noise
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> dist(-noiseLevel, noiseLevel);
+
+    for (auto& sample : audioData) {
+        float noise = dist(gen) * INT16_MAX * 0.1f; // Scale noise to 16-bit range
+        int32_t noisySample = static_cast<int32_t>(sample) + static_cast<int32_t>(noise);
+
+        // Clamp to valid range for 16-bit audio
+        if (noisySample > INT16_MAX) noisySample = INT16_MAX;
+        if (noisySample < INT16_MIN) noisySample = INT16_MIN;
+
+        sample = static_cast<int16_t>(noisySample);
+    }
+
+    // Write output file
+    std::ofstream out(input_file, std::ios::binary);
+    if (!out) {
+        std::cerr << "Error: Cannot open output file\n";
+        return;
+    }
+
+    // Write header
+    out.write(reinterpret_cast<char*>(&header), sizeof(header));
+
+    // Write modified audio data
+    out.write(reinterpret_cast<char*>(audioData.data()), header.dataSize);
+    out.close();
+}
 
 class Pseudopilot {
     private:
@@ -9,23 +78,23 @@ class Pseudopilot {
             
             command_result += COMMAND_STREAM;
             command_result += " --model " + onnx_path;
-            command_result += " --output_file " + COMMAND_TEMP_OUT;
+            command_result += " --output_file " + COMMAND_TEMP_OUT + callsign + ".wav";
             
             execute_command(command_result.c_str());
         }
 
         void play(){
-            std::string result = "aplay " + COMMAND_TEMP_OUT;
+            std::string result = "aplay " + COMMAND_TEMP_OUT + callsign + ".wav";
             execute_command(result.c_str());
         }
 
         void add_noise(){
-            //TODO:
+            add_noise_to_wav(COMMAND_TEMP_OUT + callsign + ".wav", noise_intensity);
         }
 
     public:
         std::string callsign;
-        float noise_intensity; //placeholder
+        float noise_intensity;
 
         std::string onnx_path;
         std::string json_path;

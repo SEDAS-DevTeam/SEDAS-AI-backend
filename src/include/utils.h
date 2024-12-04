@@ -12,11 +12,13 @@
 #include <tuple>
 #include <cstdlib>
 #include <algorithm>
+#include <random>
 
 #include <curl/curl.h>
 
 namespace fs = std::filesystem;
 using json = nlohmann::json;
+typedef std::vector<std::vector<std::string>> str_matrix;
 bool running = true;
 const std::string main_path = fs::current_path().u8string() + "/";
 
@@ -118,8 +120,56 @@ std::vector<std::string> split_string(const std::string& str, char delimiter) {
     return tokens;
 }
 
-void download_file_from_url(std::string& url){
+size_t download_callback(void* contents, size_t size, size_t nmemb, std::string* output){
+    size_t total_size = size * nmemb;
+    output->append((char*)contents, total_size);
+    return total_size;
+}
+
+void download_file_from_url(std::string& url, std::string& path){
+
+    CURL* curl = curl_easy_init();
+    if (!curl) {
+        std::cerr << "Failed to initialize CURL" << std::endl;
+        return;
+    }
+
+    std::string content;
     
+    try{
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, download_callback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &content);
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L); // Enable automatic redirects
+        curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 5L); // Limit max number of redirects
+
+        // Perform the request
+        CURLcode res = curl_easy_perform(curl);
+
+        if (res != CURLE_OK) {
+            std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
+            curl_easy_cleanup(curl);
+            return;
+        }
+
+        std::ofstream output_file(path);
+
+        if (!output_file) {
+            std::cerr << "Unable to open file: " << path << std::endl;
+            curl_easy_cleanup(curl);
+            return;
+        }
+        output_file << content;
+        output_file.close();
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Exception occurred: " << e.what() << std::endl;
+        curl_easy_cleanup(curl);
+        return;
+    }
+
+    // Clean up
+    curl_easy_cleanup(curl);
 }
 
 // runtime definitions
