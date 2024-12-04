@@ -1,8 +1,29 @@
+std::string COMMAND_STREAM   = main_path + "PlaneResponse/model/speech_synth/piper";
+std::string COMMAND_TEMP_OUT = main_path + "PlaneResponse/temp_out/out.wav";
 typedef std::vector<std::vector<std::string>> str_matrix;
 
 class Pseudopilot {
+    private:
+        void synth(const std::string& input){
+            std::string command_result = "echo '" + input + "' | "; //source text
+            
+            command_result += COMMAND_STREAM;
+            command_result += " --model " + onnx_path;
+            command_result += " --output_file " + COMMAND_TEMP_OUT;
+            
+            execute_command(command_result.c_str());
+        }
+
+        void play(){
+            std::string result = "aplay " + COMMAND_TEMP_OUT;
+            execute_command(result.c_str());
+        }
+
+        void add_noise(){
+            //TODO:
+        }
+
     public:
-        std::vector<std::string> model_paths;
         std::string callsign;
         float noise_intensity; //placeholder
 
@@ -18,29 +39,25 @@ class Pseudopilot {
             onnx_path = onnx_config;
             json_path = json_config;
         }
+
+        void respond(std::string &query){
+            synth(query);
+            add_noise();
+            play();
+        }
 };
 
 class SpeechSynthesis : public SEDThread {
     private:
-        std::string COMMAND_STREAM   = main_path + "PlaneResponse/model/speech_synth/piper";
-        std::string COMMAND_MODEL_DIR    = main_path + "PlaneResponse/model/speech_synth/model_source";
-        std::string COMMAND_TEMP_OUT = main_path + "PlaneResponse/temp_out/out.wav";
+        std::string COMMAND_MODEL_DIR = main_path + "PlaneResponse/model/speech_synth/model_source";
         str_matrix model_registry; // register all models
         str_matrix remaining_models; // keep track of what models were registered
 
-        std::vector<Pseudopilot> pseudopilot_registy;
+        std::vector<Pseudopilot> pseudopilot_registry;
 
         void process_synthesis(){
             std::string input = synth_queue.get_element();
             //std::cout << "Got input2: " << input << std::endl;
-
-            //make_command_synth(input);
-            //add_noise();
-            //make_command_play();
-        }
-
-        void add_noise(){
-
         }
 
         std::string choose_pseudopilot(const std::string& type){
@@ -50,19 +67,6 @@ class SpeechSynthesis : public SEDThread {
             else if (type == "designated"){
 
             }
-        }
-
-        std::string make_command_synth(const std::string& input){
-            std::string command_result = "echo '" + input + "' | "; //source text
-            
-            command_result += COMMAND_STREAM;
-            command_result += " --model " + choose_pseudopilot("random"); //TODO: add pilot designated system
-            command_result += " --output_file " + COMMAND_TEMP_OUT;
-            return command_result;
-        }
-
-        std::string make_command_play(){
-            return "aplay " + COMMAND_TEMP_OUT;
         }
 
         std::tuple<std::string, std::string> choose_random_configuration(){
@@ -104,7 +108,15 @@ class SpeechSynthesis : public SEDThread {
 
             auto [json, onnx] = choose_random_configuration();
             spec_pseudopilot.assign_voice(onnx, json);
-            pseudopilot_registy.push_back(spec_pseudopilot);
+            pseudopilot_registry.push_back(spec_pseudopilot);
+        }
+
+        void pseudopilot_respond(std::string callsign, std::string input){
+            for (Pseudopilot pseudopilot : pseudopilot_registry){
+                if (pseudopilot.callsign == callsign){
+                    pseudopilot.respond(input);
+                }
+            }
         }
 
         void run(){

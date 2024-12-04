@@ -4,9 +4,9 @@ class VoiceRecognition : public SEDThread {
         std::string COMMAND_MODEL  = main_path + "PlaneResponse/model/voice_recog/ggml-base.en.bin";
         
         // model configuration
-        uint32_t t = 8; // number of threads
-        uint64_t length = 10000; // length of processed audio chunk
-        float vth = 0.6;
+        uint32_t t = config_data["t"]; // number of threads
+        uint64_t length = config_data["length"]; // length of processed audio chunk
+        float vth = config_data["vth"];
         
         std::string convert_float(float spec_float){
             std::ostringstream out;

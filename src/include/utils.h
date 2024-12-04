@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <thread>
 #include <unistd.h>
 #include <csignal>
@@ -10,6 +11,11 @@
 #include <map>
 #include <tuple>
 #include <cstdlib>
+
+namespace fs = std::filesystem;
+using json = nlohmann::json;
+bool running = true;
+const std::string main_path = fs::current_path().u8string() + "/";
 
 class SEDQueue {
     public:
@@ -54,12 +60,21 @@ class SEDQueue {
 
 class SEDThread {
     public:
+        json config_data = json::object();
+
         bool running = true;
         bool thread_stop = true;
 
         void start(){ thread_stop = false; }
         void stop(){ running = false; }
         void pause(){ thread_stop = true; }
+
+        void load_config(std::string config_name){
+            std::string config_path = main_path + "PlaneResponse/config/" + config_name + ".json";
+            std::ifstream config_file(config_path);
+            
+            config_data = json::parse(config_file);
+        }
 };
 
 std::string execute_command(const char* cmd) {
@@ -78,13 +93,9 @@ std::string execute_command(const char* cmd) {
 
 int rand_choice(uint32_t npos){
     srand(time(NULL));
-    return rand() / npos;
+    return rand() % npos;
 }
 
 // runtime definitions
 SEDQueue process_queue;
 SEDQueue synth_queue;
-
-bool running = true;
-namespace fs = std::filesystem;
-const std::string main_path = fs::current_path().u8string() + "/";
