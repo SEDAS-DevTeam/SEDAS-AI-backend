@@ -13,6 +13,8 @@
 #include <cstdlib>
 #include <algorithm>
 
+#include <curl/curl.h>
+
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 bool running = true;
@@ -98,6 +100,26 @@ json load_config(std::string config_name){
 
 bool search_vector(std::vector<std::string> vec, std::string input){
     return std::find(vec.begin(), vec.end(), input) != vec.end();
+}
+
+bool search_string(std::string str, std::string substr){
+    return str.find(substr) != std::string::npos;
+}
+
+std::vector<std::string> split_string(const std::string& str, char delimiter) {
+    std::vector<std::string> tokens;
+    std::stringstream ss(str);
+    std::string token;
+    
+    while (std::getline(ss, token, delimiter)) {
+        tokens.push_back(token);
+    }
+    
+    return tokens;
+}
+
+void download_file_from_url(std::string& url){
+    
 }
 
 // runtime definitions

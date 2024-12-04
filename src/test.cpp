@@ -36,8 +36,8 @@ int main(){
     //std::thread thread_process(&ProcessData::run, &text_process);
     //std::thread thread_synth(&SpeechSynthesis::run, &speech_synth);
 
-    check_models(config_synth);
-    refetch_missing();
+    std::vector<std::string> install_list = check_models(config_synth);
+    refetch_missing(install_list);
 
     speech_synth.setup_model_registry();
     speech_synth.init_pseudopilot("OKL4545", 0.6);
