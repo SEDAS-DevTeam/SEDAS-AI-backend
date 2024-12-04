@@ -25,15 +25,18 @@ int main(){
     // set sigint for graceful stop
     std::signal(SIGINT, signal_handler);
 
-    voice_recog.load_config("config_recog");
-    text_process.load_config("config_process");
-    speech_synth.load_config("config_synth");
+    // models setup and initialization
+    json config_recog = load_config("config_recog");
+    json config_process = load_config("config_process");
+    json config_synth = load_config("config_synth");
+
+    voice_recog.load_params(config_recog);
 
     //std::thread thread_recog(&VoiceRecognition::run, &voice_recog);
     //std::thread thread_process(&ProcessData::run, &text_process);
     //std::thread thread_synth(&SpeechSynthesis::run, &speech_synth);
 
-    check_models(speech_synth.config_data);
+    check_models(config_synth);
     refetch_missing();
 
     speech_synth.setup_model_registry();

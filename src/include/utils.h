@@ -11,6 +11,7 @@
 #include <map>
 #include <tuple>
 #include <cstdlib>
+#include <algorithm>
 
 namespace fs = std::filesystem;
 using json = nlohmann::json;
@@ -60,7 +61,6 @@ class SEDQueue {
 
 class SEDThread {
     public:
-        json config_data = json::object();
 
         bool running = true;
         bool thread_stop = true;
@@ -68,13 +68,6 @@ class SEDThread {
         void start(){ thread_stop = false; }
         void stop(){ running = false; }
         void pause(){ thread_stop = true; }
-
-        void load_config(std::string config_name){
-            std::string config_path = main_path + "PlaneResponse/config/" + config_name + ".json";
-            std::ifstream config_file(config_path);
-            
-            config_data = json::parse(config_file);
-        }
 };
 
 std::string execute_command(const char* cmd) {
@@ -94,6 +87,17 @@ std::string execute_command(const char* cmd) {
 int rand_choice(uint32_t npos){
     srand(time(NULL));
     return rand() % npos;
+}
+
+json load_config(std::string config_name){
+    std::string config_path = main_path + "PlaneResponse/config/" + config_name + ".json";
+    std::ifstream config_file(config_path);
+    
+    return json::parse(config_file);
+}
+
+bool search_vector(std::vector<std::string> vec, std::string input){
+    return std::find(vec.begin(), vec.end(), input) != vec.end();
 }
 
 // runtime definitions

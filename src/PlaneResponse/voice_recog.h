@@ -2,11 +2,11 @@ class VoiceRecognition : public SEDThread {
     private:
         std::string COMMAND_STREAM = main_path + "PlaneResponse/model/voice_recog/stream_recog";
         std::string COMMAND_MODEL  = main_path + "PlaneResponse/model/voice_recog/ggml-base.en.bin";
-        
+
         // model configuration
-        uint32_t t = config_data["t"]; // number of threads
-        uint64_t length = config_data["length"]; // length of processed audio chunk
-        float vth = config_data["vth"];
+        uint32_t t; // number of threads
+        uint64_t length; // length of processed audio chunk
+        float vth;
         
         std::string convert_float(float spec_float){
             std::ostringstream out;
@@ -78,6 +78,12 @@ class VoiceRecognition : public SEDThread {
 
     public:
         std::queue<std::string> out;
+
+        void load_params(json config_data){
+            t = config_data["t"]; // number of threads
+            length = config_data["length"]; // length of processed audio chunk
+            vth = config_data["vth"];
+        }
 
         void run(){
             std::array<char, 128> buffer;
