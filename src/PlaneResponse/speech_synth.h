@@ -196,7 +196,7 @@ class SpeechSynthesis : public SEDThread {
         /* Pilot commands */
         void init_pseudopilot(std::string callsign, float noise_intensity){
             // setup pseudopilot
-            Pseudopilot spec_pseudopilot("OKL4545", 0.6);
+            Pseudopilot spec_pseudopilot(callsign, 0.6);
 
             auto [json, onnx] = choose_random_configuration();
             spec_pseudopilot.assign_voice(onnx, json);

@@ -30,42 +30,44 @@ int main(){
     json config_process = load_config("config_process");
     json config_synth = load_config("config_synth");
 
+    // initialize models
     voice_recog.load_params(config_recog);
-
-    //std::thread thread_recog(&VoiceRecognition::run, &voice_recog);
-    //std::thread thread_process(&ProcessData::run, &text_process);
-    //std::thread thread_synth(&SpeechSynthesis::run, &speech_synth);
-
     str_matrix install_list = check_models(config_synth);
     refetch_missing(install_list);
 
-    speech_synth.setup_model_registry();
-    speech_synth.init_pseudopilot("OKL4545", 0.5f);
+    std::thread thread_recog(&VoiceRecognition::run, &voice_recog);
+    std::thread thread_process(&ProcessData::run, &text_process);
+    std::thread thread_synth(&SpeechSynthesis::run, &speech_synth);
 
-    // when getting synth input
-    speech_synth.pseudopilot_respond("OKL4545", "flying heading zero niner zero");
-    //voice_recog.start();
-    //text_process.start();
-    //speech_synth.start();
+    // EXAMPLE:
+    //speech_synth.setup_model_registry();
+    //speech_synth.init_pseudopilot("OKL4545", 0.5f);
+    //speech_synth.init_pseudopilot("UXA123", 0.3f);
+    //speech_synth.pseudopilot_respond("OKL4545", "flying heading zero niner zero");
+    //sleep(2);
+    //speech_synth.pseudopilot_respond("UXA123", "climbing flight level one hundred");
+
+    voice_recog.start();
+    text_process.start();
+    speech_synth.start();
 
     /*
         A simple loop to keep everything running
-    
+    */
     while (running){
         sleep(1);
     }
 
     voice_recog.stop();
     text_process.stop();
-    //speech_synth.stop();
+    speech_synth.stop();
 
     process_queue.terminate();
     synth_queue.terminate();
 
     thread_recog.join();
     thread_process.join();
-    //thread_synth.join();
-    */
+    thread_synth.join();
 
     std::cout << "Main program terminated." << std::endl;
     return 0;
