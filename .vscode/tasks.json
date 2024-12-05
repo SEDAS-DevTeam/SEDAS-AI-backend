@@ -8,6 +8,7 @@
                 "-fdiagnostics-color=always",
                 "-g",
                 "${file}",
+                "-lcurl",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}"
             ],

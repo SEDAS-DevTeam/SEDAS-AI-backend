@@ -74,7 +74,30 @@ void add_noise_to_wav(const std::string& input_file, float noiseLevel) {
 class Pseudopilot {
     private:
         void synth(const std::string& input){
-            std::string command_result = "echo '" + input + "' | "; //source text
+            std::string callsign_dist;
+            for (int i = 0; i < callsign.size(); i++){
+                bool found_corr_char = false;
+
+                // check for nato
+                for (auto& pair : nato_map){
+                    if (pair.second[0] == callsign[i]){
+                        callsign_dist += (pair.first + " ");
+                        found_corr_char = true;
+                        break;
+                    }
+                }
+                if (found_corr_char) { continue; }
+
+                // check for nums
+                for (auto& pair : num_map){
+                    if (pair.second[0] == callsign[i]){
+                        callsign_dist += (pair.first + " ");
+                        break;
+                    }
+                }
+            }
+
+            std::string command_result = "echo '" + callsign_dist + ", " + input + "' | "; //source text
             
             command_result += COMMAND_STREAM;
             command_result += " --model " + onnx_path;

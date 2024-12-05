@@ -16,11 +16,55 @@
 
 #include <curl/curl.h>
 
+// definitions/aliases
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 typedef std::vector<std::vector<std::string>> str_matrix;
 bool running = true;
 const std::string main_path = fs::current_path().u8string() + "/";
+
+// definitions for ATC
+std::map<std::string, std::string> nato_map = {
+    { "alpha", "A" },
+    { "beta", "B" },
+    { "charlie", "C" },
+    { "delta", "D" },
+    { "echo", "E" },
+    { "foxtrot", "F" },
+    { "golf", "G" },
+    { "hotel", "H" },
+    { "india", "I" },
+    { "juliet", "J" },
+    { "kilo", "K" },
+    { "lima", "L" },
+    { "mike", "M" },
+    { "november", "N" },
+    { "oscar", "O" },
+    { "papa", "P" },
+    { "quebec", "Q" },
+    { "romeo", "R" },
+    { "sierra", "S" },
+    { "tango", "T" },
+    { "uniform", "U" },
+    { "victor", "V" },
+    { "whiskey", "W" },
+    { "x-ray", "X" },
+    { "yankee", "Y" },
+    { "zulu", "Z" }
+};
+
+std::map<std::string, std::string> num_map = {
+    { "zero", "0" },
+    { "one", "1" },
+    { "two", "2" },
+    { "three", "3" },
+    { "four", "4" },
+    { "five", "5" },
+    { "six", "6" },
+    { "seven", "7" },
+    { "eight", "8" },
+    { "niner", "9" }
+};
 
 class SEDQueue {
     public:
