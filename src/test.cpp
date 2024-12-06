@@ -35,17 +35,14 @@ int main(){
     str_matrix install_list = check_models(config_synth);
     refetch_missing(install_list);
 
+    speech_synth.setup_model_registry();
+
     std::thread thread_recog(&VoiceRecognition::run, &voice_recog);
     std::thread thread_process(&ProcessData::run, &text_process);
     std::thread thread_synth(&SpeechSynthesis::run, &speech_synth);
 
-    // EXAMPLE:
-    //speech_synth.setup_model_registry();
-    //speech_synth.init_pseudopilot("OKL4545", 0.5f);
-    //speech_synth.init_pseudopilot("UXA123", 0.3f);
-    //speech_synth.pseudopilot_respond("OKL4545", "flying heading zero niner zero");
-    //sleep(2);
-    //speech_synth.pseudopilot_respond("UXA123", "climbing flight level one hundred");
+    // TODO: just a sample how should the pseudopilot be initialized
+    speech_synth.init_pseudopilot("OKL4545", 0.5f);
 
     voice_recog.start();
     text_process.start();
@@ -61,6 +58,9 @@ int main(){
     voice_recog.stop();
     text_process.stop();
     speech_synth.stop();
+
+    speech_synth.remove_pseudopilot("OKL4545");
+    speech_synth.cleanup();
 
     process_queue.terminate();
     synth_queue.terminate();

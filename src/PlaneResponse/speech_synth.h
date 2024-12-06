@@ -149,16 +149,16 @@ class SpeechSynthesis : public SEDThread {
 
         void process_synthesis(){
             std::string input = synth_queue.get_element();
-            //std::cout << "Got input2: " << input << std::endl;
-        }
+            std::stringstream ss(input);
+            std::vector<std::string> result;
+            std::string substring;
 
-        std::string choose_pseudopilot(const std::string& type){
-            if (type == "random"){
-                //return model_registry[0][1]; //TODO
+            while (std::getline(ss, substring, ',')){
+                result.push_back(substring);
             }
-            else if (type == "designated"){
 
-            }
+            std::cout << "Generating synth for: " << result[0] << " with input: " << result[1] << std::endl;
+            pseudopilot_respond(result[0], result[1]);
         }
 
         std::tuple<std::string, std::string> choose_random_configuration(){
@@ -201,6 +201,30 @@ class SpeechSynthesis : public SEDThread {
             auto [json, onnx] = choose_random_configuration();
             spec_pseudopilot.assign_voice(onnx, json);
             pseudopilot_registry.push_back(spec_pseudopilot);
+        }
+
+        void remove_pseudopilot(std::string callsign){
+            // remove pseudopilot record
+            for (int i = 0; i < pseudopilot_registry.size(); i++){
+                if (pseudopilot_registry[i].callsign == callsign){
+                    pseudopilot_registry.erase(pseudopilot_registry.begin() + i);
+                }
+            }
+
+            // remove pseudopilot trace
+            std::string trace = COMMAND_TEMP_OUT + callsign + ".wav";
+            if (fs::exists(trace)){ fs::remove(trace); }
+        }
+
+        void cleanup(){
+            pseudopilot_registry.clear();
+
+            if (fs::exists(COMMAND_TEMP_OUT) && fs::is_directory(COMMAND_TEMP_OUT)){
+                for (auto& entry : fs::directory_iterator(COMMAND_TEMP_OUT)){
+                    if (search_string(entry.path().u8string(), ".gitkeep")){ continue; }
+                    fs::remove(entry);
+                }
+            }
         }
 
         void pseudopilot_respond(std::string callsign, std::string input){
