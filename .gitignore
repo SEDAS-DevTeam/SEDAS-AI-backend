@@ -5,9 +5,6 @@
 /src/PlaneResponse/temp_out/*
 !/src/PlaneResponse/temp_out/.gitkeep
 
-/src/lib/*
-!/src/lib/.gitkeep
-
 #ACAI
 /src/ACAI/models/*
 !/src/ACAI/models/.gitkeep
