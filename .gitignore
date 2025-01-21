@@ -1,20 +1,9 @@
 #Automatically generated files
-/src/PlaneResponse/__pycache__
-/src/test
-
-/src/PlaneResponse/temp_out/*
-!/src/PlaneResponse/temp_out/.gitkeep
-
-#ACAI
-/src/ACAI/models/*
-!/src/ACAI/models/.gitkeep
-/src/ACAI/dataset/
-
-#Map generation
-/src/gen_map/models/*
-!/src/gen_map/models/.gitkeep
-/src/gen_map/dataset/
+# pycache
+/src/PlaneResponse/__pycache__ 
+# g++ binary
+/src/test 
 
 #PlaneResponse
-/src/PlaneResponse/model/*
-/src/PlaneResponse/model/.gitkeep
+/src/PlaneResponse/models/*
+/src/PlaneResponse/models/.gitkeep

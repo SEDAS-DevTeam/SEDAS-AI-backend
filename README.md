@@ -25,3 +25,4 @@ There are 3 segments of this code:
 - [ ] incorporate into SEDAS-manager
 - [ ] Add json submodule
 - [ ] Change TextProcessing algorithm into something more stable
+- [ ] Add how-to-run in README
