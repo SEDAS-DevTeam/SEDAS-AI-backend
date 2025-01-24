@@ -1,12 +1,19 @@
-#Automatically generated files
+## Automatically generated files
 # pycache
 /src/PlaneResponse/__pycache__ 
 # g++ binary
 /src/test 
 
-#PlaneResponse
+## PlaneResponse
+# ASR resources directory
 /src/PlaneResponse/models/asr/*
 !/src/PlaneResponse/models/asr/.gitkeep
 
+# TTS resources directory
 /src/PlaneResponse/models/tts/*
 !/src/PlaneResponse/models/tts/.gitkeep
+
+# TTS Voices resources directory
+/src/PlaneResponse/models/tts/voices/*
+!/src/PlaneResponse/models/tts/voices
+!/src/PlaneResponse/models/tts/voices/.gitkeep
