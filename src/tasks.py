@@ -13,9 +13,10 @@ def add_args(command, *args):
 @task
 def build(ctx):
     print("Building main project...")
-    ctx.run(add_args("g++", "./test", "./test.cpp"))
+    ctx.run(add_args("g++", "./test.cpp", "-o", "./test", "-lcurl"))
 
 
 @task
 def run(ctx):
     print("Running main project...")
+    ctx.run("./test")

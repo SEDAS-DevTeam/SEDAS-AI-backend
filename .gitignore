@@ -5,5 +5,8 @@
 /src/test 
 
 #PlaneResponse
-/src/PlaneResponse/models/*
-/src/PlaneResponse/models/.gitkeep
+/src/PlaneResponse/models/asr/*
+!/src/PlaneResponse/models/asr/.gitkeep
+
+/src/PlaneResponse/models/tts/*
+!/src/PlaneResponse/models/tts/.gitkeep

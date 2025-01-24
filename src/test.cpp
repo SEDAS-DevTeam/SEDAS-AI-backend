@@ -1,7 +1,7 @@
 /*
     Sample testing file to test all AI models
 */
-#include "./lib/json.hpp"
+#include "./lib/json/single_include/nlohmann/json.hpp"
 #include "./include/utils.h"
 
 #include "./PlaneResponse/voice_recog.h"
@@ -25,15 +25,24 @@ int main(){
     // set sigint for graceful stop
     std::signal(SIGINT, signal_handler);
 
-    // models setup and initialization
-    json config_recog = load_config("config_recog");
-    json config_process = load_config("config_process");
-    json config_synth = load_config("config_synth");
+    // loading configurations
+    std::string recog_path = main_path / fs::path("PlaneResponse/config/config_recog.json");
+    std::string process_path = main_path / fs::path("PlaneResponse/config/config_process.json");
+    std::string synth_path = main_path / fs::path("PlaneResponse/config/config_synth.json");
+
+    json config_recog = load_config(recog_path);
+    json config_process = load_config(process_path);
+    json config_synth = load_config(synth_path);
+    
 
     // initialize models
     voice_recog.load_params(config_recog);
-    str_matrix install_list = check_models(config_synth);
-    refetch_missing(install_list);
+    
+    // TODO: no usage for this feature (right now)
+    // str_matrix install_list = check_models(config_synth);
+    // refetch_missing(install_list);
+
+    return 0;
 
     speech_synth.setup_model_registry();
 

@@ -137,10 +137,8 @@ int rand_choice(uint32_t npos){
     return rand() % npos;
 }
 
-json load_config(std::string config_name){
-    std::string config_path = main_path + "PlaneResponse/config/" + config_name + ".json";
+json load_config(std::string config_path){
     std::ifstream config_file(config_path);
-    
     return json::parse(config_file);
 }
 

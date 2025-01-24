@@ -83,5 +83,6 @@
         "ranges": "cpp",
         "valarray": "cpp",
         "__string": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "/media/mywork/projects/sedas_dev/SEDAS-AI-backend/src/lib/json"
 }

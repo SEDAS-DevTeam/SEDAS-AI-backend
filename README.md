@@ -26,3 +26,4 @@ There are 3 segments of this code:
 - [ ] Add json submodule
 - [ ] Change TextProcessing algorithm into something more stable
 - [ ] Add how-to-run in README
+- [ ] Modify the whole fetching aparatus

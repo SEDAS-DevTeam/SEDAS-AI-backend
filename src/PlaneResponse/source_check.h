@@ -1,5 +1,5 @@
 std::string fetch_url = "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/";
-std::string synth_model_paths = main_path + "PlaneResponse/model/speech_synth/model_source/";
+std::string synth_model_paths = main_path + "PlaneResponse/models/tts/";
 
 std::string reconstruct_url(std::string model_name, std::string file_type){
     std::string spec_fetch_url = fetch_url;
