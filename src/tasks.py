@@ -45,6 +45,7 @@ def fetch_resource(url, path):
         with open(path, "wb") as file:
             file.write(response.content)
 
+
 @task
 def build(ctx):
     print("Building main project...")

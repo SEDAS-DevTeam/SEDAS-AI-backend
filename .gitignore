@@ -17,3 +17,7 @@
 /src/PlaneResponse/models/tts/voices/*
 !/src/PlaneResponse/models/tts/voices
 !/src/PlaneResponse/models/tts/voices/.gitkeep
+
+# temporary output for TTS models
+/src/PlaneResponse/temp_out/*
+!/src/PlaneResponse/temp_out/.gitkeep

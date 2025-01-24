@@ -42,7 +42,6 @@ int main(){
     // str_matrix install_list = check_models(config_synth);
     // refetch_missing(install_list);
 
-    return 0;
 
     speech_synth.setup_model_registry();
 
@@ -57,9 +56,7 @@ int main(){
     text_process.start();
     speech_synth.start();
 
-    /*
-        A simple loop to keep everything running
-    */
+    //A simple loop to keep everything running
     while (running){
         sleep(1);
     }
@@ -68,7 +65,6 @@ int main(){
     text_process.stop();
     speech_synth.stop();
 
-    speech_synth.remove_pseudopilot("OKL4545");
     speech_synth.cleanup();
 
     process_queue.terminate();
@@ -77,6 +73,8 @@ int main(){
     thread_recog.join();
     thread_process.join();
     thread_synth.join();
+
+    speech_synth.remove_pseudopilot("OKL4545");
 
     std::cout << "Main program terminated." << std::endl;
     return 0;

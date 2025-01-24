@@ -1,4 +1,4 @@
-std::string COMMAND_STREAM   = main_path + "PlaneResponse/model/speech_synth/piper";
+std::string COMMAND_STREAM   = main_path + "PlaneResponse/models/tts/piper";
 std::string COMMAND_TEMP_OUT = main_path + "PlaneResponse/temp_out/";
 
 struct WavHeader {
@@ -107,7 +107,7 @@ class Pseudopilot {
         }
 
         void play(){
-            std::string result = "aplay " + COMMAND_TEMP_OUT + callsign + ".wav";
+            std::string result = "pw-play " + COMMAND_TEMP_OUT + callsign + ".wav";
             execute_command(result.c_str());
         }
 
@@ -141,7 +141,7 @@ class Pseudopilot {
 
 class SpeechSynthesis : public SEDThread {
     private:
-        std::string COMMAND_MODEL_DIR = main_path + "PlaneResponse/model/speech_synth/model_source";
+        std::string COMMAND_MODEL_DIR = main_path + "PlaneResponse/models/tts/voices";
         str_matrix model_registry; // register all models
         str_matrix remaining_models; // keep track of what models were registered
 
