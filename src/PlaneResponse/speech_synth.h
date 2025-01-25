@@ -239,7 +239,7 @@ class SpeechSynthesis : public SEDThread {
             while (running){
                 synth_queue.wait();
                 if (running){ // for last resort notification (when queue is getting emptied)
-                    process_synthesis();
+                    //process_synthesis(); //TODO speech synthesis crashing for now for no reason
                 }
             }
         }

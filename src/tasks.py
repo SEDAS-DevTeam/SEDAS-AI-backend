@@ -49,7 +49,7 @@ def fetch_resource(url, path):
 @task
 def build(ctx):
     print("Building main project...")
-    ctx.run(add_args("g++", "./test.cpp", "-o", "./test", "-lcurl"))
+    ctx.run(add_args("g++", "./test.cpp", "-o", "./test", "-lcurl", "-lncurses"))
 
 
 @task

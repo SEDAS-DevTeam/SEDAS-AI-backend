@@ -15,12 +15,14 @@
 #include <random>
 
 #include <curl/curl.h>
+#include <ncurses.h> // for keypress
 
 // definitions/aliases
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 typedef std::vector<std::vector<std::string>> str_matrix;
 bool running = true;
+bool recording = false;
 const std::string main_path = fs::current_path().u8string() + "/";
 
 // definitions for ATC
@@ -130,6 +132,17 @@ std::string execute_command(const char* cmd) {
         std::cout << buffer.data();
     }
     return result;
+}
+
+int detect_keypress(){
+    int ch = getch();
+
+    if (ch != ERR) {
+        ungetch(ch);
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 int rand_choice(uint32_t npos){

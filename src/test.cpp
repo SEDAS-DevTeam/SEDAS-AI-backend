@@ -25,6 +25,37 @@ int main(){
     // set sigint for graceful stop
     std::signal(SIGINT, signal_handler);
 
+    initscr();
+    cbreak();
+    noecho();
+    nodelay(stdscr, TRUE);
+
+    scrollok(stdscr, TRUE);
+    while (true){
+        if (detect_keypress()) {
+            int ch = getch();
+
+            // bind for killing program
+            if (ch == 'q'){
+                break;
+            }
+
+            if (ch == 'a'){
+                if (recording){
+                    printw("Stopped recording \n");
+                    recording = false;
+                }
+                else{
+                    printw("Started recording \n");
+                    recording = true;
+                }
+            }
+
+            refresh();
+        }
+    }
+
+    /*
     // loading configurations
     std::string recog_path = main_path / fs::path("PlaneResponse/config/config_recog.json");
     std::string process_path = main_path / fs::path("PlaneResponse/config/config_process.json");
@@ -75,6 +106,7 @@ int main(){
     thread_synth.join();
 
     speech_synth.remove_pseudopilot("OKL4545");
+    */
 
     std::cout << "Main program terminated." << std::endl;
     return 0;

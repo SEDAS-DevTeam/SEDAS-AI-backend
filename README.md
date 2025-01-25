@@ -4,6 +4,26 @@ This is modular port for **SEDAS-manager** that contains all the code responsibl
 
 All these processes are connected with threads and queues, the whole architecture is therefore non-blocking and allows request stacking.
 
+## Dependencies
+
+for the C++ part:
+
+- `curl`
+- `libncurses`
+- `portaudio`
+
+for the Python part:
+
+- `requests`
+- `invoke`
+
+## Installation/Usage
+
+Whole library is built around the `invoke` library. There are some requirements to meet in the `requirements.txt`, I recommend **venv** for this.
+To get started, clone this repository, then `cd src`. To get **TTS** resources, run `invoke fetch-resources`. For the **ASR** part, you unfortunately have to copy resulting binaries from [ATC-whisper](https://github.com/SEDAS-DevTeam/ATC-whisper) repository.
+
+After all of this is done, you can finally un `invoke build` followed by `invoke run`.
+
 ## Architecture
 
 Configurations are written in `json` files. It is because the parent project uses this extensions for all its configuration.
@@ -23,7 +43,10 @@ There are 3 segments of this code:
 - [ ] finish processing
 - [x] finish speech synthesis
 - [ ] incorporate into SEDAS-manager
-- [ ] Add json submodule
+- [x] Add json submodule
 - [ ] Change TextProcessing algorithm into something more stable
-- [ ] Add how-to-run in README
-- [ ] Modify the whole fetching aparatus
+- [x] Add how-to-run in README
+- [x] Modify the whole fetching aparatus
+- [ ] Add keybinds
+- [ ] Add wav recording using PortAudio
+- [ ] Maybe rewrite to CMake?
