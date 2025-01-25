@@ -26,21 +26,12 @@ int main(){
     // set sigint for graceful stop
     std::signal(SIGINT, signal_handler);
 
-    /*
-    AudioData data = initialize_data();
-
-    PaStream* stream = start_stream(data);
-
-    Pa_StartStream(stream);
+    Recorder recorder;
+    recorder.initialize();
+    recorder.start();
     Pa_Sleep(5000);
-    Pa_StopStream(stream);
-    Pa_CloseStream(stream);
-
-    Pa_Terminate();
-
-    save_to_wav("test.wav", data);
-    */
-    std::cout << "Test!" << std::endl;
+    recorder.stop();
+    recorder.terminate();
 
     /*
     initscr();

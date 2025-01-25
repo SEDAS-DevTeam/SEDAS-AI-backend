@@ -24,6 +24,7 @@ typedef std::vector<std::vector<std::string>> str_matrix;
 bool running = true;
 bool recording = false;
 const std::string main_path = fs::current_path().u8string() + "/";
+std::string wav_out_path = main_path + "PlaneResponse/temp_out/controller.wav";
 
 // definitions for ATC
 std::map<std::string, std::string> nato_map = {

@@ -33,23 +33,22 @@ typedef struct {
     float *recordedSamples;
 } AudioData;
 
-std::string out_path = "./temp_out/controller.wav";
-
 static int record_callback(const void *inputBuffer, void *outputBuffer,
-                          unsigned long framesPerBuffer,
-                          const PaStreamCallbackTimeInfo *timeInfo,
-                          PaStreamCallbackFlags statusFlags, void *userData) {
+                           unsigned long framesPerBuffer,
+                           const PaStreamCallbackTimeInfo *timeInfo,
+                           PaStreamCallbackFlags statusFlags, void *userData) {
     AudioData *data = (AudioData *)userData;
-    const float *rptr = (const float *)inputBuffer;
+
+    const float *rptr = (const float *)inputBuffer; // Input is float because of paFloat32
     float *wptr = &data->recordedSamples[data->frameIndex * NUM_CHANNELS];
     unsigned long framesToProcess = (data->frameIndex + framesPerBuffer > data->maxFrameIndex)
                                         ? data->maxFrameIndex - data->frameIndex
                                         : framesPerBuffer;
 
     if (inputBuffer == nullptr) {
-        memset(wptr, 0, framesToProcess * NUM_CHANNELS * sizeof(float));
+        memset(wptr, 0, framesToProcess * NUM_CHANNELS * sizeof(float)); // Silence if no input
     } else {
-        memcpy(wptr, rptr, framesToProcess * NUM_CHANNELS * sizeof(float));
+        memcpy(wptr, rptr, framesToProcess * NUM_CHANNELS * sizeof(float)); // Copy input
     }
 
     data->frameIndex += framesToProcess;
@@ -86,9 +85,35 @@ AudioData initialize_data(){
     return audioData;
 }
 
-PaStream* start_stream(AudioData data){
+PaStream* start_stream(AudioData &data){
     PaStream* stream;
     Pa_OpenDefaultStream(&stream, NUM_CHANNELS, 0, paFloat32, SAMPLE_RATE, FRAMES_PER_BUFFER, record_callback, &data);
 
     return stream;
+}
+
+class Recorder{
+    public:
+        AudioData data;
+        PaStream* stream;
+
+        void initialize(){
+            data = initialize_data();
+            stream = start_stream(data);
+        }
+
+        void start(){
+            Pa_StartStream(stream);
+        }
+
+        void stop(){
+            Pa_StopStream(stream);
+            Pa_CloseStream(stream);
+
+            save_to_wav(wav_out_path.c_str(), data);
+        }
+
+        void terminate(){
+            Pa_Terminate();
+        }
 }
