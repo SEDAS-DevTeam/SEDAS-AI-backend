@@ -3,11 +3,12 @@
 */
 #include "./lib/json/single_include/nlohmann/json.hpp"
 #include "./include/utils.h"
+#include "./include/record.h"
+#include "./include/source_check.h"
 
 #include "./PlaneResponse/voice_recog.h"
 #include "./PlaneResponse/process.h"
 #include "./PlaneResponse/speech_synth.h"
-#include "./PlaneResponse/source_check.h"
 
 // initialize threads
 VoiceRecognition voice_recog;
