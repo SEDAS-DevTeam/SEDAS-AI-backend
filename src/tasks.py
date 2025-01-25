@@ -49,13 +49,19 @@ def fetch_resource(url, path):
 @task
 def build(ctx):
     print("Building main project...")
-    ctx.run(add_args("g++", "./test.cpp", "-o", "./test", "-lcurl", "-lncurses"))
 
+    os.chdir(abs_path)
+    print(f"Currently in {os.getcwd()} directory")
+    ctx.run("cmake -B build")
+    ctx.run("cmake --build build")
 
 @task
 def run(ctx):
     print("Running main project...")
-    ctx.run("./test")
+
+    exec_directory = abs_path + "/build/test"
+
+    ctx.run(exec_directory)
 
 
 @task

@@ -1,8 +1,8 @@
 ## Automatically generated files
 # pycache
 /src/PlaneResponse/__pycache__ 
-# g++ binary
-/src/test 
+# build directory
+/build
 
 ## PlaneResponse
 # ASR resources directory
