@@ -84,5 +84,5 @@
         "valarray": "cpp",
         "__string": "cpp"
     },
-    "cmake.sourceDirectory": "/media/mywork/projects/sedas_dev/SEDAS-AI-backend/src/lib/json"
+    "C_Cpp.default.compilerPath": "/usr/bin/g++"
 }

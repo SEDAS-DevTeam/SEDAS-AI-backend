@@ -11,6 +11,7 @@ for the C++ part:
 - `curl`
 - `libncurses`
 - `portaudio`
+- `libsndfile`
 
 for the Python part:
 
@@ -47,6 +48,7 @@ There are 3 segments of this code:
 - [ ] Change TextProcessing algorithm into something more stable
 - [x] Add how-to-run in README
 - [x] Modify the whole fetching aparatus
-- [ ] Add keybinds
+- [x] Add keybinds
 - [ ] Add wav recording using PortAudio
-- [ ] Maybe rewrite to CMake?
+- [x] Maybe rewrite to CMake?
+- [x] Fix debugging

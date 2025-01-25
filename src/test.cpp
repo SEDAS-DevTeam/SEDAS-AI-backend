@@ -26,7 +26,7 @@ int main(){
     // set sigint for graceful stop
     std::signal(SIGINT, signal_handler);
 
-
+    /*
     AudioData data = initialize_data();
 
     PaStream* stream = start_stream(data);
@@ -39,6 +39,8 @@ int main(){
     Pa_Terminate();
 
     save_to_wav("test.wav", data);
+    */
+    std::cout << "Test!" << std::endl;
 
     /*
     initscr();
