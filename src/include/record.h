@@ -26,6 +26,7 @@ struct WAVHeader {
 #define SAMPLE_FORMAT paInt16       // 16-bit PCM
 #define FRAMES_PER_BUFFER 512
 #define NUM_SECONDS 60 // maximum number of seconds allocated
+#define VOLUME_MOD 2.0f
 
 typedef struct {
     int frameIndex;
@@ -65,6 +66,11 @@ void save_to_wav(const char *filename, const AudioData &data){
     if (!out_file) {
         std::cerr << "Failed to open WAV file for writing: " << sf_strerror(out_file) << std::endl;
         return;
+    }
+
+    float *adjustedSamples = new float[data.frameIndex * NUM_CHANNELS];
+    for (int i = 0; i < data.frameIndex * NUM_CHANNELS; ++i){
+        adjustedSamples[i] = data.recordedSamples[i] * VOLUME_MOD;
     }
 
     sf_writef_float(out_file, data.recordedSamples, data.frameIndex * NUM_CHANNELS);
@@ -116,4 +122,4 @@ class Recorder{
         void terminate(){
             Pa_Terminate();
         }
-}
+};
