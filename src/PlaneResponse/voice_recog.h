@@ -97,3 +97,29 @@ class VoiceRecognition : public SEDThread {
             }
         }
 };
+
+class Recognizer {
+    private:
+        const std::string COMMAND_BIN = main_path + "PlaneResponse/models/asr/whisper-cli";
+        const std::string COMMAND_MODEL = main_path + "PlaneResponse/models/asr/atc-whisper-ggml.bin";
+        const std::string COMMAND_INP = main_path + "PlaneResponse/temp_out/controller.wav"; 
+
+        void process_stdout(const char* data){
+            std::string data_str(data);
+            std::cout << "Model out: " << data_str << std::endl; // TODO: cleanup the model out
+        }
+
+    public:
+        void run(){
+            std::string command = COMMAND_BIN + " -m " + COMMAND_MODEL + " " + COMMAND_INP;
+            std::array<char, 128> buffer;
+
+            std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(command.c_str(), "r"), pclose);
+            if (!pipe) {
+                throw std::runtime_error("popen() failed!");
+            }
+            while (fgets(buffer.data(), static_cast<int>(buffer.size()), pipe.get()) != nullptr && running) {
+                process_stdout(buffer.data());
+            }
+        }
+};

@@ -26,7 +26,7 @@ struct WAVHeader {
 #define SAMPLE_FORMAT paInt16       // 16-bit PCM
 #define FRAMES_PER_BUFFER 512
 #define NUM_SECONDS 60 // maximum number of seconds allocated
-#define VOLUME_MOD 2.0f
+#define VOLUME_MOD 4.0f
 
 typedef struct {
     int frameIndex;
@@ -117,9 +117,46 @@ class Recorder{
             Pa_CloseStream(stream);
 
             save_to_wav(wav_out_path.c_str(), data);
+
+            std::string command = "ffmpeg -y -i " + wav_out_path + " -ar 16000 -ac 1 -c:a pcm_s16le " + wav_out_path_fin;
+            execute_command(command.c_str(), false); // ensure conversion (TODO)
         }
 
         void terminate(){
             Pa_Terminate();
         }
 };
+
+void keypress_mainloop(Recorder &recorder, 
+                       Recognizer &recognizer){
+    while (true){
+        if (detect_keypress()) {
+            int ch = getch();
+
+            // bind for killing the program (TODO: just for testing)
+            if (ch == 'q'){
+                recorder.terminate();
+                break;
+            }
+
+            if (ch == 'a'){
+                if (recording){
+                    printw("Stopped recording \n");
+                    recording = false;
+                    recorder.stop();
+
+                    Pa_Sleep(100);
+
+                    recognizer.run(); // infer the recording output
+                }
+                else{
+                    printw("Started recording \n");
+                    recording = true;
+                    recorder.start();
+                }
+            }
+
+            refresh();
+        }
+    }
+}

@@ -3,12 +3,13 @@
 */
 #include "./lib/json/single_include/nlohmann/json.hpp"
 #include "./include/utils.h"
-#include "./include/record.h"
-#include "./include/source_check.h"
 
 #include "./PlaneResponse/voice_recog.h"
 #include "./PlaneResponse/process.h"
 #include "./PlaneResponse/speech_synth.h"
+
+#include "./include/record.h"
+#include "./include/source_check.h"
 
 // initialize threads
 VoiceRecognition voice_recog;
@@ -23,50 +24,10 @@ static void signal_handler(int signal){
 }
 
 int main(){
-    // set sigint for graceful stop
+    // set sigint for graceful stop // TODO: maybe remove (we are now stopping using q button)
     std::signal(SIGINT, signal_handler);
 
-    Recorder recorder;
-    recorder.initialize();
-    recorder.start();
-    Pa_Sleep(5000);
-    recorder.stop();
-    recorder.terminate();
-
-    /*
-    initscr();
-    cbreak();
-    noecho();
-    nodelay(stdscr, TRUE);
-
-    scrollok(stdscr, TRUE);
-    while (true){
-        if (detect_keypress()) {
-            int ch = getch();
-
-            // bind for killing program
-            if (ch == 'q'){
-                break;
-            }
-
-            if (ch == 'a'){
-                if (recording){
-                    printw("Stopped recording \n");
-                    recording = false;
-                }
-                else{
-                    printw("Started recording \n");
-                    recording = true;
-                }
-            }
-
-            refresh();
-        }
-    }
-    */
-
-    /*
-    // loading configurations
+    // load configurations
     std::string recog_path = main_path / fs::path("PlaneResponse/config/config_recog.json");
     std::string process_path = main_path / fs::path("PlaneResponse/config/config_process.json");
     std::string synth_path = main_path / fs::path("PlaneResponse/config/config_synth.json");
@@ -74,18 +35,24 @@ int main(){
     json config_recog = load_config(recog_path);
     json config_process = load_config(process_path);
     json config_synth = load_config(synth_path);
-    
 
     // initialize models
     voice_recog.load_params(config_recog);
+    speech_synth.setup_model_registry();
+
+    Recorder recorder; // recording handler through keypress
+    Recognizer recognizer; // main ASR
+    recorder.initialize();
+    
+    setup_ncurses();
+    keypress_mainloop(recorder, recognizer);
+
     
     // TODO: no usage for this feature (right now)
     // str_matrix install_list = check_models(config_synth);
     // refetch_missing(install_list);
 
-
-    speech_synth.setup_model_registry();
-
+    /*
     std::thread thread_recog(&VoiceRecognition::run, &voice_recog);
     std::thread thread_process(&ProcessData::run, &text_process);
     std::thread thread_synth(&SpeechSynthesis::run, &speech_synth);

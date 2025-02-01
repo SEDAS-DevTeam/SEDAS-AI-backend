@@ -24,7 +24,8 @@ typedef std::vector<std::vector<std::string>> str_matrix;
 bool running = true;
 bool recording = false;
 const std::string main_path = fs::current_path().u8string() + "/";
-std::string wav_out_path = main_path + "PlaneResponse/temp_out/controller.wav";
+std::string wav_out_path = main_path + "PlaneResponse/temp_out/controller_unproc.wav";
+std::string wav_out_path_fin = main_path + "PlaneResponse/temp_out/controller.wav";
 
 // definitions for ATC
 std::map<std::string, std::string> nato_map = {
@@ -121,16 +122,19 @@ class SEDThread {
         void pause(){ thread_stop = true; }
 };
 
-std::string execute_command(const char* cmd) {
+std::string execute_command(const char* cmd, bool verbose = true) {
     std::array<char, 128> buffer;
     std::string result;
-    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+    std::string full_cmd = std::string(cmd) + " 2>&1"; // redirect stderr to stdout
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(full_cmd.c_str(), "r"), pclose);
     if (!pipe) {
         throw std::runtime_error("popen() failed!");
     }
     while (fgets(buffer.data(), static_cast<int>(buffer.size()), pipe.get()) != nullptr) {
         result += buffer.data();
-        std::cout << buffer.data();
+        if (verbose){
+            std::cout << buffer.data();
+        }
     }
     return result;
 }
@@ -226,6 +230,14 @@ void download_file_from_url(std::string& url, std::string& path){
 
     // Clean up
     curl_easy_cleanup(curl);
+}
+
+void setup_ncurses(){
+    initscr();
+    cbreak();
+    noecho();
+    nodelay(stdscr, TRUE);
+    scrollok(stdscr, TRUE);
 }
 
 // runtime definitions

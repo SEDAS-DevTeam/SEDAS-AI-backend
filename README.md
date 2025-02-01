@@ -49,6 +49,12 @@ There are 3 segments of this code:
 - [x] Add how-to-run in README
 - [x] Modify the whole fetching aparatus
 - [x] Add keybinds
-- [ ] Add wav recording using PortAudio
+- [x] Add wav recording using PortAudio
 - [x] Maybe rewrite to CMake?
 - [x] Fix debugging
+- [x] Fix wav recording + add whisper processing part
+- [ ] Restructure code, get sentence from whisper stdout
+
+## TODO for next versions
+
+- [ ] Get rid of ffmpeg shell calling to check correct audio type
