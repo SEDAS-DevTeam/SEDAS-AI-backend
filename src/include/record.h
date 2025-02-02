@@ -152,7 +152,9 @@ void keypress_mainloop(Recorder &recorder,
 
                     Pa_Sleep(100);
 
-                    recognizer.run(logger); // infer the recording output
+                    std::string transcription = recognizer.run(logger); // infer the recording output
+                    logger.log("Transcription: " + transcription);
+                    printw(transcription.c_str());
                 }
                 else{
                     printw("Started recording \n");

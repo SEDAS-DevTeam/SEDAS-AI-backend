@@ -40,7 +40,7 @@ There are 3 segments of this code:
 ## TODO
 
 - [x] Better, detailed readme
-- [ ] finish ATC speech recognition
+- [x] finish ATC speech recognition
 - [ ] finish processing
 - [x] finish speech synthesis
 - [ ] incorporate into SEDAS-manager
@@ -53,7 +53,9 @@ There are 3 segments of this code:
 - [x] Maybe rewrite to CMake?
 - [x] Fix debugging
 - [x] Fix wav recording + add whisper processing part
-- [ ] Restructure code, get sentence from whisper stdout
+- [x] Restructure code, get sentence from whisper stdout
+- [ ] Don't suppress colors when building
+- [ ] Fix libncurses terminal window hell :(
 
 ## TODO for next versions
 
