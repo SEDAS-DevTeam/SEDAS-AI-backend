@@ -27,25 +27,29 @@ int main(){
     // set sigint for graceful stop // TODO: maybe remove (we are now stopping using q button)
     std::signal(SIGINT, signal_handler);
 
-    // load configurations
-    std::string recog_path = main_path / fs::path("PlaneResponse/config/config_recog.json");
-    std::string process_path = main_path / fs::path("PlaneResponse/config/config_process.json");
-    std::string synth_path = main_path / fs::path("PlaneResponse/config/config_synth.json");
+    Logger logger; // set primary event logger > logs into file
 
-    json config_recog = load_config(recog_path);
-    json config_process = load_config(process_path);
-    json config_synth = load_config(synth_path);
+    // load configurations
+    //std::string recog_path = main_path / fs::path("PlaneResponse/config/config_recog.json");
+    //std::string process_path = main_path / fs::path("PlaneResponse/config/config_process.json");
+    //std::string synth_path = main_path / fs::path("PlaneResponse/config/config_synth.json");
+
+    //json config_recog = load_config(recog_path);
+    //json config_process = load_config(process_path);
+    //json config_synth = load_config(synth_path);
 
     // initialize models
-    voice_recog.load_params(config_recog);
-    speech_synth.setup_model_registry();
+    //voice_recog.load_params(config_recog);
+    //speech_synth.setup_model_registry();
 
     Recorder recorder; // recording handler through keypress
     Recognizer recognizer; // main ASR
     recorder.initialize();
     
     setup_ncurses();
-    keypress_mainloop(recorder, recognizer);
+    keypress_mainloop(recorder,
+                      recognizer,
+                      logger);
 
     
     // TODO: no usage for this feature (right now)
@@ -85,6 +89,8 @@ int main(){
     speech_synth.remove_pseudopilot("OKL4545");
     */
 
+    logger.log("Program terminated");
+    logger.end();
     std::cout << "Main program terminated." << std::endl;
     return 0;
 }

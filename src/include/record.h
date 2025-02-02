@@ -128,13 +128,16 @@ class Recorder{
 };
 
 void keypress_mainloop(Recorder &recorder, 
-                       Recognizer &recognizer){
+                       Recognizer &recognizer,
+                       Logger &logger){
     while (true){
         if (detect_keypress()) {
             int ch = getch();
 
             // bind for killing the program (TODO: just for testing)
             if (ch == 'q'){
+                refresh(); // flush before terminate
+                endwin();
                 recorder.terminate();
                 break;
             }
@@ -142,15 +145,19 @@ void keypress_mainloop(Recorder &recorder,
             if (ch == 'a'){
                 if (recording){
                     printw("Stopped recording \n");
+                    logger.log("Stopped recording");
+
                     recording = false;
                     recorder.stop();
 
                     Pa_Sleep(100);
 
-                    recognizer.run(); // infer the recording output
+                    recognizer.run(logger); // infer the recording output
                 }
                 else{
                     printw("Started recording \n");
+                    logger.log("Started recording");
+
                     recording = true;
                     recorder.start();
                 }

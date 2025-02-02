@@ -23,9 +23,10 @@ using json = nlohmann::json;
 typedef std::vector<std::vector<std::string>> str_matrix;
 bool running = true;
 bool recording = false;
+
 const std::string main_path = fs::current_path().u8string() + "/";
-std::string wav_out_path = main_path + "PlaneResponse/temp_out/controller_unproc.wav";
-std::string wav_out_path_fin = main_path + "PlaneResponse/temp_out/controller.wav";
+const std::string wav_out_path = main_path + "PlaneResponse/temp_out/controller_unproc.wav";
+const std::string wav_out_path_fin = main_path + "PlaneResponse/temp_out/controller.wav";
 
 // definitions for ATC
 std::map<std::string, std::string> nato_map = {
@@ -239,6 +240,15 @@ void setup_ncurses(){
     nodelay(stdscr, TRUE);
     scrollok(stdscr, TRUE);
 }
+
+class Logger {
+    private:
+        const std::string LOGFILE_PATH = main_path + "PlaneResponse/temp_out/log.txt";
+        FILE *logfile = fopen(LOGFILE_PATH.c_str(), "w");
+    public:
+        void log(std::string content){fprintf(logfile, (content + "\n").c_str());}
+        void end(){fclose(logfile);}
+};
 
 // runtime definitions
 SEDQueue process_queue;

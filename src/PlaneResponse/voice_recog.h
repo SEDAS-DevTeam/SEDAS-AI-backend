@@ -104,13 +104,13 @@ class Recognizer {
         const std::string COMMAND_MODEL = main_path + "PlaneResponse/models/asr/atc-whisper-ggml.bin";
         const std::string COMMAND_INP = main_path + "PlaneResponse/temp_out/controller.wav"; 
 
-        void process_stdout(const char* data){
+        void process_stdout(const char* data, Logger &logger){
             std::string data_str(data);
-            std::cout << "Model out: " << data_str << std::endl; // TODO: cleanup the model out
+            logger.log(data_str);
         }
 
     public:
-        void run(){
+        void run(Logger &logger){
             std::string command = COMMAND_BIN + " -m " + COMMAND_MODEL + " " + COMMAND_INP;
             std::array<char, 128> buffer;
 
@@ -119,7 +119,7 @@ class Recognizer {
                 throw std::runtime_error("popen() failed!");
             }
             while (fgets(buffer.data(), static_cast<int>(buffer.size()), pipe.get()) != nullptr && running) {
-                process_stdout(buffer.data());
+                process_stdout(buffer.data(), logger);
             }
         }
 };
