@@ -11,14 +11,12 @@ class Recognizer {
             // some processing
             size_t endBracket = data_str.find("]");
             if (endBracket == std::string::npos) return data_str; // If bracket not found, return as is
-            
             std::string main_trans = data_str.substr(endBracket + 1); // Extract after the bracket
-            size_t firstChar = main_trans.find_first_not_of(" ");
-            if (firstChar != std::string::npos) {
-                main_trans = main_trans.substr(firstChar);
-            }
 
-            return main_trans;
+            // apply some regex to trim //TODO: does not seem to work for now
+            size_t first = main_trans.find_first_not_of(" \n\r\t");
+            size_t last = main_trans.find_last_not_of(" \n\r\t");
+            return (first == std::string::npos) ? "" : main_trans.substr(first, last - first + 1);
         }
 
     public:

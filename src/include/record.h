@@ -156,7 +156,7 @@ void keypress_mainloop(Recorder &recorder,
 
                     std::string transcription = recognizer.run(logger); // infer the recording output
                     std::string plane_command = processor.run(transcription, logger);
-                    synthesizer.run(plane_command, logger);
+                    //synthesizer.run(plane_command, logger);
                     
                     logger.log("Transcription: " + transcription);
                     printw(transcription.c_str());

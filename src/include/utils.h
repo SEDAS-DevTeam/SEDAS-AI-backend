@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <thread>
 #include <unistd.h>
 #include <csignal>
@@ -241,11 +242,23 @@ void setup_ncurses(){
     scrollok(stdscr, TRUE);
 }
 
+std::string to_lower(std::string input){
+    std::transform(input.begin(), input.end(), input.begin(), [](unsigned char c){ return std::tolower(c); });
+    return input;
+}
+
 class Logger {
     private:
         const std::string LOGFILE_PATH = main_path + "PlaneResponse/temp_out/log.txt";
-        FILE *logfile = fopen(LOGFILE_PATH.c_str(), "w");
+        FILE *logfile;
     public:
-        void log(std::string content){fprintf(logfile, (content + "\n").c_str());}
-        void end(){fclose(logfile);}
+        Logger(){
+            logfile = fopen(LOGFILE_PATH.c_str(), "w");
+        }
+        void log(std::string content){
+            fprintf(logfile, "%s\n", content.c_str());
+        }
+        void end(){
+            fclose(logfile);
+        }
 };

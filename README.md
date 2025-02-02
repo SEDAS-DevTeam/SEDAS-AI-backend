@@ -54,9 +54,11 @@ There are 3 segments of this code:
 - [x] Fix debugging
 - [x] Fix wav recording + add whisper processing part
 - [x] Restructure code, get sentence from whisper stdout
+- [ ] Better parsing for Whisper out
 - [ ] Don't suppress colors when building
 - [ ] Fix libncurses terminal window hell :(
 
 ## TODO for next versions
 
 - [ ] Get rid of ffmpeg shell calling to check correct audio type
+- [ ] Rework into multithreading for faster processing
