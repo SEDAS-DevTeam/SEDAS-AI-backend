@@ -12,13 +12,11 @@
 #include "./include/source_check.h"
 
 // initialize threads
-VoiceRecognition voice_recog;
 ProcessData text_process;
 SpeechSynthesis speech_synth;
 
 static void signal_handler(int signal){
     if (signal == SIGINT){
-        voice_recog.stop();
         running = false;
     }
 }
@@ -30,50 +28,39 @@ int main(){
     Logger logger; // set primary event logger > logs into file
 
     // load configurations
-    //std::string recog_path = main_path / fs::path("PlaneResponse/config/config_recog.json");
-    //std::string process_path = main_path / fs::path("PlaneResponse/config/config_process.json");
-    //std::string synth_path = main_path / fs::path("PlaneResponse/config/config_synth.json");
+    std::string process_path = main_path / fs::path("PlaneResponse/config/config_process.json");
+    std::string synth_path = main_path / fs::path("PlaneResponse/config/config_synth.json");
 
-    //json config_recog = load_config(recog_path);
-    //json config_process = load_config(process_path);
-    //json config_synth = load_config(synth_path);
+    json config_process = load_config(process_path);
+    json config_synth = load_config(synth_path);
 
     // initialize models
-    //voice_recog.load_params(config_recog);
-    //speech_synth.setup_model_registry();
+    speech_synth.setup_model_registry();
 
     Recorder recorder; // recording handler through keypress
     Recognizer recognizer; // main ASR
     recorder.initialize();
     
     setup_ncurses();
-    keypress_mainloop(recorder,
-                      recognizer,
-                      logger);
-
     
     // TODO: no usage for this feature (right now)
     // str_matrix install_list = check_models(config_synth);
     // refetch_missing(install_list);
 
-    /*
-    std::thread thread_recog(&VoiceRecognition::run, &voice_recog);
     std::thread thread_process(&ProcessData::run, &text_process);
     std::thread thread_synth(&SpeechSynthesis::run, &speech_synth);
 
     // TODO: just a sample how should the pseudopilot be initialized
     speech_synth.init_pseudopilot("OKL4545", 0.5f);
 
-    voice_recog.start();
     text_process.start();
     speech_synth.start();
 
-    //A simple loop to keep everything running
-    while (running){
-        sleep(1);
-    }
+    // main loop to keep everything running
+    keypress_mainloop(recorder,
+                      recognizer,
+                      logger);
 
-    voice_recog.stop();
     text_process.stop();
     speech_synth.stop();
 
@@ -82,15 +69,13 @@ int main(){
     process_queue.terminate();
     synth_queue.terminate();
 
-    thread_recog.join();
     thread_process.join();
     thread_synth.join();
 
+    // TODO: same
     speech_synth.remove_pseudopilot("OKL4545");
-    */
 
     logger.log("Program terminated");
     logger.end();
-    std::cout << "Main program terminated." << std::endl;
     return 0;
 }
