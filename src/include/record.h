@@ -129,6 +129,8 @@ class Recorder{
 
 void keypress_mainloop(Recorder &recorder, 
                        Recognizer &recognizer,
+                       Processor &processor,
+                       Synthesizer &synthesizer,
                        Logger &logger){
     while (true){
         if (detect_keypress()) {
@@ -153,6 +155,9 @@ void keypress_mainloop(Recorder &recorder,
                     Pa_Sleep(100);
 
                     std::string transcription = recognizer.run(logger); // infer the recording output
+                    std::string plane_command = processor.run(transcription, logger);
+                    synthesizer.run(plane_command, logger);
+                    
                     logger.log("Transcription: " + transcription);
                     printw(transcription.c_str());
                 }

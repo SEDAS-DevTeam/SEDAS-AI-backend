@@ -139,27 +139,13 @@ class Pseudopilot {
         }
 };
 
-class SpeechSynthesis : public SEDThread {
+class Synthesizer{
     private:
         std::string COMMAND_MODEL_DIR = main_path + "PlaneResponse/models/tts/voices";
         str_matrix model_registry; // register all models
         str_matrix remaining_models; // keep track of what models were registered
 
         std::vector<Pseudopilot> pseudopilot_registry;
-
-        void process_synthesis(){
-            std::string input = synth_queue.get_element();
-            std::stringstream ss(input);
-            std::vector<std::string> result;
-            std::string substring;
-
-            while (std::getline(ss, substring, ',')){
-                result.push_back(substring);
-            }
-
-            std::cout << "Generating synth for: " << result[0] << " with input: " << result[1] << std::endl;
-            pseudopilot_respond(result[0], result[1]);
-        }
 
         std::tuple<std::string, std::string> choose_random_configuration(){
             int idx = rand_choice(remaining_models.size());
@@ -170,8 +156,11 @@ class SpeechSynthesis : public SEDThread {
 
             return {json_record, onnx_record};
         }
-
     public:
+        void run(std::string command, Logger &logger){
+            
+        }
+
         void setup_model_registry(){
             // Load all models
             for (const auto& model_path : fs::directory_iterator(COMMAND_MODEL_DIR)){
@@ -231,15 +220,6 @@ class SpeechSynthesis : public SEDThread {
             for (Pseudopilot pseudopilot : pseudopilot_registry){
                 if (pseudopilot.callsign == callsign){
                     pseudopilot.respond(input);
-                }
-            }
-        }
-
-        void run(){
-            while (running){
-                synth_queue.wait();
-                if (running){ // for last resort notification (when queue is getting emptied)
-                    //process_synthesis(); //TODO speech synthesis crashing for now for no reason
                 }
             }
         }

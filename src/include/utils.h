@@ -249,7 +249,3 @@ class Logger {
         void log(std::string content){fprintf(logfile, (content + "\n").c_str());}
         void end(){fclose(logfile);}
 };
-
-// runtime definitions
-SEDQueue process_queue;
-SEDQueue synth_queue;
