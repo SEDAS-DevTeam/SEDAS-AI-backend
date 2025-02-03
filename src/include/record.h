@@ -1,10 +1,3 @@
-#include <portaudio.h>
-#include <iostream>
-#include <fstream>
-#include <stdint.h>
-#include <sndfile.h>
-#include <cstring>
-
 struct WAVHeader {
     char riff[4];                    // "RIFF"
     uint32_t overall_size;           // File size - 8 bytes
@@ -155,10 +148,11 @@ void keypress_mainloop(Recorder &recorder,
                     Pa_Sleep(100);
 
                     std::string transcription = recognizer.run(logger); // infer the recording output
-                    std::string plane_command = processor.run(transcription, logger);
+                    logger.log("Transcription: " + transcription);
+
+                    std::vector<std::string> plane_command = processor.run(transcription, logger);
                     //synthesizer.run(plane_command, logger);
                     
-                    logger.log("Transcription: " + transcription);
                     printw(transcription.c_str());
                 }
                 else{

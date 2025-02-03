@@ -14,9 +14,14 @@
 #include <cstdlib>
 #include <algorithm>
 #include <random>
+#include <vector>
+#include <stdint.h>
+#include <cstring>
 
 #include <curl/curl.h>
 #include <ncurses.h> // for keypress
+#include <portaudio.h> // for mic recording
+#include <sndfile.h> // for saving wav file
 
 // definitions/aliases
 namespace fs = std::filesystem;
@@ -35,7 +40,7 @@ const std::string wav_out_path_fin = main_path + "PlaneResponse/temp_out/control
 // definitions for ATC
 str_map nato_map = {
     { "alpha", "A" },
-    { "beta", "B" },
+    { "bravo", "B" },
     { "charlie", "C" },
     { "delta", "D" },
     { "echo", "E" },
@@ -72,7 +77,8 @@ str_map num_map = {
     { "six", "6" },
     { "seven", "7" },
     { "eight", "8" },
-    { "niner", "9" }
+    { "niner", "9" },
+    { "nine", "9"} // for mild correction in transcription
 };
 
 class SEDQueue {
