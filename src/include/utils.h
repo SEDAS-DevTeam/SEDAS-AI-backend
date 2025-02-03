@@ -21,7 +21,10 @@
 // definitions/aliases
 namespace fs = std::filesystem;
 using json = nlohmann::json;
+
 typedef std::vector<std::vector<std::string>> str_matrix;
+typedef std::map<std::string, std::string> str_map;
+
 bool running = true;
 bool recording = false;
 
@@ -30,7 +33,7 @@ const std::string wav_out_path = main_path + "PlaneResponse/temp_out/controller_
 const std::string wav_out_path_fin = main_path + "PlaneResponse/temp_out/controller.wav";
 
 // definitions for ATC
-std::map<std::string, std::string> nato_map = {
+str_map nato_map = {
     { "alpha", "A" },
     { "beta", "B" },
     { "charlie", "C" },
@@ -59,7 +62,7 @@ std::map<std::string, std::string> nato_map = {
     { "zulu", "Z" }
 };
 
-std::map<std::string, std::string> num_map = {
+str_map num_map = {
     { "zero", "0" },
     { "one", "1" },
     { "two", "2" },
@@ -240,11 +243,6 @@ void setup_ncurses(){
     noecho();
     nodelay(stdscr, TRUE);
     scrollok(stdscr, TRUE);
-}
-
-std::string to_lower(std::string input){
-    std::transform(input.begin(), input.end(), input.begin(), [](unsigned char c){ return std::tolower(c); });
-    return input;
 }
 
 class Logger {
