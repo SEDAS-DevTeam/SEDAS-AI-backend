@@ -69,15 +69,45 @@ class Processor {
         std::vector<std::string> extract_values(std::string input){
             std::vector<std::string> values;
 
-            bool on_nato = false;
-            bool on_num = false;
+            std::string curr_nato = "";
+            std::string curr_num = "";
             
             std::stringstream ss(input);
             std::string chunk;
             // take all necessary values (numerical or nato alpha)
             while (ss >> chunk){
-                
+                // nato
+                if (nato_map.find(chunk) != nato_map.end()){
+                    curr_nato += nato_map[chunk];
+                }
+                else{
+                    if (curr_nato.length() > 0) values.push_back(curr_nato);
+                    curr_nato = "";
+                }
+
+                // numeric
+                // written in numerical expression (joined)
+                if (is_number(chunk) && chunk.length() > 1){
+                    curr_num += chunk;
+                }
+                // written in numerical expression (not joined)
+                else if (is_number(chunk) && chunk.length() == 1){
+                    curr_num += chunk;
+                }
+                // written in word expression
+                else if (num_map.find(chunk) != num_map.end()){
+                    curr_num += num_map[chunk];
+                }
+                else{
+                    if (curr_num.length() > 0) values.push_back(curr_num);
+                    curr_num = "";
+                }
+
             }
+
+            // buffers not flushed
+            if (curr_nato.length() > 0) values.push_back(curr_nato);
+            if (curr_num.length() > 0) values.push_back(curr_num);
 
             return values;
         }
@@ -88,6 +118,7 @@ class Processor {
             std::vector<std::string> values = extract_values(callsign_data[1]);
 
             logger.log("Plane callsign: " + callsign_data[0]);
+            logger.log("Values: " + values[0]);
             return { callsign_data[0] };
         }
 };
