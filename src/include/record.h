@@ -123,6 +123,7 @@ class Recorder{
 void keypress_mainloop(Recorder &recorder, 
                        Recognizer &recognizer,
                        Processor &processor,
+                       Classifier &classifier,
                        Synthesizer &synthesizer,
                        Logger &logger){
     while (true){
@@ -151,6 +152,7 @@ void keypress_mainloop(Recorder &recorder,
                     logger.log("Transcription: " + transcription);
 
                     std::vector<std::string> plane_command = processor.run(transcription, logger);
+                    classifier.run(); // TODO
                     //synthesizer.run(plane_command, logger);
                     
                     printw(transcription.c_str());

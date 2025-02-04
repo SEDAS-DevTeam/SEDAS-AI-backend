@@ -6,6 +6,7 @@
 
 #include "./PlaneResponse/voice_recog.h"
 #include "./PlaneResponse/process.h"
+#include "./PlaneResponse/classify.h"
 #include "./PlaneResponse/speech_synth.h"
 
 #include "./include/record.h"
@@ -35,6 +36,7 @@ int main(){
     recorder.initialize();
     Recognizer recognizer; // setup main ASR
     Processor processor; // setup processor
+    Classifier classifier; // setup classifier
     Synthesizer synthesizer; // setup speech synthesizer
     synthesizer.setup_model_registry();
     synthesizer.init_pseudopilot("OKL4545", 0.5f); // TODO: just a sample how should the pseudopilot be initialized
@@ -43,6 +45,7 @@ int main(){
     keypress_mainloop(recorder,
                       recognizer,
                       processor,
+                      classifier,
                       synthesizer,
                       logger);
 

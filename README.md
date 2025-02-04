@@ -35,6 +35,15 @@ There are 3 segments of this code:
 2) **Text processing** - algorithm, that processes recognized ATC commands into commands that are ported into **SEDAS - manager** (*NOTE:* Detection is currently hardcoded, working partly just as **PoC** [Proof of concept], definitely going to change in future versions)
 3) **Speech Synthesis** - done with the use of `piper TTS` project. Currently using only **english** models
 
+To be more specific, here you can see a small flow diagram:
+
+`record.h` (**1**) &rarr; `voice_recog.h` (**2**) &rarr; `process.h` (**3**) &rarr; `classify-h` (**4**)
+
+**1)** mic recording from keypress
+**2)** voice recognition using Whisper binary
+**3)** simple text processing (callsign and value extraction)
+**4)** more robust classification of corresponding text, to determine command
+
 *NOTE:* For the future, I am still deciding if this repository isn't going to be merged with the **SEDAS - manager** parent repo. This subproject is either going to be added as a submodule or merged.
 
 ## TODO
