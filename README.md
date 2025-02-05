@@ -50,11 +50,10 @@ To be more specific, here you can see a small flow diagram:
 
 - [x] Better, detailed readme
 - [x] finish ATC speech recognition
-- [ ] finish processing
+- [x] finish processing
 - [x] finish speech synthesis
-- [ ] incorporate into SEDAS-manager
+- [ ] incorporate into SEDAS-manager (finish integrate.hpp + set rules)
 - [x] Add json submodule
-- [ ] Change TextProcessing algorithm into something more stable
 - [x] Add how-to-run in README
 - [x] Modify the whole fetching aparatus
 - [x] Add keybinds
@@ -63,11 +62,12 @@ To be more specific, here you can see a small flow diagram:
 - [x] Fix debugging
 - [x] Fix wav recording + add whisper processing part
 - [x] Restructure code, get sentence from whisper stdout
-- [ ] Better parsing for Whisper out
-- [ ] Don't suppress colors when building
-- [ ] Fix libncurses terminal window hell :(
+- [x] Better parsing for Whisper out
 
 ## TODO for next versions
 
 - [ ] Get rid of ffmpeg shell calling to check correct audio type
 - [ ] Rework into multithreading for faster processing
+- [ ] Don't suppress colors when building
+- [ ] Fix libncurses terminal window hell :(
+- [ ] Change TextProcessing algorithm into something more stable

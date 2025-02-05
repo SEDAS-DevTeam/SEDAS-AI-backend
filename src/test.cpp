@@ -2,15 +2,14 @@
     Sample testing file to test all AI models
 */
 #include "./lib/json/single_include/nlohmann/json.hpp"
-#include "./include/utils.h"
+#include "./include/utils.hpp"
 
-#include "./PlaneResponse/voice_recog.h"
-#include "./PlaneResponse/process.h"
-#include "./PlaneResponse/classify.h"
-#include "./PlaneResponse/speech_synth.h"
+#include "./PlaneResponse/voice_recog.hpp"
+#include "./PlaneResponse/process.hpp"
+#include "./PlaneResponse/classify.hpp"
+#include "./PlaneResponse/speech_synth.hpp"
 
-#include "./include/record.h"
-#include "./include/source_check.h"
+#include "./include/record.hpp"
 
 
 static void signal_handler(int signal){

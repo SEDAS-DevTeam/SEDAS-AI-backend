@@ -130,9 +130,11 @@ void log_values(std::map<std::string, std::any> out_dict, Logger &logger){
     logger.log("Plane callsign: " + std::any_cast<std::string>(out_dict["callsign"]));
 
     std::string values_out = form_vector_out(out_dict["values"]);
+    values_out.erase(values_out.length() - 2);
     logger.log("Values: " + values_out);
 
     std::string commands_out = form_vector_out(out_dict["commands"]);
+    commands_out.erase(commands_out.length() - 2);
     logger.log("Commands: " + commands_out);
 }
 
