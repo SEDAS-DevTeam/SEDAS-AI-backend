@@ -120,6 +120,22 @@ class Recorder{
         }
 };
 
+void log_values(std::map<std::string, std::any> out_dict, Logger &logger){
+    auto form_vector_out = [](std::any any_vec){ 
+        std::string values_out;
+        for(const std::string& value : std::any_cast<std::vector<std::string>>(any_vec)) values_out += value + ", ";
+        return values_out;
+    };
+
+    logger.log("Plane callsign: " + std::any_cast<std::string>(out_dict["callsign"]));
+
+    std::string values_out = form_vector_out(out_dict["values"]);
+    logger.log("Values: " + values_out);
+
+    std::string commands_out = form_vector_out(out_dict["commands"]);
+    logger.log("Commands: " + commands_out);
+}
+
 void keypress_mainloop(Recorder &recorder, 
                        Recognizer &recognizer,
                        Processor &processor,
@@ -149,13 +165,20 @@ void keypress_mainloop(Recorder &recorder,
                     Pa_Sleep(100);
 
                     std::string transcription = recognizer.run(logger); // infer the recording output
-                    logger.log("Transcription: " + transcription);
 
-                    std::vector<std::string> plane_command = processor.run(transcription, logger);
-                    classifier.run(); // TODO
+                    auto [processor_out, values] = processor.run(transcription, logger);
+                    std::string callsign = processor_out[0];
+                    std::string classifier_input = processor_out[1];
+
+                    std::vector<std::string> commands = classifier.run(classifier_input);
                     //synthesizer.run(plane_command, logger);
-                    
-                    printw(transcription.c_str());
+
+                    std::map<std::string, std::any> out_dict;
+                    out_dict["callsign"] = callsign;
+                    out_dict["values"] = values;
+                    out_dict["commands"] = commands;
+
+                    log_values(out_dict, logger);
                 }
                 else{
                     printw("Started recording \n");

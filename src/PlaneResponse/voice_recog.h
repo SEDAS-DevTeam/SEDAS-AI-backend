@@ -78,6 +78,7 @@ class Recognizer {
                 out += process_stdout(buffer.data(), logger);
             }
 
+            logger.log("Transcription: " + out);
             return out;
         }
 };

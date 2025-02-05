@@ -1,0 +1,16 @@
+{
+    "dictionary": [
+        {
+            "keywords": ["fly", "heading"],
+            "command": "turn-any"
+        },
+        {
+            "keywords": ["turn", "right", "heading"],
+            "command": "turn-right"
+        },
+        {
+            "keywords": ["turn", "left", "heading"],
+            "command": "turn-left"
+        }
+    ]
+}

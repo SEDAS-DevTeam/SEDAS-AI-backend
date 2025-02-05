@@ -37,7 +37,7 @@ There are 3 segments of this code:
 
 To be more specific, here you can see a small flow diagram:
 
-`record.h` (**1**) &rarr; `voice_recog.h` (**2**) &rarr; `process.h` (**3**) &rarr; `classify-h` (**4**)
+`record.h` (**1**) &rarr; `voice_recog.h` (**2**) &rarr; `process.h` (**3**) &rarr; `classify.h` (**4**)
 
 **1)** mic recording from keypress <br>
 **2)** voice recognition using Whisper binary <br>

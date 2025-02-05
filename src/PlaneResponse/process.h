@@ -31,7 +31,7 @@ class Processor {
             return input;
         }
 
-        std::vector<std::string> extract_callsign(std::string input){
+        std::pair<std::string, std::string> extract_callsign(std::string input){
             std::string callsign;
             std::string other_words = input;
 
@@ -65,8 +65,9 @@ class Processor {
             return { callsign, other_words };
         }
 
-        std::vector<std::string> extract_values(std::string input){
+        std::pair<std::vector<std::string>, std::string> extract_values(std::string input){
             std::vector<std::string> values;
+            std::string other_words = input;
 
             std::string curr_nato = "";
             std::string curr_num = "";
@@ -78,6 +79,7 @@ class Processor {
                 // nato
                 if (nato_map.find(chunk) != nato_map.end()){
                     curr_nato += nato_map[chunk];
+                    other_words = remove_substr(other_words, chunk);
                 }
                 else{
                     if (curr_nato.length() > 0) values.push_back(curr_nato);
@@ -88,14 +90,17 @@ class Processor {
                 // written in numerical expression (joined)
                 if (is_number(chunk) && chunk.length() > 1){
                     curr_num += chunk;
+                    other_words = remove_substr(other_words, chunk);
                 }
                 // written in numerical expression (not joined)
                 else if (is_number(chunk) && chunk.length() == 1){
                     curr_num += chunk;
+                    other_words = remove_substr(other_words, chunk);
                 }
                 // written in word expression
                 else if (num_map.find(chunk) != num_map.end()){
                     curr_num += num_map[chunk];
+                    other_words = remove_substr(other_words, chunk);
                 }
                 else{
                     if (curr_num.length() > 0) values.push_back(curr_num);
@@ -108,16 +113,14 @@ class Processor {
             if (curr_nato.length() > 0) values.push_back(curr_nato);
             if (curr_num.length() > 0) values.push_back(curr_num);
 
-            return values;
+            return { values, other_words };
         }
 
     public:
-        std::vector<std::string> run(std::string input, Logger &logger){
-            std::vector<std::string> callsign_data = extract_callsign(input);
-            std::vector<std::string> values = extract_values(callsign_data[1]);
+        std::pair<std::vector<std::string>, std::vector<std::string>> run(std::string input, Logger &logger){
+            auto [callsign, value_extractor_input] = extract_callsign(input);
+            auto [values, classifier_input] = extract_values(value_extractor_input);
 
-            logger.log("Plane callsign: " + callsign_data[0]);
-            logger.log("Values: " + values[0]);
-            return { callsign_data[0] };
+            return { {callsign, classifier_input}, values };
         }
 };
