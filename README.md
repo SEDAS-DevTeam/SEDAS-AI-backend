@@ -20,6 +20,15 @@ for the Python part:
 
 ## Installation/Usage
 
+### Cloning
+
+``` shell
+git clone --recursive https://github.com/SEDAS-DevTeam/SEDAS-AI-backend.git
+cd SEDAS-AI-backend
+```
+
+### Installation
+
 Whole library is built around the `invoke` library. There are some requirements to meet in the `requirements.txt`, I recommend **venv** for this.
 To get started, clone this repository, then `cd src`. To get **TTS** resources, run `invoke fetch-resources`. For the **ASR** part, you unfortunately have to copy resulting binaries from [ATC-whisper](https://github.com/SEDAS-DevTeam/ATC-whisper) repository.
 
