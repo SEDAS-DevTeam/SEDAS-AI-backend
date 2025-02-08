@@ -1,7 +1,6 @@
 /*
     Sample testing file to test all AI models
 */
-#include "./lib/json/single_include/nlohmann/json.hpp"
 #include "./include/utils.hpp"
 
 #include "./PlaneResponse/voice_recog.hpp"
@@ -10,7 +9,7 @@
 #include "./PlaneResponse/speech_synth.hpp"
 
 #include "./include/record.hpp"
-
+#include "./include/keypress.hpp"
 
 static void signal_handler(int signal){
     if (signal == SIGINT){
@@ -42,10 +41,12 @@ int main(){
     Synthesizer synthesizer; // setup speech synthesizer
     synthesizer.setup_model_registry();
 
+    Detect_ncurses keypress_detector; // detecting keypress
+
     synthesizer.init_pseudopilot("OKL4545", 0.5f); // TODO: just a sample how should the pseudopilot be initialized
 
-    setup_ncurses();
-    keypress_mainloop(recorder,
+    keypress_detector.setup();
+    keypress_detector.mainloop(recorder,
                       recognizer,
                       processor,
                       classifier,

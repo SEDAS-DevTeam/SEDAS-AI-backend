@@ -34,6 +34,7 @@ class Recognizer {
                     return input.substr(i);
                 }
             }
+            return input;
         }
 
         std::string remove_char(char char_to_find, std::string input){

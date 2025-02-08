@@ -1,3 +1,5 @@
+#include <random>
+
 std::string COMMAND_STREAM   = main_path + "PlaneResponse/models/tts/piper";
 std::string COMMAND_TEMP_OUT = main_path + "PlaneResponse/temp_out/";
 

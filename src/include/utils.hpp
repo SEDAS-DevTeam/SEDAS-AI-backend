@@ -1,27 +1,26 @@
+// general
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <thread>
-#include <unistd.h>
+#include <vector>
 #include <csignal>
-#include <queue>
 #include <filesystem>
-#include <regex>
-#include <condition_variable>
-#include <mutex>
 #include <map>
 #include <tuple>
-#include <cstdlib>
 #include <algorithm>
-#include <random>
-#include <vector>
-#include <stdint.h>
-#include <cstring>
+
+// multithread rework
+#include <thread>
+#include <queue>
+#include <condition_variable>
+#include <mutex>
 
 #include <curl/curl.h>
-#include <ncurses.h> // for keypress
-#include <portaudio.h> // for mic recording
-#include <sndfile.h> // for saving wav file
+
+// only used when testing (SEDAS-manager has its own json reader)
+#ifdef TESTING
+#include "../lib/json/single_include/nlohmann/json.hpp"
+#endif TESTING
 
 // definitions/aliases
 namespace fs = std::filesystem;
@@ -31,7 +30,6 @@ typedef std::vector<std::vector<std::string>> str_matrix;
 typedef std::map<std::string, std::string> str_map;
 
 bool running = true;
-bool recording = false;
 
 const std::string main_path = fs::current_path().u8string() + "/";
 const std::string wav_out_path = main_path + "PlaneResponse/temp_out/controller_unproc.wav";
@@ -150,17 +148,6 @@ std::string execute_command(const char* cmd, bool verbose = true) {
     return result;
 }
 
-int detect_keypress(){
-    int ch = getch();
-
-    if (ch != ERR) {
-        ungetch(ch);
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
 int rand_choice(uint32_t npos){
     srand(time(NULL));
     return rand() % npos;
@@ -241,14 +228,6 @@ void download_file_from_url(std::string& url, std::string& path){
 
     // Clean up
     curl_easy_cleanup(curl);
-}
-
-void setup_ncurses(){
-    initscr();
-    cbreak();
-    noecho();
-    nodelay(stdscr, TRUE);
-    scrollok(stdscr, TRUE);
 }
 
 class Logger {

@@ -52,8 +52,8 @@ def build(ctx):
 
     os.chdir(abs_path)
     print(f"Currently in {os.getcwd()} directory")
-    ctx.run("cmake -B build")
-    ctx.run("cmake --build build")
+    ctx.run("cmake -B build", pty=True)
+    ctx.run("cmake --build build", pty=True)
 
 @task
 def run(ctx):
@@ -61,7 +61,7 @@ def run(ctx):
 
     exec_directory = abs_path + "/build/test"
 
-    ctx.run(exec_directory)
+    ctx.run(exec_directory, pty=True)
 
 
 @task

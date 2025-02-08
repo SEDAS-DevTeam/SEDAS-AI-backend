@@ -77,6 +77,6 @@ To be more specific, here you can see a small flow diagram:
 
 - [ ] Get rid of ffmpeg shell calling to check correct audio type
 - [ ] Rework into multithreading for faster processing
-- [ ] Don't suppress colors when building
+- [x] Don't suppress colors when building
 - [ ] Fix libncurses terminal window hell :(
 - [ ] Change TextProcessing algorithm into something more stable

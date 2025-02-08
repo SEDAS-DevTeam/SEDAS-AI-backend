@@ -1,3 +1,7 @@
+#include <portaudio.h> // for mic recording
+#include <sndfile.h> // for saving wav file
+#include <ncurses.h>
+
 struct WAVHeader {
     char riff[4];                    // "RIFF"
     uint32_t overall_size;           // File size - 8 bytes
@@ -136,62 +140,4 @@ void log_values(std::map<std::string, std::any> out_dict, Logger &logger){
     std::string commands_out = form_vector_out(out_dict["commands"]);
     commands_out.erase(commands_out.length() - 2);
     logger.log("Commands: " + commands_out);
-}
-
-void keypress_mainloop(Recorder &recorder, 
-                       Recognizer &recognizer,
-                       Processor &processor,
-                       Classifier &classifier,
-                       Synthesizer &synthesizer,
-                       Logger &logger){
-    while (true){
-        if (detect_keypress()) {
-            int ch = getch();
-
-            // bind for killing the program (TODO: just for testing)
-            if (ch == 'q'){
-                refresh(); // flush before terminate
-                endwin();
-                recorder.terminate();
-                break;
-            }
-
-            if (ch == 'a'){
-                if (recording){
-                    printw("Stopped recording \n");
-                    logger.log("Stopped recording");
-
-                    recording = false;
-                    recorder.stop();
-
-                    Pa_Sleep(100);
-
-                    std::string transcription = recognizer.run(logger); // infer the recording output
-
-                    auto [processor_out, values] = processor.run(transcription, logger);
-                    std::string callsign = processor_out[0];
-                    std::string classifier_input = processor_out[1];
-
-                    std::vector<std::string> commands = classifier.run(classifier_input);
-                    //synthesizer.run(plane_command, logger);
-
-                    std::map<std::string, std::any> out_dict;
-                    out_dict["callsign"] = callsign;
-                    out_dict["values"] = values;
-                    out_dict["commands"] = commands;
-
-                    log_values(out_dict, logger);
-                }
-                else{
-                    printw("Started recording \n");
-                    logger.log("Started recording");
-
-                    recording = true;
-                    recorder.start();
-                }
-            }
-
-            refresh();
-        }
-    }
 }
