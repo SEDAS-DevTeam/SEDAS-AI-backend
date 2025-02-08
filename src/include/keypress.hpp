@@ -1,4 +1,16 @@
-#include <ncurses.h> // for keypress
+#ifdef TESTING
+#include <ncurses.h>
+#endif
+
+// for X11
+#include <X11/Xlib.h>
+#include "X11/keysym.h"
+
+// for Wayland
+
+// for Windows
+
+// for mac
 
 bool recording = false;
 
@@ -85,8 +97,14 @@ class Detect_ncurses{
 
 class Detect_generic{
     private:
-        int detect_keypress(){
-
+        bool detect_keypress(KeySym ks){
+            Display *dpy = XOpenDisplay(":0");
+            char keys_return[32];
+            XQueryKeymap(dpy, keys_return);
+            KeyCode kc2 = XKeysymToKeycode(dpy, ks);
+            bool isPressed = !!(keys_return[kc2 >> 3] & (1 << (kc2 & 7)));
+            XCloseDisplay(dpy);
+            return isPressed;
         }
 
     public:
@@ -95,6 +113,11 @@ class Detect_generic{
         }
 
         void mainloop(){
-
+            while (true){
+                if (detect_keypress(XK_q)){
+                    std::cout << "q pressed!" << std::endl;
+                    break;
+                }
+            }
         }
 };

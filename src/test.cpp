@@ -41,17 +41,20 @@ int main(){
     Synthesizer synthesizer; // setup speech synthesizer
     synthesizer.setup_model_registry();
 
-    Detect_ncurses keypress_detector; // detecting keypress
+    Detect_generic keypress_detector; // detecting keypress
 
     synthesizer.init_pseudopilot("OKL4545", 0.5f); // TODO: just a sample how should the pseudopilot be initialized
 
     keypress_detector.setup();
+    /*
     keypress_detector.mainloop(recorder,
                       recognizer,
                       processor,
                       classifier,
                       synthesizer,
                       logger);
+    */
+    keypress_detector.mainloop();
 
     
     // TODO: no usage for this feature (right now)
