@@ -24,7 +24,6 @@ int main(){
     Synthesizer synthesizer;
     synthesizer.setup_model_registry();
 
-    Detect_generic keypress_detector;
     /*
     keypress_detector.mainloop(recorder,
                       recognizer,

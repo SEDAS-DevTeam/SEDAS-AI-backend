@@ -52,7 +52,7 @@ def build(ctx, DTESTING=0, DBUILD=""):
 
     os.chdir(abs_path)
     print(f"Currently in {os.getcwd()} directory")
-    ctx.run(f"cmake -B build -DTESTING=${DTESTING} -DBUILD=${DBUILD}", pty=True)
+    ctx.run(f"cmake -B build -DTESTING=${DTESTING}", pty=True)
     ctx.run("cmake --build build", pty=True)
 
 
