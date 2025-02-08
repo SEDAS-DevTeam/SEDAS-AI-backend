@@ -97,24 +97,50 @@ class Detect_ncurses{
 
 class Detect_generic{
     private:
-        bool detect_keypress(KeySym ks){
-            Display *dpy = XOpenDisplay(":0");
-            char keys_return[32];
-            XQueryKeymap(dpy, keys_return);
-            KeyCode kc2 = XKeysymToKeycode(dpy, ks);
-            bool isPressed = !!(keys_return[kc2 >> 3] & (1 << (kc2 & 7)));
-            XCloseDisplay(dpy);
-            return isPressed;
+        bool detect_keypress(const char* key){
+            #ifdef _WIN32
+                std::cout << "on Windows!" << std::endl;
+            #elif defined(__linux__)
+                #ifdef BUILD
+                    #if BUILD == X_WIN
+                        // keypress detection for X11
+                        std::map<const char*, KeySym> key_map;
+                        key_map["a"] = XK_a;
+                        key_map["q"] = XK_q;
+                        Display *dpy = XOpenDisplay(":0");
+                        char keys_return[32];
+                        XQueryKeymap(dpy, keys_return);
+                        KeyCode kc2 = XKeysymToKeycode(dpy, key_map[key]);
+                        bool isPressed = !!(keys_return[kc2 >> 3] & (1 << (kc2 & 7)));
+                        XCloseDisplay(dpy);
+                        return isPressed;
+                    #elif BUILD == WAYLAND
+                        // keypress detection for Wayland
+                        std::map<std::string, KeySym> key_map;
+                        key_map["a"] = XK_a;
+                        key_map["q"] = XK_q;
+                        Display *dpy = XOpenDisplay(":0");
+                        char keys_return[32];
+                        XQueryKeymap(dpy, keys_return);
+                        KeyCode kc2 = XKeysymToKeycode(dpy, key_map[key]);
+                        bool isPressed = !!(keys_return[kc2 >> 3] & (1 << (kc2 & 7)));
+                        XCloseDisplay(dpy);
+                        return isPressed;
+                    #else
+                        std::cout << "Linux compositor type not selected!" << std::endl;
+                    #endif
+                #endif
+            #elif defined(__APPLE__)
+                std::cout << "on mac!" << std::endl;
+            #else
+                std::cout << "Unsupported os!" << std::endl;
+            #endif
         }
 
     public:
-        void setup(){
-
-        }
-
         void mainloop(){
             while (true){
-                if (detect_keypress(XK_q)){
+                if (detect_keypress("q")){
                     std::cout << "q pressed!" << std::endl;
                     break;
                 }

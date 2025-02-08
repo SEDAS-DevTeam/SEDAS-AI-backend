@@ -47,13 +47,14 @@ def fetch_resource(url, path):
 
 
 @task
-def build(ctx):
+def build(ctx, DTESTING=0, DBUILD=""):
     print("Building main project...")
 
     os.chdir(abs_path)
     print(f"Currently in {os.getcwd()} directory")
-    ctx.run("cmake -B build", pty=True)
+    ctx.run(f"cmake -B build -DTESTING=${DTESTING} -DBUILD=${DBUILD}", pty=True)
     ctx.run("cmake --build build", pty=True)
+
 
 @task
 def run(ctx):

@@ -45,7 +45,6 @@ int main(){
 
     synthesizer.init_pseudopilot("OKL4545", 0.5f); // TODO: just a sample how should the pseudopilot be initialized
 
-    keypress_detector.setup();
     /*
     keypress_detector.mainloop(recorder,
                       recognizer,
