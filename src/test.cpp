@@ -11,11 +11,20 @@
 #include "./include/record.hpp"
 #include "./include/keypress.hpp"
 
+#include "./lib/json/single_include/nlohmann/json.hpp"
+using json = nlohmann::json;
+
 static void signal_handler(int signal){
     if (signal == SIGINT){
         running = false;
     }
 }
+
+json load_config(std::string config_path){
+    std::ifstream config_file(config_path);
+    return json::parse(config_file);
+}
+
 
 int main(){
     // set sigint for graceful stop // TODO: remove (we are now stopping using q button)

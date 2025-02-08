@@ -13,17 +13,10 @@
 #include "./include/keypress.hpp"
 
 int main(){
-    Recorder recorder;
-    recorder.initialize();
-    Recognizer recognizer;
 
-    Processor processor;
-    Classifier classifier;
-    //classifier.set_rules(); // TODO
-
-    Synthesizer synthesizer;
-    synthesizer.setup_model_registry();
-
+    std::cout << "Now running the integration file!" << std::endl;
+    return 0;
+    
     /*
     keypress_detector.mainloop(recorder,
                       recognizer,

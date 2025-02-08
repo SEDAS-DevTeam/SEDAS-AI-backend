@@ -5,6 +5,7 @@ from os.path import join
 import json
 import os
 import requests
+import shutil
 
 
 # some definitions
@@ -47,12 +48,16 @@ def fetch_resource(url, path):
 
 
 @task
-def build(ctx, DTESTING=0, DBUILD=""):
+def build(ctx, DTESTING="ON"):
     print("Building main project...")
 
     os.chdir(abs_path)
     print(f"Currently in {os.getcwd()} directory")
-    ctx.run(f"cmake -B build -DTESTING=${DTESTING}", pty=True)
+    print(DTESTING)
+
+    try: shutil.rmtree(join(abs_path, "build"))
+    except FileNotFoundError: pass
+    ctx.run(f"cmake -B build -D TESTING=${DTESTING}", pty=True)
     ctx.run("cmake --build build", pty=True)
 
 
@@ -60,7 +65,7 @@ def build(ctx, DTESTING=0, DBUILD=""):
 def run(ctx):
     print("Running main project...")
 
-    exec_directory = abs_path + "/build/test"
+    exec_directory = abs_path + "/build/main"
 
     ctx.run(exec_directory, pty=True)
 

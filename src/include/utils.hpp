@@ -8,6 +8,7 @@
 #include <map>
 #include <tuple>
 #include <algorithm>
+#include <array>
 
 // multithread rework
 #include <thread>
@@ -17,15 +18,8 @@
 
 #include <curl/curl.h>
 
-// only used when testing (SEDAS-manager has its own json reader)
-#ifdef TESTING
-#include "../lib/json/single_include/nlohmann/json.hpp"
-#endif TESTING
-
 // definitions/aliases
 namespace fs = std::filesystem;
-using json = nlohmann::json;
-
 typedef std::vector<std::vector<std::string>> str_matrix;
 typedef std::map<std::string, std::string> str_map;
 
@@ -151,11 +145,6 @@ std::string execute_command(const char* cmd, bool verbose = true) {
 int rand_choice(uint32_t npos){
     srand(time(NULL));
     return rand() % npos;
-}
-
-json load_config(std::string config_path){
-    std::ifstream config_file(config_path);
-    return json::parse(config_file);
 }
 
 bool search_vector(std::vector<std::string> vec, std::string input){

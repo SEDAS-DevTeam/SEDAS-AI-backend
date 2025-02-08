@@ -1,3 +1,10 @@
+#include <vector>
+#include <string>
+#include <map>
+
+#include "../lib/json/single_include/nlohmann/json.hpp"
+using json = nlohmann::json;
+
 class Classifier{
     private:
         std::vector<std::string> read_json_array(json obj){
