@@ -35,8 +35,10 @@ To get started, clone this repository, then `cd src`. To get **TTS** resources, 
 After all of this is done, you can finally un `invoke build` followed by `invoke run`.
 
 **NOTE:** for better integration/optimization, there are some build variables that can be passed to `Cmake`, see here below:
-- `--DTESTING` (values: `0` or `1`) &rarr value `1` Outputs file that is used in SEDAS-AI-Backend testing, othewise creates code used for integration to **SEDAS-manager**
-- `--DBUILD` (values: `X_WIN` or `WAYLAND`) &rarr project can detect on which OS is project being built. But in the case of Linux distributions, you need to specify if its built on **Wayland** or **X11**
+
+- `--DTESTING` (values: `0` or `1`) &rarr; value `1` Outputs file that is used in SEDAS-AI-Backend testing, othewise creates code used for integration to **SEDAS-manager**
+
+- `--DBUILD` (values: `X_WIN` or `WAYLAND`) &rarr; project can detect on which OS is project being built. But in the case of Linux distributions, you need to specify if its built on **Wayland** or **X11**
 
 ## Architecture
 
