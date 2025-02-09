@@ -1,6 +1,6 @@
 from invoke import task
 from pathlib import Path
-from os.path import join
+from os.path import join, exists
 
 import json
 import os
@@ -58,14 +58,50 @@ def build(ctx, DTESTING="ON", REMOVEBUILD="ON"):
     if REMOVEBUILD == "ON":
         try: shutil.rmtree(join(abs_path, "build"))
         except FileNotFoundError: pass
+
     ctx.run(f"cmake -B build -D TESTING={DTESTING}", pty=True)
     ctx.run("cmake --build build", pty=True)
+
+    if DTESTING == "ON":
+        src_bin_path = join(abs_path, "build/test")
+        out_bin_path = join(abs_path, "project_build/test")
+    else:
+        src_bin_path = join(abs_path, "build/main")
+        out_bin_path = join(abs_path, "project_build/main")
+
+    src_tts_dir = join(abs_path, "src/PlaneResponse/models/tts")
+    out_tts_dir = join(abs_path, "project_build/tts")
+
+    src_asr_dir = join(abs_path, "src/PlaneResponse/models/asr")
+    out_asr_dir = join(abs_path, "project_build/asr")
+
+    src_config_dir = join(abs_path, "src/PlaneResponse/config")
+    out_config_dir = join(abs_path, "project_build/config")
+
+    print("Moving files to project_build")
+    project_build_path = join(abs_path, "project_build")
+    if not exists(project_build_path):
+        os.mkdir(project_build_path)
+
+        # move tts files
+        shutil.copytree(src_tts_dir, out_tts_dir)
+
+        # move asr files
+        shutil.copytree(src_asr_dir, out_asr_dir)
+
+        # move configs
+        shutil.copytree(src_config_dir, out_config_dir)
+
+    # move main executable
+    shutil.copyfile(src_bin_path, out_bin_path)
+
 
 
 @task
 def run(ctx, exec):
     print("Running main project...")
 
+    # TODO: rework for project build
     asr_path = join(abs_path, "src/PlaneResponse/models/asr")
     tts_path = join(abs_path, "src/PlaneResponse/models/tts")
     config_path = join(abs_path, "src/PlaneResponse/config")
@@ -75,6 +111,18 @@ def run(ctx, exec):
 
     ctx.run(exec_directory, pty=True)
 
+
+@task
+def clean(ctx):
+    # remove build and project_build directories
+
+    project_build_path = join(abs_path, "project_build")
+    build_path = join(abs_path, "build")
+
+    shutil.rmtree(project_build_path)
+    shutil.rmtree(build_path)
+
+    print("Cleaned project output files: /build, /project_build")
 
 @task
 def fetch_resources(ctx):

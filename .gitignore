@@ -3,6 +3,7 @@
 /src/PlaneResponse/__pycache__ 
 # build directory
 /build
+/project_build
 
 ## PlaneResponse
 # ASR resources directory
