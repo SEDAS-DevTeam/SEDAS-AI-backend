@@ -102,25 +102,43 @@ class Recorder{
 
         void initialize(){
             data = initialize_data();
-            stream = start_stream(data);
+            stream = nullptr;
         }
 
         void start(){
+            data.frameIndex = 0;
+            memset(data.recordedSamples, 0, data.maxFrameIndex * NUM_CHANNELS * sizeof(float));
+
+            stream = start_stream(data);
             Pa_StartStream(stream);
         }
 
         void stop(){
-            Pa_StopStream(stream);
-            Pa_CloseStream(stream);
+            if (stream){
+                Pa_StopStream(stream);
+                Pa_CloseStream(stream);
 
-            save_to_wav(wav_out_path.c_str(), data);
+                save_to_wav(wav_out_path.c_str(), data);
 
-            std::string command = "ffmpeg -y -i " + wav_out_path + " -ar 16000 -ac 1 -c:a pcm_s16le " + wav_out_path_fin;
-            execute_command(command.c_str(), false); // ensure conversion (TODO)
+                std::string command = "ffmpeg -y -i " + wav_out_path + " -ar 16000 -ac 1 -c:a pcm_s16le " + wav_out_path_fin;
+                execute_command(command.c_str(), false); // ensure conversion (TODO)
+            }
         }
 
         void terminate(){
+            if (stream){
+                Pa_CloseStream(stream);
+                stream = nullptr;
+            }
+            if (data.recordedSamples){
+                free(data.recordedSamples);
+                data.recordedSamples= nullptr;
+            }
             Pa_Terminate();
+        }
+
+        ~Recorder() {
+            terminate();
         }
 };
 
