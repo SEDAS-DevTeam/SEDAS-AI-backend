@@ -4,6 +4,7 @@ from os.path import join, exists
 
 import json
 import os
+import stat
 import requests
 import shutil
 
@@ -82,6 +83,7 @@ def build(ctx, DTESTING="ON", REMOVEBUILD="ON"):
     project_build_path = join(abs_path, "project_build")
     if not exists(project_build_path):
         os.mkdir(project_build_path)
+        os.mkdir(join(project_build_path, "temp_out"))
 
         # move tts files
         shutil.copytree(src_tts_dir, out_tts_dir)
@@ -95,6 +97,8 @@ def build(ctx, DTESTING="ON", REMOVEBUILD="ON"):
     # move main executable
     shutil.copyfile(src_bin_path, out_bin_path)
 
+    # give it execute permissions
+    os.chmod(out_bin_path, 0o755)
 
 
 @task
@@ -102,12 +106,12 @@ def run(ctx, exec):
     print("Running main project...")
 
     # TODO: rework for project build
-    asr_path = join(abs_path, "src/PlaneResponse/models/asr")
-    tts_path = join(abs_path, "src/PlaneResponse/models/tts")
-    config_path = join(abs_path, "src/PlaneResponse/config")
-    temp_out = join(abs_path, "src/PlaneResponse/temp_out")
+    asr_path = join(abs_path, "project_build/asr")
+    tts_path = join(abs_path, "project_build/tts")
+    config_path = join(abs_path, "project_build/config")
+    temp_out = join(abs_path, "project_build/temp_out")
 
-    exec_directory = abs_path + f"/build/{exec} {asr_path} {tts_path} {config_path} {temp_out}"
+    exec_directory = abs_path + f"/project_build/{exec} {asr_path} {tts_path} {config_path} {temp_out}"
 
     ctx.run(exec_directory, pty=True)
 

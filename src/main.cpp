@@ -9,7 +9,6 @@
 #include "./PlaneResponse/speech_synth.hpp"
 
 #include "./include/record.hpp"
-#include "./include/source_check.hpp"
 #include "./include/keypress.hpp"
 
 int main(int argc, char* argv[]){
