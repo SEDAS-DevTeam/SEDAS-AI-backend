@@ -4,7 +4,7 @@ from os.path import join, exists
 
 import json
 import os
-import stat
+import time
 import requests
 import shutil
 
@@ -83,7 +83,7 @@ def build(ctx, DTESTING="ON", REMOVEBUILD="ON"):
     project_build_path = join(abs_path, "project_build")
     if not exists(project_build_path):
         os.mkdir(project_build_path)
-        os.mkdir(join(project_build_path, "temp_out"))
+        os.mkdir(join(project_build_path, "temp"))
 
         # move tts files
         shutil.copytree(src_tts_dir, out_tts_dir)
@@ -109,11 +109,29 @@ def run(ctx, exec):
     asr_path = join(abs_path, "project_build/asr")
     tts_path = join(abs_path, "project_build/tts")
     config_path = join(abs_path, "project_build/config")
-    temp_out = join(abs_path, "project_build/temp_out")
+    temp = join(abs_path, "project_build/temp")
 
-    exec_directory = abs_path + f"/project_build/{exec} {asr_path} {tts_path} {config_path} {temp_out}"
+    exec_directory = abs_path + f"/project_build/{exec} {asr_path} {tts_path} {config_path} {temp}"
 
     ctx.run(exec_directory, pty=True)
+
+
+@task
+def test_main(ctx):
+    fifo_path = join(abs_path, "project_build/temp/comm")
+    if not os.path.exists(fifo_path):
+        os.mkfifo(fifo_path)
+
+    try:
+        with open(fifo_path, "w") as fifo:
+            while True:
+                message = "Hello from python"
+                fifo.write(message)
+                fifo.flush()
+                print("Wrote: " + message)
+                time.sleep(1)
+    except KeyboardInterrupt:
+        print("Terminate")
 
 
 @task
@@ -127,6 +145,7 @@ def clean(ctx):
     shutil.rmtree(build_path)
 
     print("Cleaned project output files: /build, /project_build")
+
 
 @task
 def fetch_resources(ctx):

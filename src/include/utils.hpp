@@ -17,6 +17,7 @@
 #include <mutex>
 
 #include <curl/curl.h>
+#include <unistd.h> // for sleep
 
 // definitions/aliases
 namespace fs = std::filesystem;
