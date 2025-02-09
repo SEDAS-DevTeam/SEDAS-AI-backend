@@ -21,7 +21,9 @@ class Detect_ncurses{
             cbreak();
             noecho();
             nodelay(stdscr, TRUE);
-            scrollok(stdscr, TRUE);
+            
+            clear();
+            refresh();
         }
 
         void mainloop(Recorder &recorder, 

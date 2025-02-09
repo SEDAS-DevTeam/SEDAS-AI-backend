@@ -25,10 +25,6 @@ typedef std::map<std::string, std::string> str_map;
 
 bool running = true;
 
-const std::string main_path = fs::current_path().u8string() + "/";
-const std::string wav_out_path = main_path + "PlaneResponse/temp_out/controller_unproc.wav";
-const std::string wav_out_path_fin = main_path + "PlaneResponse/temp_out/controller.wav";
-
 // definitions for ATC
 str_map nato_map = {
     { "alpha", "A" },
@@ -156,6 +152,14 @@ std::string execute_command(const char* cmd, bool verbose = true) {
     return result;
 }
 
+std::array<std::string, 5> process_args(char* argv[]){
+    const size_t argc = 5;
+    std::array<std::string, argc> output;
+
+    for (int i = 1; i < argc; i++) output[i - 1] = argv[i];
+    return output;
+}
+
 int rand_choice(uint32_t npos){
     srand(time(NULL));
     return rand() % npos;
@@ -235,10 +239,12 @@ void download_file_from_url(std::string& url, std::string& path){
 
 class Logger {
     private:
-        const std::string LOGFILE_PATH = main_path + "PlaneResponse/temp_out/log.txt";
         FILE *logfile;
     public:
-        Logger(){
+        std::string LOGFILE_PATH;
+
+        Logger(std::string temp_out_path){
+            LOGFILE_PATH = temp_out_path + "/log.txt";
             logfile = fopen(LOGFILE_PATH.c_str(), "w");
         }
         void log(std::string content){

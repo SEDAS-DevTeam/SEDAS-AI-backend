@@ -4,9 +4,6 @@
 #include "../lib/json/single_include/nlohmann/json.hpp"
 using json = nlohmann::json;
 
-std::string COMMAND_STREAM   = main_path + "PlaneResponse/models/tts/piper";
-std::string COMMAND_TEMP_OUT = main_path + "PlaneResponse/temp_out/";
-
 struct WavHeader {
     char riff[4];                // "RIFF"
     uint32_t chunkSize;          // File size - 8 bytes
@@ -105,7 +102,7 @@ class Pseudopilot {
 
             std::string command_result = "echo '" + callsign_dist + ", " + input + "' | "; //source text
             
-            command_result += COMMAND_STREAM;
+            command_result += COMMAND_SYNTH;
             command_result += " --model " + onnx_path;
             command_result += " --output_file " + COMMAND_TEMP_OUT + callsign + ".wav";
             
@@ -128,9 +125,18 @@ class Pseudopilot {
         std::string onnx_path;
         std::string json_path;
 
-        Pseudopilot(std::string init_callsign, float init_intensity){
+        std::string COMMAND_TEMP_OUT;
+        std::string COMMAND_SYNTH;
+
+        Pseudopilot(std::string init_callsign, 
+                    float init_intensity,
+                    std::string command_temp_out,
+                    std::string command_synth){
             callsign = init_callsign;
             noise_intensity = init_intensity;
+
+            COMMAND_TEMP_OUT = command_temp_out;
+            COMMAND_SYNTH = command_synth;
         }
 
         void assign_voice(std::string onnx_config, std::string json_config){
@@ -147,7 +153,6 @@ class Pseudopilot {
 
 class Synthesizer{
     private:
-        std::string COMMAND_MODEL_DIR = main_path + "PlaneResponse/models/tts/voices";
         str_matrix model_registry; // register all models
         str_matrix remaining_models; // keep track of what models were registered
         std::map<std::string, std::string> command_responses;
@@ -173,6 +178,16 @@ class Synthesizer{
             return out;
         }
     public:
+        std::string COMMAND_MODEL_DIR;
+        std::string COMMAND_SYNTH;
+        std::string COMMAND_TEMP_OUT;
+
+        Synthesizer(std::string tts_path, std::string temp_out_path){
+            COMMAND_MODEL_DIR = tts_path + "/voices";
+            COMMAND_SYNTH = tts_path + "/piper";
+            COMMAND_TEMP_OUT = temp_out_path;
+        }
+
         void run(std::string command,
                  std::string value,
                  std::string callsign,
@@ -217,7 +232,10 @@ class Synthesizer{
         /* Pilot commands */
         void init_pseudopilot(std::string callsign, float noise_intensity){
             // setup pseudopilot
-            Pseudopilot spec_pseudopilot(callsign, 0.6);
+            Pseudopilot spec_pseudopilot(callsign, 
+                                         0.6,
+                                         COMMAND_TEMP_OUT,
+                                         COMMAND_SYNTH);
 
             auto [json, onnx] = choose_random_configuration();
             spec_pseudopilot.assign_voice(onnx, json);

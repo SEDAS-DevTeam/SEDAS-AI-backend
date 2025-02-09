@@ -100,6 +100,9 @@ class Recorder{
         AudioData data;
         PaStream* stream;
 
+        std::string wav_out_path;
+        std::string wav_out_path_fin;
+
         void initialize(){
             data = initialize_data();
             stream = nullptr;
@@ -135,6 +138,11 @@ class Recorder{
                 data.recordedSamples= nullptr;
             }
             Pa_Terminate();
+        }
+
+        Recorder(std::string temp_out_path){
+            wav_out_path = temp_out_path + "/controller_unproc.wav";
+            wav_out_path_fin = temp_out_path + "/controller.wav";
         }
 
         ~Recorder() {

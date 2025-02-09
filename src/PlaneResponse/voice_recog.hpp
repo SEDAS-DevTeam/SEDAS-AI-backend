@@ -1,9 +1,5 @@
 class Recognizer {
     private:
-        const std::string COMMAND_BIN = main_path + "PlaneResponse/models/asr/whisper-cli";
-        const std::string COMMAND_MODEL = main_path + "PlaneResponse/models/asr/atc-whisper-ggml.bin";
-        const std::string COMMAND_INP = main_path + "PlaneResponse/temp_out/controller.wav"; 
-        
         std::string extract_after_bracket(std::string input){
             size_t endBracket = input.find("]");
             if (endBracket == std::string::npos) return input; // If bracket not found, return as is
@@ -65,6 +61,16 @@ class Recognizer {
         }
 
     public:
+        std::string COMMAND_BIN;
+        std::string COMMAND_MODEL;
+        std::string COMMAND_INP; 
+
+        Recognizer(std::string asr_path, std::string temp_out_path){
+            COMMAND_BIN = asr_path + "/whisper-cli";
+            COMMAND_MODEL = asr_path  + "/atc-whisper-ggml.bin";
+            COMMAND_INP = temp_out_path  + "/controller.wav";
+        }
+
         std::string run(Logger &logger){
             std::string command = COMMAND_BIN + " -m " + COMMAND_MODEL + " " + COMMAND_INP;
             std::array<char, 128> buffer;

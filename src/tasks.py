@@ -63,10 +63,15 @@ def build(ctx, DTESTING="ON", REMOVEBUILD="ON"):
 
 
 @task
-def run(ctx):
+def run(ctx, exec):
     print("Running main project...")
 
-    exec_directory = abs_path + "/build/test"
+    asr_path = join(abs_path, "src/PlaneResponse/models/asr")
+    tts_path = join(abs_path, "src/PlaneResponse/models/tts")
+    config_path = join(abs_path, "src/PlaneResponse/config")
+    temp_out = join(abs_path, "src/PlaneResponse/temp_out")
+
+    exec_directory = abs_path + f"/build/{exec} {asr_path} {tts_path} {config_path} {temp_out}"
 
     ctx.run(exec_directory, pty=True)
 
@@ -93,6 +98,7 @@ def fetch_resources(ctx):
 
 # runtime
 abs_path = str(Path(__file__).parents[1])
+print(abs_path)
 
 models_url = "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/"
 models_path = join(abs_path, "src/PlaneResponse/models/tts/voices/")

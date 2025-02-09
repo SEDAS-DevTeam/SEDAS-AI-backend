@@ -26,30 +26,36 @@ json load_config(std::string config_path){
 }
 
 
-int main(){
-    // set sigint for graceful stop // TODO: remove (we are now stopping using q button)
-    std::signal(SIGINT, signal_handler);
+int main(int argc, char* argv[]){
+    // number of arguments will always be 5
+    std::array<std::string, 5> output = process_args(argv);
+    
+    const std::string asr_path = output[0];
+    const std::string tts_path = output[1];
+    const std::string config_path = output[2];
+    const std::string temp_out_path = output[3];
 
-    Logger logger; // set primary event logger > logs into file
+    Logger logger(temp_out_path); // set primary event logger > logs into file
 
     // load configurations
-    std::string classify_path = main_path / fs::path("PlaneResponse/config/config_classify.json");
-    std::string synth_path = main_path / fs::path("PlaneResponse/config/config_synth.json");
-    std::string response_path = main_path / fs::path("PlaneResponse/config/config_response.json");
+    std::string classify_path = fs::path(config_path + "/config_classify.json");
+    std::string synth_path = fs::path(config_path + "/config_synth.json");
+    std::string response_path = fs::path(config_path + "/config_response.json");
 
     json config_classify = load_config(classify_path);
     json config_synth = load_config(synth_path);
     json config_response = load_config(response_path);
 
-    Recorder recorder; // setup recording handler through keypress
+    Recorder recorder(temp_out_path); // setup recording handler through keypress
     recorder.initialize();
-    Recognizer recognizer; // setup main ASR
+
+    Recognizer recognizer(asr_path, temp_out_path); // setup main ASR
     
     Processor processor; // setup processor
     Classifier classifier; // setup classifier
     classifier.set_rules(config_classify);
 
-    Synthesizer synthesizer; // setup speech synthesizer
+    Synthesizer synthesizer(tts_path, temp_out_path); // setup speech synthesizer
     synthesizer.setup_model_registry();
     synthesizer.setup_responses(config_response);
 
