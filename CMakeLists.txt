@@ -3,9 +3,13 @@ project(sedas_ai_backend)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+option(TESTING "Enable testing mode" OFF)
 
-find_package(X11 REQUIRED)
-
-add_executable(test ./src/test.cpp)
-target_compile_definitions(test PRIVATE TESTING BUILD)
-target_link_libraries(test PRIVATE curl ncurses portaudio sndfile ${X11_LIBRARIES})
+if(TESTING)
+    set(SOURCE_FILE ./src/test.cpp)
+else()
+    set(SOURCE_FILE ./src/main.cpp)
+endif()
+message(STATUS "Testing is ${TESTING}")
+add_executable(main ${SOURCE_FILE})
+target_link_libraries(main PRIVATE curl ncurses portaudio sndfile ${X11_LIBRARIES})

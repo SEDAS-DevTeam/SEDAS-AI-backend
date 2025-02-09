@@ -57,7 +57,7 @@ def build(ctx, DTESTING="ON"):
 
     try: shutil.rmtree(join(abs_path, "build"))
     except FileNotFoundError: pass
-    ctx.run(f"cmake -B build -D TESTING=${DTESTING}", pty=True)
+    ctx.run(f"cmake -B build -D TESTING={DTESTING}", pty=True)
     ctx.run("cmake --build build", pty=True)
 
 
