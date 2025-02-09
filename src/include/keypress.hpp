@@ -59,7 +59,10 @@ class Detect_ncurses{
                             std::string classifier_input = processor_out[1];
 
                             std::vector<std::string> commands = classifier.run(classifier_input);
-                            //synthesizer.run(plane_command, logger);
+                            synthesizer.run(commands[0],
+                                            values[0],
+                                            callsign,
+                                            logger); // just respond to one command [TODO]
 
                             std::map<std::string, std::any> out_dict;
                             out_dict["callsign"] = callsign;

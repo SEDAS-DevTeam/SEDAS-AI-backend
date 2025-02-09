@@ -67,7 +67,7 @@ To be more specific, here you can see a small flow diagram:
 - [x] finish ATC speech recognition
 - [x] finish processing
 - [x] finish speech synthesis
-- [ ] incorporate into SEDAS-manager (finish integrate.hpp + set rules)
+- [ ] incorporate into SEDAS-manager (finish integrate.cpp + set rules)
 - [x] Add json submodule
 - [x] Add how-to-run in README
 - [x] Modify the whole fetching aparatus

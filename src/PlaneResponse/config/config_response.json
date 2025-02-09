@@ -1,0 +1,16 @@
+{
+    "responses": [
+        {
+            "command": "turn-any",
+            "output": "flying heading"
+        },
+        {
+            "command": "turn-left",
+            "output": "turning left heading"
+        },
+        {
+            "command": "turn-right",
+            "output": "turning right heading"
+        }
+    ]
+}

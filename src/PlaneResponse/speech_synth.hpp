@@ -1,4 +1,8 @@
 #include <random>
+#include <map>
+
+#include "../lib/json/single_include/nlohmann/json.hpp"
+using json = nlohmann::json;
 
 std::string COMMAND_STREAM   = main_path + "PlaneResponse/models/tts/piper";
 std::string COMMAND_TEMP_OUT = main_path + "PlaneResponse/temp_out/";
@@ -146,6 +150,7 @@ class Synthesizer{
         std::string COMMAND_MODEL_DIR = main_path + "PlaneResponse/models/tts/voices";
         str_matrix model_registry; // register all models
         str_matrix remaining_models; // keep track of what models were registered
+        std::map<std::string, std::string> command_responses;
 
         std::vector<Pseudopilot> pseudopilot_registry;
 
@@ -158,9 +163,25 @@ class Synthesizer{
 
             return {json_record, onnx_record};
         }
+
+        std::string convert_value(std::string input){
+            std::string out = "";
+            for (int i = 0; i < input.length(); i++){
+                out += num_map2[std::string(1, input[i])] + ", ";
+            }
+
+            return out;
+        }
     public:
-        void run(std::string command, Logger &logger){
-            
+        void run(std::string command,
+                 std::string value,
+                 std::string callsign,
+                 Logger& logger){
+                    
+            std::string command_fin = command_responses[command] + " " + convert_value(value);
+            logger.log("Pseudopilot response: " + command_fin);
+            logger.log("Callsign: " + callsign);
+            pseudopilot_respond(callsign, command_fin);
         }
 
         void setup_model_registry(){
@@ -181,6 +202,15 @@ class Synthesizer{
                     model_registry.push_back({json_record, onnx_record});
                     remaining_models.push_back({json_record, onnx_record});
                 }
+            }
+        }
+
+        void setup_responses(json responses){
+            for (const auto& response: responses["responses"]){
+                std::string command = response["command"];
+                std::string output = response["output"];
+
+                command_responses[command] = output;
             }
         }
 

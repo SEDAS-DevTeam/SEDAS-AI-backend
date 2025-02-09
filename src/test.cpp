@@ -35,9 +35,11 @@ int main(){
     // load configurations
     std::string classify_path = main_path / fs::path("PlaneResponse/config/config_classify.json");
     std::string synth_path = main_path / fs::path("PlaneResponse/config/config_synth.json");
+    std::string response_path = main_path / fs::path("PlaneResponse/config/config_response.json");
 
     json config_classify = load_config(classify_path);
     json config_synth = load_config(synth_path);
+    json config_response = load_config(response_path);
 
     Recorder recorder; // setup recording handler through keypress
     recorder.initialize();
@@ -49,11 +51,12 @@ int main(){
 
     Synthesizer synthesizer; // setup speech synthesizer
     synthesizer.setup_model_registry();
+    synthesizer.setup_responses(config_response);
 
     Detect_ncurses keypress_detector; // detecting keypress
     keypress_detector.setup();
 
-    synthesizer.init_pseudopilot("OKL4545", 0.5f); // TODO: just a sample how should the pseudopilot be initialized
+    synthesizer.init_pseudopilot("CBA1127", 0.5f); // TODO: just a sample how should the pseudopilot be initialized
 
     keypress_detector.mainloop(recorder,
                       recognizer,
@@ -67,7 +70,7 @@ int main(){
     // str_matrix install_list = check_models(config_synth);
     // refetch_missing(install_list);
 
-    synthesizer.remove_pseudopilot("OKL4545");
+    synthesizer.remove_pseudopilot("CBA1127");
 
 
     logger.log("Program terminated");

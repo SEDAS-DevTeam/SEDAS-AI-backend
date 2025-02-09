@@ -6,7 +6,7 @@
       {
         "label": "build_project",
         "type": "shell",
-        "command": "cd src && invoke build"
+        "command": "cd src && invoke build --DTESTING=ON --REMOVEBUILD=OFF"
       }
     ]
   }

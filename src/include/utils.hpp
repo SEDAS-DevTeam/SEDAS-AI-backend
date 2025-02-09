@@ -73,6 +73,20 @@ str_map num_map = {
     { "nine", "9"} // for mild correction in transcription
 };
 
+// used for conversion back to speech synth
+str_map num_map2 = {
+    { "0", "zero" },
+    { "1", "one" },
+    { "2", "two" },
+    { "3", "three" },
+    { "4", "four" },
+    { "5", "five" },
+    { "6", "six" },
+    { "7", "seven" },
+    { "8", "eight" },
+    { "9", "niner" },
+};
+
 class SEDQueue {
     public:
         std::condition_variable queue_cond_var;

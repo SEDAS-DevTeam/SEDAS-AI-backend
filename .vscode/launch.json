@@ -15,8 +15,7 @@
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
-            "preLaunchTask": "build_project"
+            "preLaunchTask": "build_project",
         }
-
     ]
 }
