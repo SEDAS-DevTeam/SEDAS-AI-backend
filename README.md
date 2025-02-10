@@ -29,26 +29,40 @@ cd SEDAS-AI-backend
 
 ### Installation
 
-Whole library is built around the `invoke` library. There are some requirements to meet in the `requirements.txt`, I recommend **venv** for this.
-To get started, clone this repository, then `cd src`. To get **TTS** resources, run `invoke fetch-resources`. For the **ASR** part, you unfortunately have to copy resulting binaries from [ATC-whisper](https://github.com/SEDAS-DevTeam/ATC-whisper) repository.
+1) Whole library is built around the `invoke` library. There are some requirements to meet in the `requirements.txt`, I recommend **venv** for this.
+2) To get started, clone this repository, then `cd src`. To get **TTS** resources, run `invoke fetch-resources`. For the **ASR** part, you unfortunately have to copy resulting binaries from [ATC-whisper](https://github.com/SEDAS-DevTeam/ATC-whisper) repository.
 
-**NOTE:** for better integration/optimization, there are some build variables that can be passed to `Cmake`, see here below:
-
-- `--DTESTING` (values: `0` or `1`) &rarr; value `1` Outputs file that is used in SEDAS-AI-Backend testing, othewise creates code used for integration to **SEDAS-manager**
-
-#### For testing
+#### For testing (outputs `test` binary)
 
 ``` shell
 invoke build --DTESTING=ON
 invoke run test
 ```
 
-#### For Integration
+#### For Integration (outputs `main` binary)
+
+The integration part runs standalone and communicates using socket communication, by default it uses port 65 432 (**TODO**), to run the main part:
 
 ``` shell
-invoke build --DTESTING=ON
+invoke build --DTESTING=OFF
 invoke run main
 ```
+
+To enable communication (for the integration testing purpose), run command below in separate terminal:
+
+``` shell
+invoke test-main
+```
+
+This will setup commander/writer that connects to the socket server and sends user-prompted commands.
+
+**Some accepted commands:**
+
+- `start-mic` - starts mic recording
+- `stop-mic` - stops mic recording
+- `register [callsign (string)] [noise-intensity (float)]` - registers pseudopilot to communicate with user (write without brackets)
+- `unregister [callsign (string)]` - unregisters pseudopilot (without brackets)
+- `quit` - terminates main file
 
 ## Architecture
 
@@ -77,7 +91,7 @@ To be more specific, here you can see a small flow diagram:
 - [x] finish ATC speech recognition
 - [x] finish processing
 - [x] finish speech synthesis
-- [ ] incorporate into SEDAS-manager (finish integrate.cpp + set rules)
+- [x] incorporate into SEDAS-manager (finish integrate.cpp + set rules)
 - [x] Add json submodule
 - [x] Add how-to-run in README
 - [x] Modify the whole fetching aparatus
@@ -89,10 +103,9 @@ To be more specific, here you can see a small flow diagram:
 - [x] Restructure code, get sentence from whisper stdout
 - [x] Better parsing for Whisper out
 
-## TODO for next versions
-
 - [ ] Get rid of ffmpeg shell calling to check correct audio type
 - [ ] Rework into multithreading for faster processing
 - [x] Don't suppress colors when building
 - [ ] Fix libncurses terminal window hell :(
 - [ ] Change TextProcessing algorithm into something more stable
+- [ ] Change socket server to socket client and vice versa (also corresponds with **SEDAS-manager issue**)
