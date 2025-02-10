@@ -69,8 +69,6 @@ int main(int argc, char* argv[]){
     synthesizer.setup_model_registry();
     synthesizer.setup_responses(config_response);
 
-    synthesizer.init_pseudopilot("CBA1127", 0.5f); // TODO: just a sample how should the pseudopilot be initialized
-
     mainloop(recorder,
              recognizer,
              processor,
@@ -80,7 +78,7 @@ int main(int argc, char* argv[]){
              client_socket);
 
     std::cout << "Pipe closed, exiting program";
-    synthesizer.remove_pseudopilot("CBA1127");
+    synthesizer.remove_all();
     close(client_socket);
     close(server_socket);
     return 0;

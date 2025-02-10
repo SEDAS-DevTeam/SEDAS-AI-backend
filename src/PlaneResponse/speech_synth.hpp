@@ -185,7 +185,7 @@ class Synthesizer{
         Synthesizer(std::string tts_path, std::string temp_out_path){
             COMMAND_MODEL_DIR = tts_path + "/voices";
             COMMAND_SYNTH = tts_path + "/piper";
-            COMMAND_TEMP_OUT = temp_out_path;
+            COMMAND_TEMP_OUT = temp_out_path + "/";
         }
 
         void run(std::string command,
@@ -240,6 +240,17 @@ class Synthesizer{
             auto [json, onnx] = choose_random_configuration();
             spec_pseudopilot.assign_voice(onnx, json);
             pseudopilot_registry.push_back(spec_pseudopilot);
+        }
+
+        void remove_all(){
+            // remove pseudopilots trace
+            for (int i = 0; i < pseudopilot_registry.size(); i++){
+                std::string trace = COMMAND_TEMP_OUT + pseudopilot_registry[i].callsign + ".wav";
+                if (fs::exists(trace)){ fs::remove(trace); }
+            }
+
+            // remove all pseuodpilot records
+            pseudopilot_registry.clear();
         }
 
         void remove_pseudopilot(std::string callsign){

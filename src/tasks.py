@@ -128,7 +128,7 @@ def test_main(ctx):
 
         try:
             while True:
-                print("accepted messages are: start-mic, stop-mic, quit")
+                print("accepted messages are: start-mic, stop-mic, register, unregister, quit")
                 message = input("Send message: ")
                 s.sendall(message.encode())
                 print("Sent: " + message)

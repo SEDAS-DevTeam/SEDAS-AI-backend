@@ -3,6 +3,17 @@
 
 bool recording = false;
 
+std::vector<std::string> separate_by_spaces(std::string input){
+    std::string substr;
+    std::vector<std::string> out;
+    std::stringstream ss(input);
+    while (getline(ss, substr, ' ')){
+        out.push_back(substr);
+    }
+
+    return out;
+}
+
 int initialize_server(){
     return socket(AF_INET, SOCK_STREAM, 0);
 }
@@ -94,7 +105,23 @@ void mainloop(Recorder &recorder,
 
                 log_values(out_dict, logger);
             }
-            else if (message == "quit"){
+            else if (message.find("register") != std::string::npos){
+                std::vector<std::string> args = separate_by_spaces(message);
+                args.erase(args.begin());
+
+                synthesizer.init_pseudopilot(args[0], std::stof(args[1]));
+                std::cout << "Added pseudopilot to registry" << std::endl;
+            }
+            else if (message.find("register") != std::string::npos){
+                std::vector<std::string> args = separate_by_spaces(message);
+                args.erase(args.begin());
+                
+                synthesizer.remove_pseudopilot(args[0]);
+                std::cout << "Removed pseudopilot from registry" << std::endl;
+            }
+
+            
+            if (message == "quit"){
                 std::cout << "killing thread" << std::endl;
                 break;
             }
