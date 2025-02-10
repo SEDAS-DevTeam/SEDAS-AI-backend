@@ -11,11 +11,15 @@
 #include "./include/record.hpp"
 #include "./include/keypress.hpp"
 
-bool keepRunning = true;
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 
 void signalHandler(int signum) {
     std::cout << "\nReceived signal " << signum << ", exiting...\n";
-    keepRunning = false;
+    close(serverSocket);
+    exit(0);
 }
 
 int main(int argc, char* argv[]){
@@ -29,15 +33,43 @@ int main(int argc, char* argv[]){
     const std::string config_path = output[2];
     const std::string temp_out_path = output[3];
 
-    std::string fifo_name = "comm";
-    std::ifstream fifo(temp_out_path + fifo_name);
+    sockaddr_in serverAddress;
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_port = htons(65432);
+    serverAddress.sin_addr.s_addr = INADDR_ANY;
 
-    std::string message;
-    while (keepRunning && std::getline(fifo, message)) {  // Read continuously
-        std::cout << "C++ received: " << message << std::endl;
+    if (bind(serverSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) < 0) {
+        std::cerr << "Bind failed, error: " << strerror(errno) << std::endl;
+        return 1;
+    }
+
+    if (listen(serverSocket, 1) < 0) {
+        std::cerr << "Listen failed, error: " << strerror(errno) << std::endl;
+        return 1;
+    }
+
+
+    std::cout << "Waiting for connection..." << std::endl;
+    
+    int clientSocket = accept(serverSocket, nullptr, nullptr);
+
+    std::cout << "Python connected" << std::endl;
+
+    char buffer[1024] = {0};
+    while (true){
+        int bytesread = read(clientSocket, buffer, sizeof(buffer) - 1);
+        if (bytesread > 0){
+            buffer[bytesread] = '\0';
+            std::cout << "Received" << buffer << std::endl;
+        }
+        else{
+            break;
+        }
     }
 
     std::cout << "Pipe closed, exiting program";
+    close(clientSocket);
+    close(serverSocket);
     return 0;
     
     /*

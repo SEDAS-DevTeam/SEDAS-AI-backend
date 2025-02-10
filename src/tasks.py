@@ -5,6 +5,7 @@ from os.path import join, exists
 import json
 import os
 import time
+import socket
 import requests
 import shutil
 
@@ -118,20 +119,22 @@ def run(ctx, exec):
 
 @task
 def test_main(ctx):
-    fifo_path = join(abs_path, "project_build/temp/comm")
-    if not os.path.exists(fifo_path):
-        os.mkfifo(fifo_path)
+    HOST = "localhost"
+    PORT = 65432
 
-    try:
-        with open(fifo_path, "w") as fifo:
+    print("koule?")
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((HOST, PORT))
+        print("Connected as writer")
+
+        try:
             while True:
-                message = "Hello from python"
-                fifo.write(message)
-                fifo.flush()
-                print("Wrote: " + message)
+                message = "Hello from Python"
+                s.sendall(message.encode())
+                print("Sent: " + message)
                 time.sleep(1)
-    except KeyboardInterrupt:
-        print("Terminate")
+        except KeyboardInterrupt:
+            print("Terminated")
 
 
 @task
@@ -169,7 +172,6 @@ def fetch_resources(ctx):
 
 # runtime
 abs_path = str(Path(__file__).parents[1])
-print(abs_path)
 
 models_url = "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/"
 models_path = join(abs_path, "src/PlaneResponse/models/tts/voices/")
