@@ -102,10 +102,13 @@ To be more specific, here you can see a small flow diagram:
 - [x] Fix wav recording + add whisper processing part
 - [x] Restructure code, get sentence from whisper stdout
 - [x] Better parsing for Whisper out
+- [ ] Change socket server to socket client and vice versa (also corresponds with **SEDAS-manager issue**)
+- [ ] Find a way how to package large asr models
+
+## TODO for next versions
 
 - [ ] Get rid of ffmpeg shell calling to check correct audio type
 - [ ] Rework into multithreading for faster processing
 - [x] Don't suppress colors when building
 - [ ] Fix libncurses terminal window hell :(
 - [ ] Change TextProcessing algorithm into something more stable
-- [ ] Change socket server to socket client and vice versa (also corresponds with **SEDAS-manager issue**)
