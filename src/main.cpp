@@ -9,8 +9,12 @@
 #include "./PlaneResponse/speech_synth.hpp"
 
 #include "./include/record.hpp"
-#include "./include/keypress.hpp"
 #include "./include/socket_utils.hpp"
+
+json load_config(std::string config_path){
+    std::ifstream config_file(config_path);
+    return json::parse(config_file);
+}
 
 int main(int argc, char* argv[]){
 
@@ -21,6 +25,10 @@ int main(int argc, char* argv[]){
     const std::string tts_path = output[1];
     const std::string config_path = output[2];
     const std::string temp_out_path = output[3];
+
+    /*
+    Localhost network settings
+    */
 
     int server_socket = initialize_server();
     sockaddr_in server_address = set_address(65432);
@@ -33,34 +41,47 @@ int main(int argc, char* argv[]){
     int client_socket = accept_socket(server_socket);
     std::cout << "Python connected" << std::endl;
 
-    char buffer[1024] = {0};
-    while (true){
-        int bytesread = read(client_socket, buffer, sizeof(buffer) - 1);
-        if (bytesread > 0){
-            buffer[bytesread] = '\0';
-            std::string message(buffer);
-            std::cout << "Received " << message << std::endl;
+    /*
+    Model configurations
+    */
 
-            if (message == "test"){
-                std::cout << "Invoked test!" << std::endl;
-            }
-            else if (message == "quit"){
-                std::cout << "killing thread" << std::endl;
-                break;
-            }
-        }
-    }
+    Logger logger(temp_out_path);
+
+    // load configurations
+    std::string classify_path = fs::path(config_path + "/config_classify.json");
+    std::string synth_path = fs::path(config_path + "/config_synth.json");
+    std::string response_path = fs::path(config_path + "/config_response.json");
+
+    json config_classify = load_config(classify_path);
+    json config_synth = load_config(synth_path);
+    json config_response = load_config(response_path);
+
+    Recorder recorder(temp_out_path); // setup recording handler through keypress
+    recorder.initialize();
+
+    Recognizer recognizer(asr_path, temp_out_path); // setup main ASR
+    
+    Processor processor; // setup processor
+    Classifier classifier; // setup classifier
+    classifier.set_rules(config_classify);
+
+    Synthesizer synthesizer(tts_path, temp_out_path); // setup speech synthesizer
+    synthesizer.setup_model_registry();
+    synthesizer.setup_responses(config_response);
+
+    synthesizer.init_pseudopilot("CBA1127", 0.5f); // TODO: just a sample how should the pseudopilot be initialized
+
+    mainloop(recorder,
+             recognizer,
+             processor,
+             classifier,
+             synthesizer,
+             logger,
+             client_socket);
 
     std::cout << "Pipe closed, exiting program";
+    synthesizer.remove_pseudopilot("CBA1127");
     close(client_socket);
     close(server_socket);
     return 0;
-    
-    /*
-    keypress_detector.mainloop(recorder,
-                      recognizer,
-                      processor,
-                      classifier,
-                      synthesizer);    
-    */
 }

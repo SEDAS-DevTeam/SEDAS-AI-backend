@@ -1,6 +1,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
+bool recording = false;
+
 int initialize_server(){
     return socket(AF_INET, SOCK_STREAM, 0);
 }
@@ -40,4 +42,62 @@ bool enable_socket_reuse(int server_socket){
 
 int accept_socket(int server_socket){
     return accept(server_socket, nullptr, nullptr);
+}
+
+void mainloop(Recorder &recorder,
+              Recognizer &recognizer,
+              Processor &processor,
+              Classifier &classifier,
+              Synthesizer &synthesizer,
+              Logger &logger,
+              int client_socket){
+    char buffer[1024] = {0};
+    while (true){
+        int bytesread = read(client_socket, buffer, sizeof(buffer) - 1);
+        if (bytesread > 0){
+            buffer[bytesread] = '\0';
+            std::string message(buffer);
+            std::cout << "Received " << message << std::endl;
+
+            if (message == "start-mic"){
+                std::cout << "Started mic recoding!" << std::endl;
+                logger.log("Started recording");
+            
+                recording = true;
+                recorder.start();
+            }
+            else if (message == "stop-mic"){
+                std::cout << "Stopped mic recording!" << std::endl;
+                logger.log("Stopped recording");
+
+                recording = false;
+                recorder.stop();
+
+                Pa_Sleep(100);
+
+                std::string transcription = recognizer.run(logger); // infer the recording output
+
+                auto [processor_out, values] = processor.run(transcription, logger);
+                std::string callsign = processor_out[0];
+                std::string classifier_input = processor_out[1];
+
+                std::vector<std::string> commands = classifier.run(classifier_input);
+                synthesizer.run(commands[0],
+                                values[0],
+                                callsign,
+                                logger); // just respond to one command [TODO]
+
+                std::map<std::string, std::any> out_dict;
+                out_dict["callsign"] = callsign;
+                out_dict["values"] = values;
+                out_dict["commands"] = commands;
+
+                log_values(out_dict, logger);
+            }
+            else if (message == "quit"){
+                std::cout << "killing thread" << std::endl;
+                break;
+            }
+        }
+    }
 }

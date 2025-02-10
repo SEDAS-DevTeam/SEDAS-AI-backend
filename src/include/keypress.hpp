@@ -27,11 +27,11 @@ class Detect_ncurses{
         }
 
         void mainloop(Recorder &recorder, 
-                               Recognizer &recognizer,
-                               Processor &processor,
-                               Classifier &classifier,
-                               Synthesizer &synthesizer,
-                               Logger &logger){
+                      Recognizer &recognizer,
+                      Processor &processor,
+                      Classifier &classifier,
+                      Synthesizer &synthesizer,
+                      Logger &logger){
             while (true){
                 if (detect_keypress()) {
                     int ch = getch();
