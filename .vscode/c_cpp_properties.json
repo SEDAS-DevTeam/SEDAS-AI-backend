@@ -4,9 +4,12 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                ""
+                "",
+                "${workspaceFolder}/src/lib/json/single_include"
             ],
-            "defines": ["TESTING"],
+            "defines": [
+                "TESTING"
+            ],
             "compilerPath": null,
             "cStandard": "c17",
             "cppStandard": "c++17",
