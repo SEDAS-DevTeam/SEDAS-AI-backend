@@ -10,20 +10,9 @@
 
 #include "./include/record.hpp"
 #include "./include/keypress.hpp"
-
-#include <sys/socket.h>
-#include <netinet/in.h>
-
-int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-
-void signalHandler(int signum) {
-    std::cout << "\nReceived signal " << signum << ", exiting...\n";
-    close(serverSocket);
-    exit(0);
-}
+#include "./include/socket_utils.hpp"
 
 int main(int argc, char* argv[]){
-    std::signal(SIGINT, signalHandler);
 
     // number of arguments will always be 5
     std::array<std::string, 5> output = process_args(argv);
@@ -33,43 +22,38 @@ int main(int argc, char* argv[]){
     const std::string config_path = output[2];
     const std::string temp_out_path = output[3];
 
-    sockaddr_in serverAddress;
-    serverAddress.sin_family = AF_INET;
-    serverAddress.sin_port = htons(65432);
-    serverAddress.sin_addr.s_addr = INADDR_ANY;
+    int server_socket = initialize_server();
+    sockaddr_in server_address = set_address(65432);
 
-    if (bind(serverSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) < 0) {
-        std::cerr << "Bind failed, error: " << strerror(errno) << std::endl;
-        return 1;
-    }
-
-    if (listen(serverSocket, 1) < 0) {
-        std::cerr << "Listen failed, error: " << strerror(errno) << std::endl;
-        return 1;
-    }
-
-
+    if (!enable_socket_reuse(server_socket)) return 1;
+    if (!bind_socket(server_address, server_socket)) return 1;
+    if (!socket_listen(server_socket)) return 1;
     std::cout << "Waiting for connection..." << std::endl;
     
-    int clientSocket = accept(serverSocket, nullptr, nullptr);
-
+    int client_socket = accept_socket(server_socket);
     std::cout << "Python connected" << std::endl;
 
     char buffer[1024] = {0};
     while (true){
-        int bytesread = read(clientSocket, buffer, sizeof(buffer) - 1);
+        int bytesread = read(client_socket, buffer, sizeof(buffer) - 1);
         if (bytesread > 0){
             buffer[bytesread] = '\0';
-            std::cout << "Received" << buffer << std::endl;
-        }
-        else{
-            break;
+            std::string message(buffer);
+            std::cout << "Received " << message << std::endl;
+
+            if (message == "test"){
+                std::cout << "Invoked test!" << std::endl;
+            }
+            else if (message == "quit"){
+                std::cout << "killing thread" << std::endl;
+                break;
+            }
         }
     }
 
     std::cout << "Pipe closed, exiting program";
-    close(clientSocket);
-    close(serverSocket);
+    close(client_socket);
+    close(server_socket);
     return 0;
     
     /*

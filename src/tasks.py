@@ -122,17 +122,19 @@ def test_main(ctx):
     HOST = "localhost"
     PORT = 65432
 
-    print("koule?")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
         print("Connected as writer")
 
         try:
             while True:
-                message = "Hello from Python"
+                print("accepted messages are: start-mic, stop-mic")
+                message = input("Send message: ")
                 s.sendall(message.encode())
                 print("Sent: " + message)
-                time.sleep(1)
+                if message == "quit":
+                    print("terminated")
+                    break
         except KeyboardInterrupt:
             print("Terminated")
 
