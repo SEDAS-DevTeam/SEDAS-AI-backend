@@ -126,12 +126,16 @@ void mainloop(Recorder &recorder,
                 synthesizer.init_pseudopilot(args[0], std::stof(args[1]));
                 std::cout << "Added pseudopilot to registry" << std::endl;
             }
-            else if (string_contains(message, "register")){
+            else if (string_contains(message, "unregister")){
                 std::vector<std::string> args = separate_by_spaces(message);
                 args.erase(args.begin());
                 
                 synthesizer.remove_pseudopilot(args[0]);
                 std::cout << "Removed pseudopilot from registry" << std::endl;
+            }
+            else if (string_contains(message, "unregister-all")){
+                synthesizer.remove_all();
+                std::cout << "Removed all pseudopilot from registry" << std::endl;
             }
 
             

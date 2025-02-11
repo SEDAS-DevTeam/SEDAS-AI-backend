@@ -4,7 +4,6 @@ from os.path import join, exists
 
 import json
 import os
-import time
 import socket
 import requests
 import shutil
