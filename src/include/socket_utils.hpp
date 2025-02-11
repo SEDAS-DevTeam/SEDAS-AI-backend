@@ -14,6 +14,11 @@ std::vector<std::string> separate_by_spaces(std::string input){
     return out;
 }
 
+bool string_contains(std::string str, std::string substr){
+    if (str.find(substr) != std::string::npos) return true;
+    else return false;
+}
+
 int initialize_server(){
     return socket(AF_INET, SOCK_STREAM, 0);
 }
@@ -93,26 +98,35 @@ void mainloop(Recorder &recorder,
                 std::string classifier_input = processor_out[1];
 
                 std::vector<std::string> commands = classifier.run(classifier_input);
-                synthesizer.run(commands[0],
-                                values[0],
-                                callsign,
-                                logger); // just respond to one command [TODO]
 
                 std::map<std::string, std::any> out_dict;
                 out_dict["callsign"] = callsign;
                 out_dict["values"] = values;
                 out_dict["commands"] = commands;
 
+                // TODO: just works for one command at the time
+                std::string comm_main = callsign + " " + values[0] + " " + commands[0];
+
+                // send to client socket
+                send(client_socket, comm_main.c_str(), comm_main.size(), 0);
+
+                // respond to command
+                synthesizer.run(commands[0],
+                                values[0],
+                                callsign,
+                                logger); // just respond to one command [TODO]
+
+                // log to file
                 log_values(out_dict, logger);
             }
-            else if (message.find("register") != std::string::npos){
+            else if (string_contains(message, "register") && !string_contains(message, "unregister")){
                 std::vector<std::string> args = separate_by_spaces(message);
                 args.erase(args.begin());
 
                 synthesizer.init_pseudopilot(args[0], std::stof(args[1]));
                 std::cout << "Added pseudopilot to registry" << std::endl;
             }
-            else if (message.find("register") != std::string::npos){
+            else if (string_contains(message, "register")){
                 std::vector<std::string> args = separate_by_spaces(message);
                 args.erase(args.begin());
                 

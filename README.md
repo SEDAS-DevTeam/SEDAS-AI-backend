@@ -104,6 +104,7 @@ To be more specific, here you can see a small flow diagram:
 - [x] Better parsing for Whisper out
 - [ ] Change socket server to socket client and vice versa (also corresponds with **SEDAS-manager issue**)
 - [ ] Find a way how to package large asr models
+- [x] return segmented command and values back to main
 
 ## TODO for next versions
 

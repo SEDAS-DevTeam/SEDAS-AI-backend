@@ -124,6 +124,7 @@ def test_main(ctx):
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
+        s.settimeout(4.0)
         print("Connected as writer")
 
         try:
@@ -132,6 +133,13 @@ def test_main(ctx):
                 message = input("Send message: ")
                 s.sendall(message.encode())
                 print("Sent: " + message)
+
+                try:
+                    response = s.recv(1024).decode()
+                    print("Response: " + response)
+                except socket.timeout:
+                    pass
+
                 if message == "quit":
                     print("terminated")
                     break
