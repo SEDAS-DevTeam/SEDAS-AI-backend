@@ -1,5 +1,6 @@
 #include <random>
 #include <map>
+#include <algorithm>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -144,7 +145,7 @@ class Pseudopilot {
             json_path = json_config;
         }
 
-        void respond(std::string &query){
+        void respond(std::string query){
             synth(query);
             add_noise();
             play();
@@ -278,10 +279,19 @@ class Synthesizer{
         }
 
         void pseudopilot_respond(std::string callsign, std::string input){
+            bool found_pilot = false;
             for (Pseudopilot pseudopilot : pseudopilot_registry){
                 if (pseudopilot.callsign == callsign){
                     pseudopilot.respond(input);
+                    found_pilot = true;
                 }
+            }
+
+            if (!found_pilot){
+                // pseudopilot not found, launching "Say again phrase"
+                int idx = rand_choice(pseudopilot_registry.size());
+                pseudopilot_registry[idx].respond("Say again?");
+                
             }
         }
 };

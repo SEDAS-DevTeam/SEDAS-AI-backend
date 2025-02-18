@@ -120,6 +120,8 @@ class Processor {
         std::pair<std::vector<std::string>, std::vector<std::string>> run(std::string input, Logger &logger){
             auto [callsign, value_extractor_input] = extract_callsign(input);
             auto [values, classifier_input] = extract_values(value_extractor_input);
+            
+            if (values.size() == 0) values.push_back(""); // in case of incorrect segmentation push empty string
 
             return { {callsign, classifier_input}, values };
         }
