@@ -1,12 +1,14 @@
 from invoke import task
 from pathlib import Path
 from os.path import join, exists
+from tqdm import tqdm
 
 import json
 import os
 import socket
 import requests
 import shutil
+import time
 
 
 # some definitions
@@ -40,16 +42,62 @@ def reconstruct_path(model_name):
     return model_onnx, model_json
 
 
-def fetch_resource(url, path):
-    response = requests.get(url)
-    if response.status_code == 200:
-        response.raise_for_status() # Raise an error for bad status codes
-        with open(path, "wb") as file:
-            file.write(response.content)
+def reformat_url(url, filename):
+    return url + filename + "?download=true"
+
+
+def fetch_resource(url, path, in_chunks):
+    if not in_chunks:
+        response = requests.get(url)
+        if response.status_code == 200:
+            response.raise_for_status() # Raise an error for bad status codes
+            with open(path, "wb") as file:
+                file.write(response.content)
+    else:
+        response = requests.get(url, stream=True)
+
+        total_size = int(response.headers.get("content-length"))
+
+        if response.status_code == 200:
+            response.raise_for_status()
+            with open(path, "wb") as model_file:
+                progress_bar = tqdm(desc="Downloading ATC-Whisper binary...",
+                                    total=total_size,
+                                    unit="B",
+                                    unit_scale=True,
+                                    unit_divisor=1024)
+
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        model_file.write(chunk)
+                        progress_bar.update(len(chunk))
+
+
+@task
+def build_deps(ctx):
+    """
+        Building dependencies for the project (in this case the Whisper.cpp submodule)
+    """
+    os.chdir(whisper_cpp_path)
+    print("Building whisper.cpp...")
+    ctx.run(add_args("cmake -B build", "-DGGML_CUDA=1")) # TODO: fetch configuration file from ATC-whisper
+    print("Building whisper.cpp Release...")
+    time.sleep(1) # why does this delay let whisper.cpp compile :( (otherwise, wont work for some reason) TODO (via. ATC-whisper)
+    ctx.run("cmake --build build --config Release")
+
+    whisper_stream_path = join(whisper_cpp_path, "build/bin/whisper-cli")
+    shutil.move(whisper_stream_path, asr_bin)
+    os.chdir(src_path)
+
+    print("Done!")
 
 
 @task
 def build(ctx, DTESTING="ON", REMOVEBUILD="ON"):
+    """
+        Building SEDAS-AI-backend
+    """
+
     print("Building main project...")
 
     os.chdir(abs_path)
@@ -103,6 +151,10 @@ def build(ctx, DTESTING="ON", REMOVEBUILD="ON"):
 
 @task
 def run(ctx, exec):
+    """
+        Running the built executable
+    """
+
     print("Running main project...")
 
     # TODO: rework for project build
@@ -118,6 +170,10 @@ def run(ctx, exec):
 
 @task
 def test_main(ctx):
+    """
+        Testing the SEDAS-AI-backend (built executable) in standalone mode
+    """
+
     HOST = "localhost"
     PORT = 65432
 
@@ -148,7 +204,9 @@ def test_main(ctx):
 
 @task
 def clean(ctx):
-    # remove build and project_build directories
+    """
+        Clean /build and /project_build directories
+    """
 
     project_build_path = join(abs_path, "project_build")
     build_path = join(abs_path, "build")
@@ -160,29 +218,63 @@ def clean(ctx):
 
 
 @task
-def fetch_resources(ctx):
-    print("Fetching model resources...")
+def fetch_resources(ctx, type="all"):
+    """
+        Fetch all the model resources required for running AI backend
+    """
 
-    # Removing the existing ones
-    for model in os.listdir(models_path):
-        if ".gitkeep" in model:
-            continue
+    def download_tts():
+        print("Fetching speech synthesis model resources...")
+        # Removing the existing ones
+        for model in os.listdir(models_path):
+            if ".gitkeep" in model:
+                continue
 
-        os.remove(join(models_path, model))
+            os.remove(join(models_path, model))
 
-    for model_name in config_synth["models"]:
-        onnx_url, json_url = reconstruct_url(models_url, model_name)
-        onnx_path, json_path = reconstruct_path(model_name)
+        for model_name in config_synth["models"]:
+            onnx_url, json_url = reconstruct_url(models_url, model_name)
+            onnx_path, json_path = reconstruct_path(model_name)
 
-        print(f"Fetching {model_name}...")
-        fetch_resource(onnx_url, onnx_path)
-        fetch_resource(json_url, json_path)
+            print(f"Fetching {model_name}...")
+            fetch_resource(onnx_url, onnx_path, False)
+            fetch_resource(json_url, json_path, False)
+
+    def download_asr():
+        print("Fetching ASR model resource...")
+        atc_whisper_url = "https://huggingface.co/HelloWorld7894/SEDAS-whisper/resolve/main/"
+        atc_whisper_model_file = "atc-whisper-ggml.bin"
+        fetch_resource(reformat_url(atc_whisper_url, atc_whisper_model_file), asr_model, True)
+
+    if type == "all":
+        download_tts()
+        download_asr()
+    elif type == "asr": download_asr()
+    elif type == "tts": download_tts()
+
+    print("Done!")
+
+
+@task
+def update_deps(ctx):
+    """
+        Update json library to the newest commit (use only when standalone and not integrated into SEDAS-manager!)
+    """
+    print("Updating json library")
+    ctx.run("git submodule update --remote --recursive", pty=True)
 
 
 # runtime
 abs_path = str(Path(__file__).parents[1])
+src_path = join(abs_path, "src/")
 
 models_url = "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/"
-models_path = join(abs_path, "src/PlaneResponse/models/tts/voices/")
+models_path = join(src_path, "PlaneResponse/models/tts/voices/")
 
-config_synth = load_config(join(abs_path, "src/PlaneResponse/config/config_synth.json"))
+asr_path = join(src_path, "PlaneResponse/models/asr/")
+asr_model = join(asr_path, "atc-whisper-ggml.bin")
+asr_bin = join(asr_path, "whisper-run")
+
+whisper_cpp_path = join(src_path, "lib/whisper.cpp")
+
+config_synth = load_config(join(src_path, "PlaneResponse/config/config_synth.json"))

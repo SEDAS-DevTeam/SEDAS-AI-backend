@@ -1,3 +1,6 @@
 [submodule "src/lib/json"]
 	path = src/lib/json
 	url = https://github.com/nlohmann/json.git
+[submodule "src/lib/whisper.cpp"]
+	path = src/lib/whisper.cpp
+	url = https://github.com/ggml-org/whisper.cpp
