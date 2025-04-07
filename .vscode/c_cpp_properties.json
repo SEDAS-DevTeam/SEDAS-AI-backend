@@ -10,7 +10,7 @@
             "defines": [
                 "TESTING"
             ],
-            "compilerPath": null,
+            "compilerPath": "/usr/bin/g++",
             "cStandard": "c17",
             "cppStandard": "c++17",
             "intelliSenseMode": "linux-gcc-x64"

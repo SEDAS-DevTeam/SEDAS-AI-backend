@@ -8,6 +8,9 @@
 # PyEnv generated
 .python-version
 
+# Clangd generated
+.cache
+
 ## PlaneResponse
 # ASR resources directory
 /src/PlaneResponse/models/asr/*

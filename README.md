@@ -20,49 +20,7 @@ for the Python part:
 
 ## Installation/Usage
 
-### Cloning
-
-``` shell
-git clone --recursive https://github.com/SEDAS-DevTeam/SEDAS-AI-backend.git
-cd SEDAS-AI-backend
-```
-
-### Installation
-
-1) Whole library is built around the `invoke` library. There are some requirements to meet in the `requirements.txt`, I recommend **venv** for this.
-2) To get started, clone this repository, then `cd src`. To get **TTS** resources, run `invoke fetch-resources`. For the **ASR** part, you unfortunately have to copy resulting binaries from [ATC-whisper](https://github.com/SEDAS-DevTeam/ATC-whisper) repository.
-
-#### For testing (outputs `test` binary)
-
-``` shell
-invoke build --DTESTING=ON
-invoke run test
-```
-
-#### For Integration (outputs `main` binary)
-
-The integration part runs standalone and communicates using socket communication, by default it uses port 65 432 (**TODO**), to run the main part:
-
-``` shell
-invoke build --DTESTING=OFF
-invoke run main
-```
-
-To enable communication (for the integration testing purpose), run command below in separate terminal:
-
-``` shell
-invoke test-main
-```
-
-This will setup commander/writer that connects to the socket server and sends user-prompted commands.
-
-**Some accepted commands:**
-
-- `start-mic` - starts mic recording
-- `stop-mic` - stops mic recording
-- `register [callsign (string)] [noise-intensity (float)]` - registers pseudopilot to communicate with user (write without brackets)
-- `unregister [callsign (string)]` - unregisters pseudopilot (without brackets)
-- `quit` - terminates main file
+Installation steps are located in the [SEDAS documentation](https://sedas-docs.readthedocs.io/en/latest/user-manual.html#app-installation)
 
 ## Architecture
 
@@ -82,8 +40,6 @@ To be more specific, here you can see a small flow diagram:
 **2)** voice recognition using Whisper binary <br>
 **3)** simple text processing (callsign and value extraction) <br>
 **4)** more robust classification of corresponding text, to determine command
-
-*NOTE:* For the future, I am still deciding if this repository isn't going to be merged with the **SEDAS - manager** parent repo. This subproject is either going to be added as a submodule or merged.
 
 ## TODO
 
@@ -106,6 +62,9 @@ To be more specific, here you can see a small flow diagram:
 - [ ] Find a way how to package large asr models
 - [x] return segmented command and values back to main
 - [x] Add "Say again" response
+- [x] Add or cases
+- [ ] Fix the feet/flight-level responses
+
 
 ## TODO for next versions
 
