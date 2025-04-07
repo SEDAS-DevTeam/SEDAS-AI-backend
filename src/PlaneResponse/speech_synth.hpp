@@ -1,9 +1,15 @@
+#pragma once
+
+#include <iostream>
 #include <random>
 #include <map>
-#include <algorithm>
+#include "../include/utils.hpp"
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
+
+#include <filesystem>
+namespace fs = std::filesystem;
 
 struct WavHeader {
     char riff[4];                // "RIFF"
@@ -21,7 +27,7 @@ struct WavHeader {
     uint32_t dataSize;           // Audio data size
 };
 
-void add_noise_to_wav(const std::string& input_file, float noiseLevel) {
+inline void add_noise_to_wav(const std::string& input_file, float noiseLevel) {
     // Open input file
     std::ifstream in(input_file, std::ios::binary);
     if (!in) {

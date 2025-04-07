@@ -1,3 +1,8 @@
+#pragma once
+
+#include <string>
+#include "../include/utils.hpp"
+
 class Processor {
     private:
         std::string per_word_loop(std::string input, str_map mod_map, std::string(*func)(std::string, str_map)){

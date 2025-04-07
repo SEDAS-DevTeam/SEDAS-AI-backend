@@ -2,7 +2,8 @@
     Integration file for SEDAS-manager
 */
 
-#include "./include/utils.hpp"
+#include <filesystem>
+
 #include "./PlaneResponse/voice_recog.hpp"
 #include "./PlaneResponse/process.hpp"
 #include "./PlaneResponse/classify.hpp"
@@ -15,6 +16,8 @@ json load_config(std::string config_path){
     std::ifstream config_file(config_path);
     return json::parse(config_file);
 }
+
+namespace fs = std::filesystem;
 
 int main(int argc, char* argv[]){
 

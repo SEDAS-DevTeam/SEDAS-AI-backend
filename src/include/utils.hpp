@@ -1,17 +1,16 @@
+#pragma once
+
 // general
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <csignal>
-#include <filesystem>
 #include <map>
-#include <tuple>
 #include <algorithm>
 #include <array>
 
 // multithread rework
-#include <thread>
 #include <queue>
 #include <condition_variable>
 #include <mutex>
@@ -20,14 +19,13 @@
 #include <unistd.h> // for sleep
 
 // definitions/aliases
-namespace fs = std::filesystem;
 typedef std::vector<std::vector<std::string>> str_matrix;
 typedef std::map<std::string, std::string> str_map;
 
-bool running = true;
+inline bool running = true;
 
 // definitions for ATC
-str_map nato_map = {
+inline str_map nato_map = {
     { "alpha", "A" },
     { "bravo", "B" },
     { "charlie", "C" },
@@ -56,7 +54,7 @@ str_map nato_map = {
     { "zulu", "Z" }
 };
 
-str_map num_map = {
+inline str_map num_map = {
     { "zero", "0" },
     { "one", "1" },
     { "two", "2" },
@@ -71,7 +69,7 @@ str_map num_map = {
 };
 
 // used for conversion back to speech synth
-str_map num_map2 = {
+inline str_map num_map2 = {
     { "0", "zero" },
     { "1", "one" },
     { "2", "two" },
@@ -101,6 +99,9 @@ class SEDQueue {
                 queue.pop();
 
                 return input;
+            }
+            else{
+                return "empty";
             }
         }
 
@@ -136,7 +137,7 @@ class SEDThread {
         void pause(){ thread_stop = true; }
 };
 
-std::string execute_command(const char* cmd, bool verbose = true) {
+inline std::string execute_command(const char* cmd, bool verbose = true) {
     std::array<char, 128> buffer;
     std::string result;
     std::string full_cmd = std::string(cmd) + " 2>&1"; // redirect stderr to stdout
@@ -153,7 +154,7 @@ std::string execute_command(const char* cmd, bool verbose = true) {
     return result;
 }
 
-std::array<std::string, 5> process_args(char* argv[]){
+inline std::array<std::string, 5> process_args(char* argv[]){
     const size_t argc = 5;
     std::array<std::string, argc> output;
 
@@ -161,20 +162,20 @@ std::array<std::string, 5> process_args(char* argv[]){
     return output;
 }
 
-int rand_choice(uint32_t npos){
+inline int rand_choice(uint32_t npos){
     srand(time(NULL));
     return rand() % npos;
 }
 
-bool search_vector(std::vector<std::string> vec, std::string input){
+inline bool search_vector(std::vector<std::string> vec, std::string input){
     return std::find(vec.begin(), vec.end(), input) != vec.end();
 }
 
-bool search_string(std::string str, std::string substr){
+inline bool search_string(std::string str, std::string substr){
     return str.find(substr) != std::string::npos;
 }
 
-std::vector<std::string> split_string(const std::string& str, char delimiter) {
+inline std::vector<std::string> split_string(const std::string& str, char delimiter) {
     std::vector<std::string> tokens;
     std::stringstream ss(str);
     std::string token;
@@ -186,13 +187,13 @@ std::vector<std::string> split_string(const std::string& str, char delimiter) {
     return tokens;
 }
 
-size_t download_callback(void* contents, size_t size, size_t nmemb, std::string* output){
+inline size_t download_callback(void* contents, size_t size, size_t nmemb, std::string* output){
     size_t total_size = size * nmemb;
     output->append((char*)contents, total_size);
     return total_size;
 }
 
-void download_file_from_url(std::string& url, std::string& path){
+inline void download_file_from_url(std::string& url, std::string& path){
 
     CURL* curl = curl_easy_init();
     if (!curl) {

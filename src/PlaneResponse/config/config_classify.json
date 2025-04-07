@@ -11,6 +11,22 @@
         {
             "keywords": ["turn", "left", "heading"],
             "command": "turn-left"
+        },
+        {
+            "keywords": ["climb", "flight", "level"],
+            "command": "climb-fl"
+        },
+        {
+            "keywords": ["climb", "feet"],
+            "command": "climb-feet"
+        },
+        {
+            "keywords": ["descend,descent,decent", "flight", "level"],
+            "command": "descend-fl"
+        },
+        {
+            "keywords": ["descend,descent,decent", "feet"],
+            "command": "descend-feet"
         }
     ]
 }

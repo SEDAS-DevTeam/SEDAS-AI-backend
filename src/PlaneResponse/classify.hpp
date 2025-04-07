@@ -1,6 +1,9 @@
+#pragma once
+
 #include <vector>
 #include <string>
 #include <map>
+#include <sstream>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -32,9 +35,34 @@ class Classifier{
             for (const auto& rule : classifier_rules) {
                 bool passing = true;
                 for (int i = 0; i < rule.second.size(); i++){
-                    if (!check_substr(input, rule.second[i])){
-                        passing = false;
-                        break;
+                    if (rule.second[i].find(',') != std::string::npos){
+                        // there are multiple OR cases
+                        std::string or_cases = rule.second[i];
+
+                        std::vector<std::string> or_cases_vector;
+                        std::stringstream ss(or_cases);
+                        std::string or_case;
+
+                        bool internal_passing = false;
+
+                        while (std::getline(ss, or_case, ',')){
+                            or_cases_vector.push_back(or_case);
+                        }
+
+                        for (int i = 0; i < or_cases_vector.size(); i++){
+                            if (check_substr(input, or_cases_vector[i])){
+                                internal_passing = true;
+                                break;
+                            }
+                        }
+
+                        if (!internal_passing) passing = false;
+                    }
+                    else{
+                        // only one case
+                        if (!check_substr(input, rule.second[i])){
+                            passing = false;
+                        }
                     }
                 }
 

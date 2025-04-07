@@ -11,6 +11,22 @@
         {
             "command": "turn-right",
             "output": "turning right heading"
+        },
+        {
+            "command": "climb-fl",
+            "output": "climbing to flight level"
+        },
+        {
+            "command": "climb-feet",
+            "output": "climbing to TODO"
+        },
+        {
+            "command": "descend-fl",
+            "output": "descending to flight level"
+        },
+        {
+            "command": "descend-feet",
+            "output": "descending to TODO"
         }
     ]
 }

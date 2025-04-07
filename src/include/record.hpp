@@ -1,6 +1,13 @@
+#pragma once
+
+#include <any>
+#include <cstdlib>
+#include <cstring>
 #include <portaudio.h> // for mic recording
 #include <sndfile.h> // for saving wav file
 #include <ncurses.h>
+#include <string>
+#include "../include/utils.hpp"
 
 struct WAVHeader {
     char riff[4];                    // "RIFF"
@@ -53,7 +60,7 @@ static int record_callback(const void *inputBuffer, void *outputBuffer,
     return (data->frameIndex >= data->maxFrameIndex) ? paComplete : paContinue;
 }
 
-void save_to_wav(const char *filename, const AudioData &data){
+inline void save_to_wav(const char *filename, const AudioData &data){
     SF_INFO sfinfo;
     sfinfo.channels = NUM_CHANNELS;
     sfinfo.samplerate = SAMPLE_RATE;
@@ -76,7 +83,7 @@ void save_to_wav(const char *filename, const AudioData &data){
     printw("Recording saved to %s\n", filename);
 }
 
-AudioData initialize_data(){
+inline AudioData initialize_data(){
     Pa_Initialize();
 
     // Allocate memory for audio data
@@ -88,7 +95,7 @@ AudioData initialize_data(){
     return audioData;
 }
 
-PaStream* start_stream(AudioData &data){
+inline PaStream* start_stream(AudioData &data){
     PaStream* stream;
     Pa_OpenDefaultStream(&stream, NUM_CHANNELS, 0, paFloat32, SAMPLE_RATE, FRAMES_PER_BUFFER, record_callback, &data);
 
@@ -150,7 +157,7 @@ class Recorder{
         }
 };
 
-void log_values(std::map<std::string, std::any> out_dict, Logger &logger){
+inline void log_values(std::map<std::string, std::any> out_dict, Logger &logger){
     auto form_vector_out = [](std::any any_vec){ 
         std::string values_out;
         for(const std::string& value : std::any_cast<std::vector<std::string>>(any_vec)) values_out += value + ", ";

@@ -98,6 +98,12 @@ def build(ctx, DTESTING="ON", REMOVEBUILD="ON"):
         Building SEDAS-AI-backend
     """
 
+    def copy_folder(in_dir, out_dir):
+        if exists(out_dir):
+            shutil.rmtree(out_dir)
+
+        shutil.copytree(in_dir, out_dir)
+
     print("Building main project...")
 
     os.chdir(abs_path)
@@ -136,11 +142,11 @@ def build(ctx, DTESTING="ON", REMOVEBUILD="ON"):
         # move tts files
         shutil.copytree(src_tts_dir, out_tts_dir)
 
-        # move asr files
-        shutil.copytree(src_asr_dir, out_asr_dir)
+    # move asr files
+    copy_folder(src_asr_dir, out_asr_dir)
 
-        # move configs
-        shutil.copytree(src_config_dir, out_config_dir)
+    # move configs
+    copy_folder(src_config_dir, out_config_dir)
 
     # move main executable
     shutil.copyfile(src_bin_path, out_bin_path)

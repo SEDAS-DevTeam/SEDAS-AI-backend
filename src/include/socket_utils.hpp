@@ -1,9 +1,21 @@
+#include <cstring>
+#include <iostream>
+#include <string>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <vector>
+#include <any>
 
-bool recording = false;
+#include "../include/utils.hpp"
+#include "../include/record.hpp"
+#include "../PlaneResponse/voice_recog.hpp"
+#include "../PlaneResponse/speech_synth.hpp"
+#include "../PlaneResponse/process.hpp"
+#include "../PlaneResponse/classify.hpp"
 
-std::vector<std::string> separate_by_spaces(std::string input){
+inline bool recording = false;
+
+inline std::vector<std::string> separate_by_spaces(std::string input){
     std::string substr;
     std::vector<std::string> out;
     std::stringstream ss(input);
@@ -14,16 +26,16 @@ std::vector<std::string> separate_by_spaces(std::string input){
     return out;
 }
 
-bool string_contains(std::string str, std::string substr){
+inline bool string_contains(std::string str, std::string substr){
     if (str.find(substr) != std::string::npos) return true;
     else return false;
 }
 
-int initialize_server(){
+inline int initialize_server(){
     return socket(AF_INET, SOCK_STREAM, 0);
 }
 
-sockaddr_in set_address(int port){
+inline sockaddr_in set_address(int port){
     sockaddr_in serverAddress;
     serverAddress.sin_family = AF_INET;
     serverAddress.sin_port = htons(port);
@@ -31,7 +43,7 @@ sockaddr_in set_address(int port){
     return serverAddress;
 }
 
-bool bind_socket(sockaddr_in server_address, int server_socket){
+inline bool bind_socket(sockaddr_in server_address, int server_socket){
     if (bind(server_socket, (struct sockaddr*)&server_address, sizeof(server_address)) < 0) {
         std::cerr << "Bind failed, error: " << strerror(errno) << std::endl;
         return false;
@@ -39,7 +51,7 @@ bool bind_socket(sockaddr_in server_address, int server_socket){
     else return true;
 }
 
-bool socket_listen(int server_socket){
+inline bool socket_listen(int server_socket){
     if (listen(server_socket, 1) < 0) {
         std::cerr << "Listen failed, error: " << strerror(errno) << std::endl;
         return false;
@@ -47,7 +59,7 @@ bool socket_listen(int server_socket){
     else return true;
 }
 
-bool enable_socket_reuse(int server_socket){
+inline bool enable_socket_reuse(int server_socket){
     int opt = 1;
     if (setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0){
         std::cerr << "setsockopt(SO_REUSEADDR) failed, error: " << strerror(errno) << std::endl;
@@ -56,11 +68,11 @@ bool enable_socket_reuse(int server_socket){
     else return true;
 }
 
-int accept_socket(int server_socket){
+inline int accept_socket(int server_socket){
     return accept(server_socket, nullptr, nullptr);
 }
 
-void mainloop(Recorder &recorder,
+inline void mainloop(Recorder &recorder,
               Recognizer &recognizer,
               Processor &processor,
               Classifier &classifier,

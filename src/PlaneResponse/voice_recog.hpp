@@ -1,3 +1,9 @@
+#pragma once
+
+#include <algorithm>
+#include <string>
+#include "../include/utils.hpp"
+
 class Recognizer {
     private:
         std::string extract_after_bracket(std::string input){
