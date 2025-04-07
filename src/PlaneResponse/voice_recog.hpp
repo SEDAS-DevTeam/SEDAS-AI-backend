@@ -66,7 +66,7 @@ class Recognizer {
         std::string COMMAND_INP; 
 
         Recognizer(std::string asr_path, std::string temp_out_path){
-            COMMAND_BIN = asr_path + "/whisper-cli";
+            COMMAND_BIN = asr_path + "/whisper-run";
             COMMAND_MODEL = asr_path  + "/atc-whisper-ggml.bin";
             COMMAND_INP = temp_out_path  + "/controller.wav";
         }
