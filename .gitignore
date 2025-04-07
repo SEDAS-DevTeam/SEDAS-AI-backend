@@ -5,6 +5,9 @@
 /build
 /project_build
 
+# PyEnv generated
+.python-version
+
 ## PlaneResponse
 # ASR resources directory
 /src/PlaneResponse/models/asr/*
