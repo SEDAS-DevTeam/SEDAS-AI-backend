@@ -117,6 +117,12 @@ inline void mainloop(Recorder &recorder,
                 out_dict["commands"] = commands;
 
                 // TODO: just works for one command at the time
+
+                // exception for levels - converting FL (TODO: only treating TL as 1000ft) REWORK LATER
+                if (commands[0] == "level-any-fl"){
+                    values[0] = values[0] + "00";
+                    commands[0] = "level-any";
+                }
                 std::string comm_main = callsign + " " + values[0] + " " + commands[0];
 
                 // send to client socket
