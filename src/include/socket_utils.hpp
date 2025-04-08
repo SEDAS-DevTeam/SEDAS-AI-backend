@@ -111,6 +111,11 @@ inline void mainloop(Recorder &recorder,
 
                 std::vector<std::string> commands = classifier.run(classifier_input);
 
+                // input for synthesizer
+                std::vector<std::string> synth_commands(commands);
+                std::vector<std::string> synth_values(values);
+
+                // just for logging
                 std::map<std::string, std::any> out_dict;
                 out_dict["callsign"] = callsign;
                 out_dict["values"] = values;
@@ -119,18 +124,17 @@ inline void mainloop(Recorder &recorder,
                 // TODO: just works for one command at the time
 
                 // exception for levels - converting FL (TODO: only treating TL as 1000ft) REWORK LATER
-                if (commands[0] == "level-any-fl"){
-                    values[0] = values[0] + "00";
-                    commands[0] = "level-any";
-                }
+                if (search_string(commands[0], "descend-fl") || search_string(commands[0], "climb-fl")){values[0] = values[0] + "00";}
+                if (search_string(commands[0], "descend") || search_string(commands[0], "climb")){commands[0] = "level-any";}
+
                 std::string comm_main = callsign + " " + values[0] + " " + commands[0];
 
                 // send to client socket
                 send(client_socket, comm_main.c_str(), comm_main.size(), 0);
 
                 // respond to command
-                synthesizer.run(commands[0],
-                                values[0],
+                synthesizer.run(synth_commands[0],
+                                synth_values[0],
                                 callsign,
                                 logger); // just respond to one command [TODO]
 

@@ -17,7 +17,7 @@
             "output": "climbing to flight level"
         },
         {
-            "command": "climb-feet",
+            "command": "climb-ft",
             "output": "climbing to TODO"
         },
         {
@@ -25,7 +25,7 @@
             "output": "descending to flight level"
         },
         {
-            "command": "descend-feet",
+            "command": "descend-ft",
             "output": "descending to TODO"
         }
     ]

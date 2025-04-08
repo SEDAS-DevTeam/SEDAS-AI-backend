@@ -14,19 +14,19 @@
         },
         {
             "keywords": ["climb", "flight", "level"],
-            "command": "level-any-fl"
+            "command": "climb-fl"
         },
         {
             "keywords": ["climb", "feet"],
-            "command": "level-any"
+            "command": "climb-ft"
         },
         {
             "keywords": ["descend,descent,decent", "flight", "level"],
-            "command": "level-any-fl"
+            "command": "descend-fl"
         },
         {
             "keywords": ["descend,descent,decent", "feet"],
-            "command": "level-any"
+            "command": "descend-ft"
         }
     ]
 }
