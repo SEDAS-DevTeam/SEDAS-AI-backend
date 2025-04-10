@@ -1,8 +1,10 @@
 #pragma once
 
 #include <iostream>
+#include <iterator>
 #include <random>
 #include <map>
+#include <algorithm>
 #include "../include/utils.hpp"
 
 #include <nlohmann/json.hpp>
@@ -200,10 +202,9 @@ class Synthesizer{
                  std::string callsign,
                  Logger& logger){
                     
-            std::string command_fin = command_responses[command] + " " + convert_value(value);
+            std::string command_fin = pseudopilot_respond(callsign, command, value);
             logger.log("Pseudopilot response: " + command_fin);
             logger.log("Callsign: " + callsign);
-            pseudopilot_respond(callsign, command_fin);
         }
 
         void setup_model_registry(){
@@ -284,20 +285,48 @@ class Synthesizer{
             }
         }
 
-        void pseudopilot_respond(std::string callsign, std::string input){
+        std::string pseudopilot_respond(std::string callsign, std::string input, std::string value){
             bool found_pilot = false;
-            for (Pseudopilot pseudopilot : pseudopilot_registry){
+            bool valid_command = false;
+
+            std::string pseudopilot_readback = "Say again?";
+
+            if (command_responses.find(input) != command_responses.end()) valid_command = true;
+
+            for (Pseudopilot& pseudopilot : pseudopilot_registry){
+
                 if (pseudopilot.callsign == callsign){
-                    pseudopilot.respond(input);
+                    // command invalid but pilot detected
+                    if (valid_command){
+                        pseudopilot_readback = command_responses[input] + " " + convert_value(value);
+                        pseudopilot.respond(pseudopilot_readback);
+                    }
+                    else pseudopilot.respond(pseudopilot_readback);
                     found_pilot = true;
+                    break;
                 }
             }
 
             if (!found_pilot){
-                // pseudopilot not found, launching "Say again phrase"
-                int idx = rand_choice(pseudopilot_registry.size());
-                pseudopilot_registry[idx].respond("Say again?");
+                // pseudopilot not found, try better callsign comparison to find a pilot to say say again
+                std::vector<int> probab_vect = {};
+
+                for (Pseudopilot& pseudopilot : pseudopilot_registry){
+                    int probab = 0;
+                    for (int i = 0; i < callsign.size(); i++){
+                        if (pseudopilot.callsign[i] == callsign[i]) probab += 1;
+                        else break;
+                    }
+                    probab_vect.push_back(probab);
+                }
+
+                auto max_val = std::max_element(probab_vect.begin(), probab_vect.end());
+                int idx = std::distance(probab_vect.begin(), max_val);
+
+                pseudopilot_registry[idx].respond(pseudopilot_readback);
                 
             }
+
+            return pseudopilot_readback;
         }
 };
