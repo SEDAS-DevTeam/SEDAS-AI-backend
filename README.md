@@ -59,17 +59,18 @@ To be more specific, here you can see a small flow diagram:
 - [x] Restructure code, get sentence from whisper stdout
 - [x] Better parsing for Whisper out
 - [ ] Change socket server to socket client and vice versa (also corresponds with **SEDAS-manager issue**)
-- [ ] Find a way how to package large asr models
+- [x] Find a way how to package large asr models
 - [x] return segmented command and values back to main
 - [x] Add "Say again" response
 - [x] Add or cases
-- [ ] Fix the feet/flight-level responses
-
+- [ ] Fix the feet/flight-level responses (feet currently do not work) + add FL and feet limits
+- [x] Better "Say again" response
+- [ ] Rework into multithreading for faster processing
 
 ## TODO for next versions
 
 - [ ] Get rid of ffmpeg shell calling to check correct audio type
-- [ ] Rework into multithreading for faster processing
 - [x] Don't suppress colors when building
 - [ ] Fix libncurses terminal window hell :(
 - [ ] Change TextProcessing algorithm into something more stable
+- [ ] Add time benchmarks + try to optimize

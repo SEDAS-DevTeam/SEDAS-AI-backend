@@ -88,15 +88,11 @@ inline void mainloop(Recorder &recorder,
             std::cout << "Received " << message << std::endl;
 
             if (message == "start-mic"){
-                std::cout << "Started mic recoding!" << std::endl;
-                logger.log("Started recording");
-            
                 recording = true;
                 recorder.start();
             }
             else if (message == "stop-mic"){
-                std::cout << "Stopped mic recording!" << std::endl;
-                logger.log("Stopped recording");
+                logger.log("PTT event");
 
                 recording = false;
                 recorder.stop();
@@ -132,14 +128,16 @@ inline void mainloop(Recorder &recorder,
                 // send to client socket
                 send(client_socket, comm_main.c_str(), comm_main.size(), 0);
 
+                // log to file
+                log_values(out_dict, logger);
+
                 // respond to command
                 synthesizer.run(synth_commands[0],
                                 synth_values[0],
                                 callsign,
                                 logger); // just respond to one command [TODO]
 
-                // log to file
-                log_values(out_dict, logger);
+                logger.pad();
             }
             else if (string_contains(message, "register") && !string_contains(message, "unregister")){
                 std::vector<std::string> args = separate_by_spaces(message);

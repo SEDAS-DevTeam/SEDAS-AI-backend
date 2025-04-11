@@ -50,11 +50,12 @@ class Recognizer {
                 return "";
             }
 
+            data_str = remove_newlines(data_str);
+
             logger.log("Model out: " + data_str);
 
             // some processing
             data_str = extract_after_bracket(data_str);
-            data_str = remove_newlines(data_str);
             data_str = remove_indentation(data_str);
             data_str = to_lower(data_str);
 

@@ -204,7 +204,6 @@ class Synthesizer{
                     
             std::string command_fin = pseudopilot_respond(callsign, command, value);
             logger.log("Pseudopilot response: " + command_fin);
-            logger.log("Callsign: " + callsign);
         }
 
         void setup_model_registry(){

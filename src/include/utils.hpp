@@ -1,6 +1,9 @@
 #pragma once
 
 // general
+#include <cstdio>
+#include <cstring>
+#include <ctime>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -250,9 +253,27 @@ class Logger {
             logfile = fopen(LOGFILE_PATH.c_str(), "w");
         }
         void log(std::string content){
-            fprintf(logfile, "%s\n", content.c_str());
+            if (logfile){
+                time_t timestamp = time(NULL);
+                struct tm datetime = *localtime(&timestamp);
+                
+                size_t time_len = 15;
+                char time_out[time_len];
+                strftime(time_out, time_len, "[%H:%M:%S] ", &datetime);
+
+                fprintf(logfile, "%s\n", (std::string(time_out) + content).c_str());
+                fflush(logfile);
+            }
         }
+
+        void pad(){
+            if (logfile){
+                fprintf(logfile, "\n");
+                fflush(logfile);
+            }
+        }
+
         void end(){
-            fclose(logfile);
+            if (logfile) fclose(logfile);
         }
 };
