@@ -39,10 +39,10 @@ int main(int argc, char* argv[]){
     if (!enable_socket_reuse(server_socket)) return 1;
     if (!bind_socket(server_address, server_socket)) return 1;
     if (!socket_listen(server_socket)) return 1;
-    std::cout << "Waiting for connection..." << std::endl;
+    std::cout << "ready" << std::endl;
     
     int client_socket = accept_socket(server_socket);
-    std::cout << "Python connected" << std::endl;
+    std::cout << "connected" << std::endl;
 
     /*
     Model configurations
