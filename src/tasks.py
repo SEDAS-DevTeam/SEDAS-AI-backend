@@ -93,6 +93,41 @@ def build_deps(ctx):
 
 
 @task
+def test_tts(ctx, test="all"):
+    """
+        Testing all the tts resources so that they are functional and ready for deploy
+    """
+
+    path_to_tts_bin = join(src_path, "PlaneResponse/models/tts/piper")
+    tts_resources_dir = join(src_path, "PlaneResponse/models/tts/voices")
+
+    temptest_dir = join(src_path, "PlaneResponse/temp_out/temptest")
+    os.mkdir(temptest_dir)
+
+    print("Initiating tts test")
+
+    if test == "all":
+        for file in os.listdir(tts_resources_dir):
+            if file == ".gitkeep" or ".onnx.json" in file: continue
+
+            file_path = join(tts_resources_dir, file)
+            out_path = join(temptest_dir, "output.wav")
+
+            print(f"Testing: {file}")
+
+            ctx.run(f"echo 'This is a test' | {path_to_tts_bin} --model {file_path} --output_file {out_path}")
+            ctx.run(f"pw-play {out_path}")
+
+    else:
+        file_path = join(tts_resources_dir, test)
+        out_path = join(temptest_dir, "output.wav")
+
+        ctx.run(f"echo 'This is a test' | {path_to_tts_bin} --model {file_path} --output_file {out_path}")
+        ctx.run(f"pw-play {out_path}")
+
+    shutil.rmtree(temptest_dir)
+
+@task
 def build(ctx, DTESTING="ON", REMOVEBUILD="ON"):
     """
         Building SEDAS-AI-backend

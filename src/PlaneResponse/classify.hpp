@@ -116,7 +116,7 @@ class Classifier{
                     break;
                 }
 
-                if (value >= classifier_limits[command][1] || value <= classifier_limits[command][0]){
+                if (value > classifier_limits[command][1] || value < classifier_limits[command][0]){
                     passing = false;
                     readback_copy = "Negative, say again?"; // TODO: is this a correct way to do it?
                     break;
