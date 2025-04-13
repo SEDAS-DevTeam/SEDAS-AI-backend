@@ -128,10 +128,11 @@ inline void mainloop(Recorder &recorder,
                 // TODO: just works for one command at the time
 
                 auto [valid_structure, des_callsign, des_readback] = synthesizer.validate_command_and_pilot(callsign, commands[0], values[0]); // check if the command structure and callsign is alright
-                auto [valid_values, mod_readback] = classifier.validate_values(commands, values, des_readback, logger); // check for invalid values
 
                 // exception for levels - converting FL (TODO: only treating TL as 1000ft) REWORK LATER
                 if (search_string(commands[0], "descend-fl") || search_string(commands[0], "climb-fl")){values[0] = values[0] + "00";}
+                auto [valid_values, mod_readback] = classifier.validate_values(commands, values, des_readback, logger); // check for invalid values
+
                 if (search_string(commands[0], "descend") || search_string(commands[0], "climb")){commands[0] = "level-any";}
 
                 // log to file
