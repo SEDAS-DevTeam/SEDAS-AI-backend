@@ -5,6 +5,7 @@
 #include <random>
 #include <map>
 #include <algorithm>
+#include <tuple>
 #include "../include/utils.hpp"
 
 #include <nlohmann/json.hpp>
@@ -109,7 +110,7 @@ class Pseudopilot {
                 }
             }
 
-            std::string command_result = "echo '" + callsign_dist + ", " + input + "' | "; //source text
+            std::string command_result = "echo '" + input + ", " + callsign_dist + "' | "; //source text
             
             command_result += COMMAND_SYNTH;
             command_result += " --model " + onnx_path;
@@ -197,13 +198,12 @@ class Synthesizer{
             COMMAND_TEMP_OUT = temp_out_path + "/";
         }
 
-        void run(std::string command,
-                 std::string value,
+        void run(std::string readback,
                  std::string callsign,
                  Logger& logger){
                     
-            std::string command_fin = pseudopilot_respond(callsign, command, value);
-            logger.log("Pseudopilot response: " + command_fin);
+            pseudopilot_respond(callsign, readback);
+            logger.log("Pseudopilot response: " + readback);
         }
 
         void setup_model_registry(){
@@ -284,48 +284,57 @@ class Synthesizer{
             }
         }
 
-        std::string pseudopilot_respond(std::string callsign, std::string input, std::string value){
+        std::tuple<bool, std::string, std::string> validate_command_and_pilot(std::string callsign,
+                                                                              std::string input,
+                                                                              std::string value){
             bool found_pilot = false;
             bool valid_command = false;
 
             std::string pseudopilot_readback = "Say again?";
-
+            
+            // command validation
             if (command_responses.find(input) != command_responses.end()) valid_command = true;
+            
+            // checking if pseudopilot exists
+            for (Pseudopilot& pseudopilot : pseudopilot_registry){
+
+                if (pseudopilot.callsign == callsign){
+                    // pilot detected + valid command
+                    if (valid_command){
+                        pseudopilot_readback = command_responses[input] + " " + convert_value(value);
+                        return std::make_tuple(true, callsign, pseudopilot_readback);
+                    }
+                    // pilot detected + invalid command
+                    else return std::make_tuple(false, callsign, pseudopilot_readback);
+                }
+            }
+
+            // pilot not detected, try better callsign comparison to find a pilot to say say again
+            std::vector<int> probab_vect = {};
+
+            for (Pseudopilot& pseudopilot : pseudopilot_registry){
+                int probab = 0;
+                for (int i = 0; i < callsign.size(); i++){
+                    if (pseudopilot.callsign[i] == callsign[i]) probab += 1;
+                    else break;
+                }
+                probab_vect.push_back(probab);
+            }
+
+            auto max_val = std::max_element(probab_vect.begin(), probab_vect.end());
+            int idx = std::distance(probab_vect.begin(), max_val);
+
+            return std::make_tuple(false, pseudopilot_registry[idx].callsign, pseudopilot_readback);
+        }
+
+        void pseudopilot_respond(std::string callsign,
+                                        std::string readback){
 
             for (Pseudopilot& pseudopilot : pseudopilot_registry){
 
                 if (pseudopilot.callsign == callsign){
-                    // command invalid but pilot detected
-                    if (valid_command){
-                        pseudopilot_readback = command_responses[input] + " " + convert_value(value);
-                        pseudopilot.respond(pseudopilot_readback);
-                    }
-                    else pseudopilot.respond(pseudopilot_readback);
-                    found_pilot = true;
-                    break;
+                    pseudopilot.respond(readback);
                 }
             }
-
-            if (!found_pilot){
-                // pseudopilot not found, try better callsign comparison to find a pilot to say say again
-                std::vector<int> probab_vect = {};
-
-                for (Pseudopilot& pseudopilot : pseudopilot_registry){
-                    int probab = 0;
-                    for (int i = 0; i < callsign.size(); i++){
-                        if (pseudopilot.callsign[i] == callsign[i]) probab += 1;
-                        else break;
-                    }
-                    probab_vect.push_back(probab);
-                }
-
-                auto max_val = std::max_element(probab_vect.begin(), probab_vect.end());
-                int idx = std::distance(probab_vect.begin(), max_val);
-
-                pseudopilot_registry[idx].respond(pseudopilot_readback);
-                
-            }
-
-            return pseudopilot_readback;
         }
 };

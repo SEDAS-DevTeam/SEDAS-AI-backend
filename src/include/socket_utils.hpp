@@ -72,6 +72,14 @@ inline int accept_socket(int server_socket){
     return accept(server_socket, nullptr, nullptr);
 }
 
+inline void command_plane(std::string callsign,
+                          std::vector<std::string> values,
+                          std::vector<std::string> commands,
+                          int client_socket){
+    std::string comm_main = callsign + " " + values[0] + " " + commands[0];
+    send(client_socket, comm_main.c_str(), comm_main.size(), 0);
+}
+
 inline void mainloop(Recorder &recorder,
               Recognizer &recognizer,
               Processor &processor,
@@ -119,22 +127,24 @@ inline void mainloop(Recorder &recorder,
 
                 // TODO: just works for one command at the time
 
+                auto [valid_structure, des_callsign, des_readback] = synthesizer.validate_command_and_pilot(callsign, commands[0], values[0]); // check if the command structure and callsign is alright
+                auto [valid_values, mod_readback] = classifier.validate_values(commands, values, des_readback, logger); // check for invalid values
+
                 // exception for levels - converting FL (TODO: only treating TL as 1000ft) REWORK LATER
                 if (search_string(commands[0], "descend-fl") || search_string(commands[0], "climb-fl")){values[0] = values[0] + "00";}
                 if (search_string(commands[0], "descend") || search_string(commands[0], "climb")){commands[0] = "level-any";}
 
-                std::string comm_main = callsign + " " + values[0] + " " + commands[0];
-
-                // send to client socket
-                send(client_socket, comm_main.c_str(), comm_main.size(), 0);
-
                 // log to file
                 log_values(out_dict, logger);
 
+                if(valid_values && valid_structure){
+                    // send to client socket
+                    command_plane(callsign, values, commands, client_socket);
+                }
+
                 // respond to command
-                synthesizer.run(synth_commands[0],
-                                synth_values[0],
-                                callsign,
+                synthesizer.run(mod_readback,
+                                des_callsign,
                                 logger); // just respond to one command [TODO]
 
                 logger.pad();

@@ -4,6 +4,8 @@
 #include <string>
 #include <map>
 #include <sstream>
+#include <tuple>
+#include "../include/utils.hpp"
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -19,6 +21,7 @@ class Classifier{
 
     public:
         std::map<std::string, std::vector<std::string>> classifier_rules;
+        std::map<std::string, std::vector<int>> classifier_limits;
 
         std::string process_rule_based(std::string input){
             /*
@@ -79,8 +82,10 @@ class Classifier{
             for (const auto& rule : rules["dictionary"]){
                 std::vector<std::string> keywords = read_json_array(rule["keywords"]);
                 std::string command = rule["command"];
+                std::vector<int> limits = rule["limits"];
 
                 classifier_rules[command] = keywords;
+                classifier_limits[command] = limits;
             }
         }
 
@@ -91,5 +96,32 @@ class Classifier{
             commands.push_back(command_out);
 
             return commands;
+        }
+
+        std::tuple<bool, std::string> validate_values(std::vector<std::string> commands,
+                             std::vector<std::string> values,
+                             std::string curr_readback,
+                             Logger logger){
+            bool passing = true;
+            std::string readback_copy = curr_readback;
+
+            for (int i = 0; i < commands.size(); i++){
+                std::string command = commands[i];
+                int value;
+                try {value = std::stoi(values[i]);}
+                catch (...) {
+                    // value is not an actual value, redirecting to say again
+                    passing = false;
+                    readback_copy = "Say again?";
+                    break;
+                }
+
+                if (value >= classifier_limits[command][1] || value <= classifier_limits[command][0]){
+                    passing = false;
+                    readback_copy = "Negative, say again?"; // TODO: is this a correct way to do it?
+                    break;
+                }
+            }
+            return std::make_tuple(passing, readback_copy);
         }
 };

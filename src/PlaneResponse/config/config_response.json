@@ -2,31 +2,31 @@
     "responses": [
         {
             "command": "turn-any",
-            "output": "flying heading"
+            "output": "fly heading"
         },
         {
             "command": "turn-left",
-            "output": "turning left heading"
+            "output": "turn left heading"
         },
         {
             "command": "turn-right",
-            "output": "turning right heading"
+            "output": "turn right heading"
         },
         {
             "command": "climb-fl",
-            "output": "climbing to flight level"
+            "output": "climb to flight level"
         },
         {
             "command": "climb-ft",
-            "output": "climbing to TODO"
+            "output": "climb to TODO"
         },
         {
             "command": "descend-fl",
-            "output": "descending to flight level"
+            "output": "descend to flight level"
         },
         {
             "command": "descend-ft",
-            "output": "descending to TODO"
+            "output": "descend to TODO"
         }
     ]
 }
