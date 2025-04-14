@@ -74,6 +74,29 @@ def fetch_resource(url, path, in_chunks):
 
 
 @task
+def gen_resources(ctx):
+    """
+        Generating resources (primarily the TTS ones)
+    """
+
+    # Generate TTS resources
+    synth_config_path = join(src_path, "PlaneResponse/config/config_synth.json")
+    tts_resources_dir = join(src_path, "PlaneResponse/models/tts/voices")
+
+    temp_dict = {"models": []}
+
+    for file in os.listdir(tts_resources_dir):
+        if file == ".gitkeep" or ".onnx.json" in file: continue
+
+        voice_name = file.replace(".onnx", "")
+        print(f"Voice name: {voice_name}")
+
+        temp_dict["models"].append(voice_name)
+
+    with open(synth_config_path, "w") as file:
+        json.dump(temp_dict, file, indent=4)
+
+@task
 def build_deps(ctx):
     """
         Building dependencies for the project (in this case the Whisper.cpp submodule)

@@ -66,6 +66,8 @@ To be more specific, here you can see a small flow diagram:
 - [ ] Fix the feet/flight-level responses (feet currently do not work) + add FL and feet limits
 - [x] Better "Say again" response
 - [ ] Rework into multithreading for faster processing
+- [x] Getting model file doesn't exist in Piper subprocess
+- [ ] Sometimes, bluetooth devices do not work well (Portaudio errors)
 
 ## TODO for next versions
 

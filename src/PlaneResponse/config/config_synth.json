@@ -1,24 +1,24 @@
 {
     "models": [
-        "en_GB-alan-medium",
-        "en_GB-alba-medium",
-        "en_GB-aru-medium",
-        "en_GB-cori-medium",
-        "en_GB-jenny_dioco-medium",
-        "en_GB-northern_english_male-medium",
-        "en_GB-semaine-medium",
+        "en_US-libritts_r-medium",
+        "en_US-ryan-medium",
         "en_GB-southern_english_female-low",
         "en_GB-vctk-medium",
         "en_US-bryce-medium",
-        "en_US-danny-low",
+        "en_GB-northern_english_male-medium",
+        "en_GB-alba-medium",
         "en_US-hfc_female-medium",
-        "en_US-hfc_male-medium",
+        "en_GB-semaine-medium",
         "en_US-kathleen-low",
+        "en_US-danny-low",
+        "en_US-hfc_male-medium",
+        "en_GB-jenny_dioco-medium",
         "en_US-l2arctic-medium",
-        "en_US-libritts_r-medium",
         "en_US-libritts-high",
-        "en_US-ljspeech-medium",
         "en_US-norman-medium",
-        "en_US-ryan-medium"
+        "en_US-ljspeech-medium",
+        "en_GB-alan-medium",
+        "en_GB-cori-medium",
+        "en_GB-aru-medium"
     ]
 }
