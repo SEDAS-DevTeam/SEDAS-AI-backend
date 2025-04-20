@@ -140,7 +140,12 @@ class SEDThread {
         void pause(){ thread_stop = true; }
 };
 
-inline std::string execute_command(const char* cmd, bool verbose = true) {
+struct command_result{
+    std::string output;
+    int exit_status;
+};
+
+inline command_result execute_command(const char* cmd, bool verbose = true) {
     std::array<char, 128> buffer;
     std::string result;
     std::string full_cmd = std::string(cmd) + " 2>&1"; // redirect stderr to stdout
@@ -154,7 +159,15 @@ inline std::string execute_command(const char* cmd, bool verbose = true) {
             std::cout << buffer.data();
         }
     }
-    return result;
+
+    int exit_code = pclose(pipe.release());
+    if (WIFEXITED(exit_code)) {
+        exit_code = WEXITSTATUS(exit_code);
+    } else {
+        exit_code = -1; // Abnormal termination
+    }
+
+    return {result, exit_code};
 }
 
 inline std::array<std::string, 5> process_args(char* argv[]){

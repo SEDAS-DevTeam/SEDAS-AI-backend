@@ -84,6 +84,21 @@ inline void add_noise_to_wav(const std::string& input_file, float noiseLevel) {
     out.close();
 }
 
+inline command_result execute_synthesis(std::string synth_text,
+                              std::string callsign,
+                              std::string onnx_path,
+                              std::string command,
+                              std::string path_temp_out){
+    std::string command_result = "echo '" + synth_text + "' | "; //source text
+            
+    command_result += command;
+    command_result += " --model " + onnx_path;
+    command_result += " --output_file " + path_temp_out + callsign + ".wav";
+    
+    return execute_command(command_result.c_str());
+    
+}
+
 class Pseudopilot {
     private:
         void synth(const std::string& input){
@@ -110,13 +125,15 @@ class Pseudopilot {
                 }
             }
 
-            std::string command_result = "echo '" + input + ", " + callsign_dist + "' | "; //source text
-            
-            command_result += COMMAND_SYNTH;
-            command_result += " --model " + onnx_path;
-            command_result += " --output_file " + COMMAND_TEMP_OUT + callsign + ".wav";
-            
-            execute_command(command_result.c_str());
+            auto result = execute_synthesis(input + ", " + callsign_dist,
+                                            callsign,
+                                            onnx_path,
+                                            COMMAND_SYNTH,
+                                            COMMAND_TEMP_OUT);
+
+            if (result.exit_status != 0){
+                std::cout << "Command errored!" << std::endl; // Better error catching
+            }
         }
 
         void play(){
@@ -177,6 +194,21 @@ class Synthesizer{
             remaining_models.erase(remaining_models.begin() + idx);
 
             return {json_record, onnx_record};
+        }
+
+        std::tuple<std::string, std::string> choose_specific_configuration(int idx){
+            std::string json_record = remaining_models[idx][0];
+            std::string onnx_record = remaining_models[idx][1];
+
+            remaining_models.erase(remaining_models.begin() + idx);
+
+            return {json_record, onnx_record};
+        }
+
+        bool test_voice(std::string onnx_conf, std::string callsign){
+            auto result = execute_synthesis("test", callsign, onnx_conf, COMMAND_SYNTH, COMMAND_TEMP_OUT);
+            if (result.exit_status != 0) return false;
+            else return true;
         }
 
         std::string convert_value(std::string input){
@@ -244,7 +276,19 @@ class Synthesizer{
                                          COMMAND_TEMP_OUT,
                                          COMMAND_SYNTH);
 
+            if (remaining_models.size() == 0){
+                std::cout << "No models left!" << std::endl; // TODO: implement some fallback into this
+                return;
+            }
             auto [json, onnx] = choose_random_configuration();
+
+            // pseudopilot validation
+            bool voice_ok = test_voice(onnx, callsign);
+            if (!voice_ok){
+                // choose the closest available model
+                auto [json, onnx] = choose_specific_configuration(0);
+            }
+
             spec_pseudopilot.assign_voice(onnx, json);
             pseudopilot_registry.push_back(spec_pseudopilot);
         }

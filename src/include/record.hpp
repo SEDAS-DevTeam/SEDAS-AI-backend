@@ -131,7 +131,10 @@ class Recorder{
                 save_to_wav(wav_out_path.c_str(), data);
 
                 std::string command = "ffmpeg -y -i " + wav_out_path + " -ar 16000 -ac 1 -c:a pcm_s16le " + wav_out_path_fin;
-                execute_command(command.c_str(), false); // ensure conversion (TODO)
+                auto result = execute_command(command.c_str(), false); // ensure conversion (TODO)
+                if (result.exit_status != 0){
+                    std::cout << "Command errored!" << std::endl;
+                }
             }
         }
 
