@@ -209,6 +209,13 @@ inline size_t download_callback(void* contents, size_t size, size_t nmemb, std::
     return total_size;
 }
 
+inline std::string to_lower(const std::string& input) {
+    std::string result = input;
+    std::transform(result.begin(), result.end(), result.begin(),
+                   [](unsigned char c) { return std::tolower(c); });
+    return result;
+}
+
 inline void download_file_from_url(std::string& url, std::string& path){
 
     CURL* curl = curl_easy_init();

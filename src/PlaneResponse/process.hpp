@@ -1,5 +1,6 @@
 #pragma once
 
+#include <sstream>
 #include <string>
 #include "../include/utils.hpp"
 
@@ -28,6 +29,48 @@ class Processor {
             return !input.empty() && std::all_of(input.begin(), input.end(), ::isdigit);
         }
 
+        std::string check_joined_callsign(std::string input){
+            // check if callsign NATO alpha isnt joined together (like "CharlieBravoAlpha1127")
+            
+            std::stringstream ss(input);
+            std::string chunk;
+
+            std::string result_string = "";
+
+            while (ss >> chunk){
+                std::string mod_chunk = to_lower(chunk);
+
+                std::vector<std::string> found_nato_alpha;
+                while (true){
+                    int nato_idx;
+                    std::string callsign_part;
+                    for (const auto& pair : nato_map) {
+                        nato_idx = mod_chunk.find(pair.first);
+                        if (nato_idx != std::string::npos && nato_idx == 0){
+                            callsign_part = pair.first;
+                            break;
+                        }
+                    }
+
+                    if (nato_idx == std::string::npos){
+                        if (mod_chunk.size() != 0) found_nato_alpha.push_back(mod_chunk); // push the remaining string if available
+                        break;
+                    }
+                    else{
+                        found_nato_alpha.push_back(callsign_part);
+                        mod_chunk.erase(nato_idx, callsign_part.size());
+                    }
+                }
+
+                if (found_nato_alpha.size() != 0){
+                    for (const std::string& elem : found_nato_alpha) result_string += elem + " ";
+                }
+                else result_string += mod_chunk + " ";
+            }
+
+            return result_string;
+        }
+
         std::string remove_substr(std::string input, std::string substring){
             size_t pos = input.find(substring);
             if (pos != std::string::npos){
@@ -40,8 +83,10 @@ class Processor {
             std::string callsign;
             std::string other_words = input;
 
+            std::string div_input = check_joined_callsign(input);
+
             // convert all to nato alphabet
-            std::stringstream ss(input);
+            std::stringstream ss(div_input);
             std::string chunk;
             while (ss >> chunk){
                 if (nato_map.find(chunk) != nato_map.end()){ // found nato
