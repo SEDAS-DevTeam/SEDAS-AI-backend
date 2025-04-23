@@ -96,6 +96,7 @@ def gen_resources(ctx):
     with open(synth_config_path, "w") as file:
         json.dump(temp_dict, file, indent=4)
 
+
 @task
 def build_deps(ctx):
     """
@@ -150,8 +151,9 @@ def test_tts(ctx, test="all"):
 
     shutil.rmtree(temptest_dir)
 
+
 @task
-def build(ctx, DTESTING="ON", REMOVEBUILD="ON"):
+def build(ctx, DTESTING="ON", REMOVEBUILD="ON", rewrite=False):
     """
         Building SEDAS-AI-backend
     """
@@ -193,7 +195,10 @@ def build(ctx, DTESTING="ON", REMOVEBUILD="ON"):
 
     print("Moving files to project_build")
     project_build_path = join(abs_path, "project_build")
-    if not exists(project_build_path):
+    if not exists(project_build_path) or rewrite:
+        if rewrite:
+            shutil.rmtree(project_build_path)
+
         os.mkdir(project_build_path)
         os.mkdir(join(project_build_path, "temp"))
 
@@ -288,7 +293,6 @@ def fetch_resources(ctx, type="all"):
     """
 
     def download_tts():
-        print("Fetching speech synthesis model resources...")
         # Removing the existing ones
         for model in os.listdir(models_path):
             if ".gitkeep" in model:
@@ -296,11 +300,10 @@ def fetch_resources(ctx, type="all"):
 
             os.remove(join(models_path, model))
 
-        for model_name in config_synth["models"]:
+        for model_name in tqdm(config_synth["models"], desc="Fetching speech synthesis model resources", unit="model"):
             onnx_url, json_url = reconstruct_url(models_url, model_name)
             onnx_path, json_path = reconstruct_path(model_name)
 
-            print(f"Fetching {model_name}...")
             fetch_resource(onnx_url, onnx_path, False)
             fetch_resource(json_url, json_path, False)
 
@@ -322,7 +325,7 @@ def fetch_resources(ctx, type="all"):
 @task
 def update_deps(ctx):
     """
-        Update json library to the newest commit (use only when standalone and not integrated into SEDAS-manager!)
+        Update json library to the newest commit, use only when standalone and not integrated into SEDAS-manager (then, it is handled by SEDAS-manager update script)
     """
     print("Updating json library")
     ctx.run("git submodule update --remote --recursive", pty=True)
