@@ -11,11 +11,8 @@
 
 #include "./include/record.hpp"
 #include "./include/socket_utils.hpp"
+#include "./include/utils.hpp"
 
-json load_config(std::string config_path){
-    std::ifstream config_file(config_path);
-    return json::parse(config_file);
-}
 
 namespace fs = std::filesystem;
 
@@ -55,6 +52,9 @@ int main(int argc, char* argv[]){
     std::string synth_path = fs::path(config_path + "/config_synth.json");
     std::string response_path = fs::path(config_path + "/config_response.json");
 
+    // for saving currently utilised TTS models
+    std::string session_memory_path = fs::path(temp_out_path + "/session.json");
+
     json config_classify = load_config(classify_path);
     json config_synth = load_config(synth_path);
     json config_response = load_config(response_path);
@@ -68,7 +68,7 @@ int main(int argc, char* argv[]){
     Classifier classifier; // setup classifier
     classifier.set_rules(config_classify);
 
-    Synthesizer synthesizer(tts_path, temp_out_path); // setup speech synthesizer
+    Synthesizer synthesizer(tts_path, temp_out_path, session_memory_path); // setup speech synthesizer
     synthesizer.setup_model_registry();
     synthesizer.setup_responses(config_response);
 
@@ -80,7 +80,7 @@ int main(int argc, char* argv[]){
              logger,
              client_socket);
 
-    std::cout << "Pipe closed, exiting program";
+    std::cout << "Pipe closed, exiting program" << std::endl;
     synthesizer.remove_all();
     close(client_socket);
     close(server_socket);

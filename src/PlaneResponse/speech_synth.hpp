@@ -6,6 +6,8 @@
 #include <map>
 #include <algorithm>
 #include <tuple>
+#include <cstdio>
+#include <regex>
 #include "../include/utils.hpp"
 
 #include <nlohmann/json.hpp>
@@ -184,6 +186,9 @@ class Synthesizer{
         str_matrix remaining_models; // keep track of what models were registered
         std::map<std::string, std::string> command_responses;
 
+        json memory_data;
+        std::string memory_path;
+
         std::vector<Pseudopilot> pseudopilot_registry;
 
         std::tuple<std::string, std::string> choose_random_configuration(){
@@ -224,10 +229,57 @@ class Synthesizer{
         std::string COMMAND_SYNTH;
         std::string COMMAND_TEMP_OUT;
 
-        Synthesizer(std::string tts_path, std::string temp_out_path){
+        Synthesizer(std::string tts_path, std::string temp_out_path, std::string session_memory_path){
             COMMAND_MODEL_DIR = tts_path + "/voices";
             COMMAND_SYNTH = tts_path + "/piper";
             COMMAND_TEMP_OUT = temp_out_path + "/";
+
+            memory_path = session_memory_path;
+
+            if (fs::exists(session_memory_path)){
+                // memory file exists, time to read last backup
+                memory_data = load_config(session_memory_path);
+
+                for (const auto& pseudopilot : memory_data["pseudopilots"]){
+                    std::string callsign = pseudopilot.value("callsign", "none");
+                    float intensity = pseudopilot.value("intensity", 0.0f);
+                    std::string json_path = pseudopilot.value("tts_path", "none");
+
+                    if (callsign == "none"){
+                        // something really bad happened -> reiniting memory again
+                        init_session_memory();
+                    }
+
+                    // setup pseudopilot
+                    Pseudopilot spec_pseudopilot(callsign, 
+                        intensity,
+                        COMMAND_TEMP_OUT,
+                        COMMAND_SYNTH);
+
+                    // get onnx path
+                    std::string onnx_path = std::regex_replace(json_path, std::regex(".json"), "");
+
+                    spec_pseudopilot.assign_voice(onnx_path, json_path);
+                    pseudopilot_registry.push_back(spec_pseudopilot);
+
+                    std::cout << "Initialized pseudopilot from recent session" << std::endl;
+                    std::cout << "-----------------" << std::endl;
+                    std::cout << callsign << std::endl;
+                    std::cout << intensity << std::endl;
+                    std::cout << json_path << std::endl;
+                    std::cout << "-----------------" << std::endl;
+
+                }
+            }
+            else{
+                // memory file doesn't exist, time to create one
+                init_session_memory();
+            }
+        }
+
+        void init_session_memory(){
+            memory_data["pseudopilots"] = json::array();
+            write_config(memory_path, memory_data);
         }
 
         void run(std::string readback,
@@ -270,26 +322,37 @@ class Synthesizer{
 
         /* Pilot commands */
         void init_pseudopilot(std::string callsign, float noise_intensity){
-            // setup pseudopilot
-            Pseudopilot spec_pseudopilot(callsign, 
-                                         0.6,
-                                         COMMAND_TEMP_OUT,
-                                         COMMAND_SYNTH);
-
+            // get pseudopilot voice
             if (remaining_models.size() == 0){
                 std::cout << "No models left!" << std::endl; // TODO: implement some fallback into this
                 return;
             }
-            auto [json, onnx] = choose_random_configuration();
+            auto [json_conf, onnx_conf] = choose_random_configuration();
 
             // pseudopilot validation
-            bool voice_ok = test_voice(onnx, callsign);
+            bool voice_ok = test_voice(onnx_conf, callsign);
             if (!voice_ok){
                 // choose the closest available model
-                auto [json, onnx] = choose_specific_configuration(0);
+                auto [json_conf, onnx_conf] = choose_specific_configuration(0);
             }
 
-            spec_pseudopilot.assign_voice(onnx, json);
+            // assign to session memory
+            json pseudopilot_data = {
+                {"callsign", callsign},
+                {"intensity", noise_intensity},
+                {"tts_path", json_conf}
+
+            };
+            memory_data["pseudopilots"].push_back(pseudopilot_data);
+            write_config(memory_path, memory_data);
+
+            // setup pseudopilot
+            Pseudopilot spec_pseudopilot(callsign, 
+                                         noise_intensity,
+                                         COMMAND_TEMP_OUT,
+                                         COMMAND_SYNTH);
+
+            spec_pseudopilot.assign_voice(onnx_conf, json_conf);
             pseudopilot_registry.push_back(spec_pseudopilot);
         }
 
@@ -302,6 +365,11 @@ class Synthesizer{
 
             // remove all pseuodpilot records
             pseudopilot_registry.clear();
+
+            // removing session memory
+            int result = remove(memory_path.c_str());
+            if (result == 0) std::cerr << "File deletion success" << std::endl;
+            else std::cerr << "File deletion failed" << std::endl;
         }
 
         void remove_pseudopilot(std::string callsign){

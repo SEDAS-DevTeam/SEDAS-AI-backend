@@ -20,12 +20,14 @@
 
 #include <curl/curl.h>
 #include <unistd.h> // for sleep
+#include <nlohmann/json.hpp>
 
 // definitions/aliases
 typedef std::vector<std::vector<std::string>> str_matrix;
 typedef std::map<std::string, std::string> str_map;
 
 inline bool running = true;
+using json = nlohmann::json;
 
 // definitions for ATC
 inline str_map nato_map = {
@@ -260,6 +262,19 @@ inline void download_file_from_url(std::string& url, std::string& path){
 
     // Clean up
     curl_easy_cleanup(curl);
+}
+
+inline json load_config(std::string config_path){
+    std::ifstream config_file(config_path);
+    return json::parse(config_file);
+}
+
+inline void write_config(std::string config_path, json data){
+    std::ofstream config_file(config_path);
+    if (config_file.is_open()){
+        config_file << data.dump(4);
+        config_file.close();
+    }
 }
 
 class Logger {
