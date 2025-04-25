@@ -240,6 +240,7 @@ class Synthesizer{
                 // memory file exists, time to read last backup
                 memory_data = load_config(session_memory_path);
 
+                // register pseudopilots
                 for (const auto& pseudopilot : memory_data["pseudopilots"]){
                     std::string callsign = pseudopilot.value("callsign", "none");
                     float intensity = pseudopilot.value("intensity", 0.0f);

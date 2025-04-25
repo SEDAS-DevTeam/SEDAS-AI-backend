@@ -72,7 +72,7 @@ To be more specific, here you can see a small flow diagram:
 - [ ] Session sometimes unexpectedly crashes at transcription when saying non-ATC words - **URGENT**
 - [ ] Add better error catching
 - [x] Add module state save when crashing
-- [ ] Add controller.wav and controller_unproc.wav deletion upon process exit
+- [x] Add controller.wav and controller_unproc.wav deletion upon process exit
 
 ## TODO for next versions
 

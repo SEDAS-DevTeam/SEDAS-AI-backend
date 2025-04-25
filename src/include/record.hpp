@@ -7,7 +7,10 @@
 #include <sndfile.h> // for saving wav file
 #include <ncurses.h>
 #include <string>
+#include <filesystem>
 #include "../include/utils.hpp"
+
+namespace fs = std::filesystem;
 
 struct WAVHeader {
     char riff[4];                    // "RIFF"
@@ -148,6 +151,11 @@ class Recorder{
                 data.recordedSamples= nullptr;
             }
             Pa_Terminate();
+        }
+
+        void cleanup(){
+            if (fs::exists(wav_out_path)) fs::remove(wav_out_path);
+            if (fs::exists(wav_out_path_fin)) fs::remove(wav_out_path_fin);
         }
 
         Recorder(std::string temp_out_path){

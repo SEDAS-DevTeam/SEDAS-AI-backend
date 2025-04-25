@@ -72,6 +72,16 @@ int main(int argc, char* argv[]){
     synthesizer.setup_model_registry();
     synthesizer.setup_responses(config_response);
 
+    // check if unprocessed ATCo commands exist
+    if (fs::exists(temp_out_path + "/controller.wav")){
+        process_controller_mic(recognizer, 
+                               processor, 
+                               classifier, 
+                               logger, 
+                               synthesizer, 
+                               client_socket);
+    }
+
     mainloop(recorder,
              recognizer,
              processor,
@@ -82,6 +92,7 @@ int main(int argc, char* argv[]){
 
     std::cout << "Pipe closed, exiting program" << std::endl;
     synthesizer.remove_all();
+    recorder.cleanup();
     close(client_socket);
     close(server_socket);
     return 0;

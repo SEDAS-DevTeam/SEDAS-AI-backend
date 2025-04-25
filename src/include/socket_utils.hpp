@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cstring>
 #include <iostream>
 #include <string>
@@ -80,6 +82,58 @@ inline void command_plane(std::string callsign,
     send(client_socket, comm_main.c_str(), comm_main.size(), 0);
 }
 
+inline void process_controller_mic(Recognizer &recognizer,
+                                Processor &processor,
+                                Classifier &classifier,
+                                Logger &logger,
+                                Synthesizer &synthesizer,
+                                int client_socket){
+    Pa_Sleep(100);
+
+    std::string transcription = recognizer.run(logger); // infer the recording output
+
+    auto [processor_out, values] = processor.run(transcription, logger);
+    std::string callsign = processor_out[0];
+    std::string classifier_input = processor_out[1];
+
+    std::vector<std::string> commands = classifier.run(classifier_input);
+
+    // input for synthesizer
+    std::vector<std::string> synth_commands(commands);
+    std::vector<std::string> synth_values(values);
+
+    // just for logging
+    std::map<std::string, std::any> out_dict;
+    out_dict["callsign"] = callsign;
+    out_dict["values"] = values;
+    out_dict["commands"] = commands;
+
+    // TODO: just works for one command at the time
+
+    auto [valid_structure, des_callsign, des_readback] = synthesizer.validate_command_and_pilot(callsign, commands[0], values[0]); // check if the command structure and callsign is alright
+
+    // exception for levels - converting FL (TODO: only treating TL as 1000ft) REWORK LATER
+    if (search_string(commands[0], "descend-fl") || search_string(commands[0], "climb-fl")){values[0] = values[0] + "00";}
+    auto [valid_values, mod_readback] = classifier.validate_values(commands, values, des_readback, logger); // check for invalid values
+
+    if (search_string(commands[0], "descend") || search_string(commands[0], "climb")){commands[0] = "level-any";}
+
+    // log to file
+    log_values(out_dict, logger);
+
+    if(valid_values && valid_structure){
+        // send to client socket
+        command_plane(callsign, values, commands, client_socket);
+    }
+
+    // respond to command
+    synthesizer.run(mod_readback,
+                    des_callsign,
+                    logger); // just respond to one command [TODO]
+
+    logger.pad();
+}
+
 inline void mainloop(Recorder &recorder,
               Recognizer &recognizer,
               Processor &processor,
@@ -105,50 +159,7 @@ inline void mainloop(Recorder &recorder,
                 recording = false;
                 recorder.stop();
 
-                Pa_Sleep(100);
-
-                std::string transcription = recognizer.run(logger); // infer the recording output
-
-                auto [processor_out, values] = processor.run(transcription, logger);
-                std::string callsign = processor_out[0];
-                std::string classifier_input = processor_out[1];
-
-                std::vector<std::string> commands = classifier.run(classifier_input);
-
-                // input for synthesizer
-                std::vector<std::string> synth_commands(commands);
-                std::vector<std::string> synth_values(values);
-
-                // just for logging
-                std::map<std::string, std::any> out_dict;
-                out_dict["callsign"] = callsign;
-                out_dict["values"] = values;
-                out_dict["commands"] = commands;
-
-                // TODO: just works for one command at the time
-
-                auto [valid_structure, des_callsign, des_readback] = synthesizer.validate_command_and_pilot(callsign, commands[0], values[0]); // check if the command structure and callsign is alright
-
-                // exception for levels - converting FL (TODO: only treating TL as 1000ft) REWORK LATER
-                if (search_string(commands[0], "descend-fl") || search_string(commands[0], "climb-fl")){values[0] = values[0] + "00";}
-                auto [valid_values, mod_readback] = classifier.validate_values(commands, values, des_readback, logger); // check for invalid values
-
-                if (search_string(commands[0], "descend") || search_string(commands[0], "climb")){commands[0] = "level-any";}
-
-                // log to file
-                log_values(out_dict, logger);
-
-                if(valid_values && valid_structure){
-                    // send to client socket
-                    command_plane(callsign, values, commands, client_socket);
-                }
-
-                // respond to command
-                synthesizer.run(mod_readback,
-                                des_callsign,
-                                logger); // just respond to one command [TODO]
-
-                logger.pad();
+                process_controller_mic(recognizer, processor, classifier, logger, synthesizer, client_socket);
             }
             else if (string_contains(message, "register") && !string_contains(message, "unregister")){
                 std::vector<std::string> args = separate_by_spaces(message);
