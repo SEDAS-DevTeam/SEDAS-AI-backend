@@ -69,7 +69,6 @@ To be more specific, here you can see a small flow diagram:
 - [x] Getting model file doesn't exist in Piper subprocess
 - [ ] Bluetooth devices do not work well (Portaudio errors)
 - [x] Sometimes the ASR model is joining NATO Alpha together (like WhiskeyAlphaOscar1122)
-- [ ] Session sometimes unexpectedly crashes at transcription when saying non-ATC words - **URGENT**
 - [ ] Add better error catching
 - [x] Add module state save when crashing
 - [x] Add controller.wav and controller_unproc.wav deletion upon process exit
